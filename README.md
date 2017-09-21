@@ -42,14 +42,14 @@ read / write issues.
 ### Payload<O>
 
 A Payload class represents N dimensional data that is packaged and is dispatched and fetched from Inlets. Internally, the Payload
-consists of a vector<vector<unsigned int>> of dimensions and a vector<shared_ptr<I>> of I* data produced in the Pipeline. Payloads 
-automatically wrap the I* pointer into a share_ptr<I> so the user need not worry about it. A single Payload may be sent to 
-multiple other PipelineStages thanks to the shared_ptr<I>. 
+consists of a vector<vector<unsigned int>> of dimensions and a vector<shared_ptr<I>> of I* data produced in the Pipeline. Payloads automatically wrap the I* pointer into a share_ptr<I> so the user need not worry about it. A single Payload may be sent to multiple other PipelineStages thanks to the shared_ptr<I>. 
 
 For example, a user may produce a single 2D array of 4096 x 2048 data, in which case the Payload would contain:
   * Dimension Vector - vector<vector<unsigned int>(4096, 2048)>>
   * Data - vector<shared_ptr<I>(*data)>
 Adding dimensions and data can be done using .addData(vector<unsigned int>, I*).
+
+Once a Payload has been packaged, it should be considered READ ONLY!
 
 Once the Payload<I> has been used, it should be cleaned up by calling .finished() so the shared_ptr<I> reference is decremented.
 
