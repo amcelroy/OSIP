@@ -1,4 +1,4 @@
-![alt-text](https://www.bme.utexas.edu/images/stories/department_logos/2015_New_Identity/Cockrell_RGB_formal_BME.jpg)
+![alt-text](https://github.com/amcelroy/OSIP/blob/master/Cockrell_RGB_formal_BME.jpg)
 
 # OSIP
 Open Source Imaging Platform (OSIP)
