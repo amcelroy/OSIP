@@ -28,6 +28,7 @@ combination of the following:
   * double
   * std::complex< float >
   * std::complex< double >
+  
 PipelineStages are connected via an Inlet<I> class, each PipelineStage has at least one Inlet<I>, even if it isn't used, as in
 the case of a data acquistion stage. A PipelineStage may have many connecting Inlet<O> classes from other PipelineStages. For 
 example, a daq stage would flow into a saving stage and a processing stage.
