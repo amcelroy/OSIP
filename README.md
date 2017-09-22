@@ -13,7 +13,7 @@ code is written mostly in C++11 with front end work done in Qt. Qt is the main I
 
 ## OSIP Concepts
 Below outlines the following concepts of how OSIP interacts with itself and why it may help out your DAQ system. Through out the 
-documentation, class I represents the input class, and class O represents the output class.
+documentation, classes I represents the input class, and class O represents the output class.
 
 ### PipelineStage<class I, class O>
 One of the main class that forms the underpinning of OSIP. The PipelineStage is a templated class where I and O can be any 
@@ -26,32 +26,30 @@ combination of the following:
   * unsigned int
   * float
   * double
-  * std::complex< float >
-  * std::complex< double >
+  * std::complex&lt;loat>
+  * std::complex&lt;double >
   
-PipelineStages are connected via an Inlet<I> class, each PipelineStage has at least one Inlet<I>, even if it isn't used, as in
-the case of a data acquistion stage. A PipelineStage may have many connecting Inlet<O> classes from other PipelineStages. For 
-example, a daq stage would flow into a saving stage and a processing stage.
+PipelineStages are connected via an Inlet&lt;I> class, each PipelineStage has at least one Inlet&lt;I>, even if it isn't used, as in the case of a data acquistion stage. A PipelineStage may have many connecting Inlet&lt;O> classes from other PipelineStages. For example, a daq stage would flow into a saving stage and a processing stage.
 
-### Inlet<I> 
+### Inlet&lt;I> 
 
-The Inlet<I> class exists in all PipelineStages and consists of a thread safe data queue that lossily keeps track of input data.
+The Inlet&lt;I> class exists in all PipelineStages and consists of a thread safe data queue that lossily keeps track of input data.
 Internally, there is an std:queue that holds Payload data (see below) and is protected by a mutex to prevent cross-thread 
 read / write issues.
 
-### Payload<O>
+### Payload&lt;O>
 
 A Payload class represents N dimensional data that is packaged and is dispatched and fetched from Inlets. Internally, the Payload
-consists of a vector<vector<unsigned int>> of dimensions and a vector<shared_ptr<I>> of I* data produced in the Pipeline. Payloads automatically wrap the I* pointer into a share_ptr<I> so the user need not worry about it. A single Payload may be sent to multiple other PipelineStages thanks to the shared_ptr<I>. 
+consists of a vector<vector<unsigned int>> of dimensions and a vector<shared_ptr&lt;I>> of I* data produced in the Pipeline. Payloads automatically wrap the I* pointer into a share_ptr&lt;I> so the user need not worry about it. A single Payload may be sent to multiple other PipelineStages thanks to the shared_ptr&lt;I>. 
 
 For example, a user may produce a single 2D array of 4096 x 2048 data, in which case the Payload would contain:
-  * Dimension Vector - vector<vector<unsigned int>(4096, 2048)>>
-  * Data - vector<shared_ptr<I>(*data)>
+  * Dimension Vector - vector<vector&lt;unsigned int>(4096, 2048)>>
+  * Data - vector<shared_ptr&lt;I>(*data)>
 Adding dimensions and data can be done using .addData(vector<unsigned int>, I*).
 
 Once a Payload has been packaged, it should be considered READ ONLY!
 
-Once the Payload<I> has been used, it should be cleaned up by calling .finished() so the shared_ptr<I> reference is decremented.
+Once the Payload&lt;I> has been used, it should be cleaned up by calling .finished() so the shared_ptr&lt;I> reference is decremented.
 
 
 
