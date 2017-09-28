@@ -52,52 +52,56 @@ void OCTPipelineStageCPU::stageThread(){
         return;
 
     while(!stopThread){
-        //dequeue data
-        Payload<unsigned short> p = fetchPayload();
-
-        if(!p.isValid()){
+        if(pauseThread){
             pipelineSleep(10);
         }else{
-            //operate on p
-            vector<unsigned int> dim = p.getFirstDimension();
-            int totalDim = 1;
-            for(unsigned int i : dim){
-                totalDim *= i;
+            //dequeue data
+            Payload<unsigned short> p = fetchPayload();
+
+            if(!p.isValid()){
+                pipelineSleep(10);
+            }else{
+                //operate on p
+                vector<unsigned int> dim = p.getFirstDimension();
+                int totalDim = 1;
+                for(unsigned int i : dim){
+                    totalDim *= i;
+                }
+
+                unsigned short* in = p.getFirstData().get();
+
+                //Apply hanning
+                for(int i = 0; i < totalDim; i++){
+                    fft_in[i] = in[i]*_Gain - _Bias;
+                }
+
+                //All done with the input data
+                p.finished();
+
+                //FFT
+                fftwf_execute_dft_r2c(_fftplan, fft_in, fft_out);
+
+                float* intensity = new float[_fft_out_size*_AScansPerBScan];
+                float* phase = new float[_fft_out_size*_AScansPerBScan];
+
+                //Compute Log10 and phase
+                thread intensity_thread(&OCTPipelineStageCPU::_computeIntensity, this, fft_out, intensity);
+                thread phase_thread(&OCTPipelineStageCPU::_computePhase, this, fft_out, phase);
+
+                intensity_thread.join();
+                phase_thread.join();
+
+                //package
+                Payload<float> p_out;
+                p_out.addData(vector<unsigned int>(_fft_out_size, _AScansPerBScan), intensity);
+                p_out.addData(vector<unsigned int>(_fft_out_size, _AScansPerBScan), phase);
+
+                //send
+                sendPayload(p_out);
+
+                //Release the payload on our end
+                p_out.finished();
             }
-
-            unsigned short* in = p.getFirstData().get();
-
-            //Apply hanning
-            for(int i = 0; i < totalDim; i++){
-                fft_in[i] = in[i]*_Gain - _Bias;
-            }
-
-            //All done with the input data
-            p.finished();
-
-            //FFT
-            fftwf_execute_dft_r2c(_fftplan, fft_in, fft_out);
-
-            float* intensity = new float[_fft_out_size*_AScansPerBScan];
-            float* phase = new float[_fft_out_size*_AScansPerBScan];
-
-            //Compute Log10 and phase
-            thread intensity_thread(&OCTPipelineStageCPU::_computeIntensity, this, fft_out, intensity);
-            thread phase_thread(&OCTPipelineStageCPU::_computePhase, this, fft_out, phase);
-
-            intensity_thread.join();
-            phase_thread.join();
-
-            //package
-            Payload<float> p_out;
-            p_out.addData(vector<unsigned int>(_fft_out_size, _AScansPerBScan), intensity);
-            p_out.addData(vector<unsigned int>(_fft_out_size, _AScansPerBScan), phase);
-
-            //send
-            sendPayload(p_out);
-
-            //Release the payload on our end
-            p_out.finished();
         }
     }
 

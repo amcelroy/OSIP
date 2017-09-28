@@ -7,6 +7,7 @@
 #include "payload.h"
 #include <mutex>
 #include <complex>
+#include "boost/signals2.hpp"
 
 using namespace std;
 
@@ -14,6 +15,8 @@ template<class I>
 class Inlet
 {
 private:
+    boost::signals2::signal<void(int)> sig_ElementsInQueue;
+
     /**
      * @brief _InQueue Input queue to write / read data from
      */
@@ -40,6 +43,11 @@ public:
      */
     Payload<I> readData();
 
+    /**
+     * @brief notifyQueueSize Adds a subscriber that gets notified about the size of elements in the Inlet queue
+     * @param sub Subscriber
+     */
+    void notifyQueueSize(const boost::signals2::signal<void(int)> &sub) { sig_ElementsInQueue.connect(sub); }
 };
 
 #endif // INLET_H
