@@ -54,27 +54,27 @@ public:
      * @brief notifyFinished Add a subscriber to get notified when the PipelineStage has finished
      * @param subscriber
      */
-    void notifyFinished(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_StageFinished.connect(subscriber); }
+    void subscribeFinished(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_StageFinished.connect(subscriber); }
 
     /**
      * @brief notifyStarted Add a subscriber to get notified when the PipelineStage has started
      * @param subscriber
      */
-    void notifyStarted(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_StageStarted.connect(subscriber); }
+    void subscribeStarted(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_StageStarted.connect(subscriber); }
 
     /**
      * @brief notifyTiming Add a subscriber to get notified when the PipelineStage completes, usually in the stageThread
      * virtual function
      * @param subscriber
      */
-    void notifyTiming(const boost::signals2::signal<void(float)>::slot_type &subscriber) { sig_StageTimer.connect(subscriber); }
+    void subscribeTiming(const boost::signals2::signal<void(float)>::slot_type &subscriber) { sig_StageTimer.connect(subscriber); }
 
 protected:
     virtual void preStage();
 
     virtual void postStage();
 
-    virtual void stageThread();
+    virtual void workStage();
 
     /**
      * @brief _Inlet Allocated during object instantiation

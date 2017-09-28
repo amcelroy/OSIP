@@ -15,7 +15,7 @@ public:
 private:
     void preStage();
 
-    void stageThread();
+    void workStage();
 
     void postStage();
 

@@ -47,7 +47,7 @@ public:
      * @brief notifyQueueSize Adds a subscriber that gets notified about the size of elements in the Inlet queue
      * @param sub Subscriber
      */
-    void notifyQueueSize(const boost::signals2::signal<void(int)> &sub) { sig_ElementsInQueue.connect(sub); }
+    void subscribeQueueSize(const boost::signals2::signal<void(int)> &sub) { sig_ElementsInQueue.connect(sub); }
 };
 
 #endif // INLET_H

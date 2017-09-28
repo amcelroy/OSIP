@@ -1,0 +1,11 @@
+/build-DAQPipelineStages-Desktop_Qt_5_9_1_clang_64bit-Debug/
+/build-OCT_GUI-Desktop_Qt_5_9_1_clang_64bit-Debug/
+/build-OpenSourceOCT_GUI-Desktop_Qt_5_9_1_clang_64bit-Debug/
+/build-Pipeline-Clone_of_Desktop_Qt_5_9_1_gcc_64bit-Debug/
+/build-PipelineTest-Clone_of_Desktop_Qt_5_9_1_gcc_64bit-Debug/
+/build-PipelineTest-Desktop_Qt_5_9_1_clang_64bit-Debug/
+/build-SignalProcessingPipelineStages-Desktop_Qt_5_9_1_clang_64bit-Debug/
+/Pipeline-Build/
+*.dylib
+/build-PipelineStage-Desktop_Qt_5_9_1_clang_64bit-Debug/
+/build-ProcessingPipelineStages-Desktop_Qt_5_9_1_clang_64bit-Debug/

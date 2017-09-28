@@ -48,6 +48,7 @@ public:
         this->_data = move(obj._data);
         this->_dim = move(obj._dim);
         this->vectorValid = obj.vectorValid;
+        return *this;
     }
 
     void addData(vector<unsigned int> dim, I* data) {

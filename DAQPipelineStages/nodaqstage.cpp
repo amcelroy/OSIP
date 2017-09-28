@@ -9,7 +9,7 @@ void NoDAQStage::preStage(){
 
 }
 
-void NoDAQStage::stageThread(){
+void NoDAQStage::workStage(){
 
     int i = 0;
     while(!stopThread){

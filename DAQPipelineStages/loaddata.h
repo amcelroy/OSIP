@@ -17,7 +17,7 @@ public:
 protected:
     void preStage();
 
-    void stageThread();
+    void workStage();
 
     void postStage();
 

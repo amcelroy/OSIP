@@ -1,6 +1,6 @@
 #include <QCoreApplication>
 
-#include "SignalProcessingPipelineStages/octpipelinestage_cpu.h"
+#include "ProcessingPipelineStages/octpipelinestage_cpu.h"
 #include "DAQPipelineStages/nodaqstage.h"
 #include "DAQPipelineStages/loaddata.h"
 

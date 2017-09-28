@@ -17,26 +17,28 @@ void PipelineStage<I, O>::connect(shared_ptr<Inlet<O>> inlet)
 
 template<class I, class O>
 void PipelineStage<I, O>::preStage(){
-
+    sig_StageStarted();
 }
 
 template<class I, class O>
 void PipelineStage<I, O>::postStage(){
-
+    sig_StageFinished();
 }
 
 template<class I, class O>
-void PipelineStage<I, O>::stageThread(){
+void PipelineStage<I, O>::workStage(){
 
 }
 
 template<class I, class O>
 void PipelineStage<I, O>::start(){
+    sig_StageFinished();
+
     stopThread = false;
 
     preStage();
 
-    _StageThread = thread(&PipelineStage<I,O>::stageThread, this);
+    _StageThread = thread(&PipelineStage<I,O>::workStage, this);
 }
 
 template<class I, class O>

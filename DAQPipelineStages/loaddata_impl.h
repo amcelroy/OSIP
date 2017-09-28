@@ -25,7 +25,7 @@ void LoadData<I>::preStage()
 }
 
 template<class I>
-void LoadData<I>::stageThread()
+void LoadData<I>::workStage()
 {
     ifstream in;
     in.open(_Filepath, ios::in | ios::binary);
