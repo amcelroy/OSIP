@@ -35,13 +35,14 @@ HEADERS += \
     loaddata_impl.h
 
 INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$PWD/../boost_1_65
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
 
-unix|win32: LIBS += -L$$PWD/../ -lPipeline.1.0.0 -lDAQPipelineStages
+unix|win32: LIBS += -L$$PWD/../ -lPipeline.1.0.0
 
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../

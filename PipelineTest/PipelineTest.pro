@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$PWD/../boost_1_65
 DEPENDPATH += $$PWD/../
 
 
@@ -40,7 +41,7 @@ unix|win32: LIBS += -L$$PWD/../ -lDAQPipelineStages.1.0.0
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
 
-unix|win32: LIBS += -L$$PWD/../ -lSignalProcessingPipelineStages.1.0.0
+unix|win32: LIBS += -L$$PWD/../ -lProcessingPipelineStages.1.0.0
 
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
