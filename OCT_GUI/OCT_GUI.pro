@@ -31,3 +31,17 @@ HEADERS += \
     menubackend.h \
     bscanrendergl.h \
     bscanqml.h
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../release/ -lPipeline.1.0.0
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../debug/ -lPipeline.1.0.0
+else:unix: LIBS += -L$$PWD/../ -lPipeline.1.0.0
+
+INCLUDEPATH += $$PWD/../
+DEPENDPATH += $$PWD/../
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../release/ -lProcessingPipelineStages.1.0.0
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../debug/ -lProcessingPipelineStages.1.0.0
+else:unix: LIBS += -L$$PWD/../ -lProcessingPipelineStages.1.0.0
+
+INCLUDEPATH += $$PWD/../
+DEPENDPATH += $$PWD/../

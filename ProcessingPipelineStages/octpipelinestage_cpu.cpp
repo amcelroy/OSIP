@@ -1,5 +1,7 @@
 #include "octpipelinestage_cpu.h"
 
+using namespace OSIP;
+
 OCTPipelineStageCPU::OCTPipelineStageCPU(float Gain, float Bias, int PointsPerAScan, int AScansPerBScan)
 {
     _Gain = Gain;
@@ -118,7 +120,8 @@ void OCTPipelineStageCPU::postStage(){
 
 void OCTPipelineStageCPU::_computeIntensity(fftwf_complex *f, float *intensity){
     for(int i = 0; i < _fft_out_size*_AScansPerBScan; i++){
-        intensity[i] = 20*log10f(f[i][0]*f[i][1]);
+        float mag = (f[i][0]*f[i][0] + f[i][1]*f[i][1]);
+        intensity[i] = 10*log10f(mag);
     }
 }
 

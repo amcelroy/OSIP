@@ -3,6 +3,8 @@
 
 #include "payload.h"
 
+using namespace OSIP;
+
 template <class I>
 Payload<I>::Payload(vector<unsigned int> dim, I *data)
 {

@@ -2,14 +2,17 @@
 
 #include "ProcessingPipelineStages/octpipelinestage_cpu.h"
 #include "DAQPipelineStages/nodaqstage.h"
-#include "DAQPipelineStages/loaddata.h"
+#include "DAQPipelineStages/loadoctpipeline.h"
+
+using namespace OSIP;
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    OCTPipelineStageCPU octProc(.1, 0, 1024, 1024);
-    LoadData<unsigned short> loadOCT;
+    OCTPipelineStageCPU octProc(4/(powf(2, 12)), 2, 1376, 512);
+    LoadOCTPipeline<unsigned short> loadOCT;
+    loadOCT.open("/Users/amcelroy/Code/OSIP/test_data/data.bin", 512, vector<unsigned int>() = {512, 1376});
 
 
     //shared_ptr<Inlet<unsigned char>> t = fft.getInlet();

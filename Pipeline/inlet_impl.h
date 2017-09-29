@@ -3,6 +3,8 @@
 
 #include "inlet.h"
 
+using namespace OSIP;
+
 template<class I>
 Inlet<I>::Inlet()
 {

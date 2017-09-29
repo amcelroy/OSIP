@@ -25,14 +25,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         alazartechdaqstage.cpp \
     nodaqstage.cpp \
-    loaddata.cpp
+    loadoctpipeline.cpp
 
 HEADERS += \
         alazartechdaqstage.h \
         daqpipelinestages_global.h \ 
     nodaqstage.h \
-    loaddata.h \
-    loaddata_impl.h
+    loadoctpipeline.h \
+    loadoctpipeline_impl.h
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../boost_1_65

@@ -36,7 +36,8 @@ SOURCES += \
     inlet.cpp \
     pipelinestage.cpp \
     daqstage.cpp \
-    payload.cpp
+    payload.cpp \
+    savingstage.cpp
 
 HEADERS += \
     pipeline_global.h \
@@ -47,7 +48,9 @@ HEADERS += \
     daqstage.h \
     daqstage_impl.h \
     payload.h \
-    payload_impl.h
+    payload_impl.h \
+    savingstage.h \
+    savingstage_impl.h \
 
 unix {
     target.path = /usr/lib

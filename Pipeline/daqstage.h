@@ -4,11 +4,12 @@
 #include "pipeline_global.h"
 #include "pipelinestage.h"
 
-template<class O>
-class DAQStage : public PipelineStage<O, O>
-{
-public:
-    DAQStage();
-};
-
+namespace OSIP {
+    template<class O>
+    class DAQStage : public PipelineStage<O, O>
+    {
+    public:
+        DAQStage();
+    };
+}
 #endif // DAQSTAGE_H

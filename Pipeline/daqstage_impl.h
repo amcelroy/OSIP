@@ -3,6 +3,8 @@
 
 #include "daqstage.h"
 
+using namespace OSIP;
+
 template<class O>
 DAQStage<O>::DAQStage()
 {

@@ -2,16 +2,18 @@
 #define LOADDATA_IMPL_H
 
 #include "daqpipelinestages_global.h"
-#include "loaddata.h"
+#include "loadoctpipeline.h"
+
+using namespace OSIP;
 
 template<class I>
-LoadData<I>::LoadData()
+LoadOCTPipeline<I>::LoadOCTPipeline()
 {
 
 }
 
 template<class I>
-void LoadData<I>::open(string FilenamePath, int N, vector<unsigned int> dim)
+void LoadOCTPipeline<I>::open(string FilenamePath, int N, vector<unsigned int> dim)
 {
     _Filepath = FilenamePath;
     _N = N;
@@ -19,13 +21,13 @@ void LoadData<I>::open(string FilenamePath, int N, vector<unsigned int> dim)
 }
 
 template<class I>
-void LoadData<I>::preStage()
+void LoadOCTPipeline<I>::preStage()
 {
 
 }
 
 template<class I>
-void LoadData<I>::workStage()
+void LoadOCTPipeline<I>::workStage()
 {
     ifstream in;
     in.open(_Filepath, ios::in | ios::binary);
@@ -38,6 +40,9 @@ void LoadData<I>::workStage()
     for(unsigned int ui : _dim){
         bufferSize *= ui;
     }
+
+    int I_size = sizeof(I);
+    bufferSize *= I_size;
 
     for(int i = 0; i < _N; i++){
         char* buffer = new char[bufferSize];
@@ -58,7 +63,7 @@ void LoadData<I>::workStage()
 }
 
 template<class I>
-void LoadData<I>::postStage()
+void LoadOCTPipeline<I>::postStage()
 {
 
 }

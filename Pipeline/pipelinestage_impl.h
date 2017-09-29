@@ -3,6 +3,8 @@
 
 #include "pipelinestage.h"
 
+using namespace OSIP;
+
 template<class I, class O>
 PipelineStage<I, O>::PipelineStage()
 {
