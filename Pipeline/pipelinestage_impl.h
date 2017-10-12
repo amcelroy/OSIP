@@ -18,6 +18,12 @@ void PipelineStage<I, O>::connect(shared_ptr<Inlet<O>> inlet)
 }
 
 template<class I, class O>
+void PipelineStage<I, O>::log(string msg){
+    _Log.push_back(msg);
+    sig_MessageLogged(msg);
+}
+
+template<class I, class O>
 void PipelineStage<I, O>::preStage(){
     sig_StageStarted();
 }

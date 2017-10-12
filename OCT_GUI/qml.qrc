@@ -1,8 +1,7 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
+<RCC>
     <qresource prefix="/">
         <file>main.qml</file>
         <file>glcode.js</file>
-        <file>three.js</file>
+        <file>BScan.js</file>
     </qresource>
 </RCC>

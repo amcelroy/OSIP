@@ -13,11 +13,14 @@ LoadOCTPipeline<I>::LoadOCTPipeline()
 }
 
 template<class I>
-void LoadOCTPipeline<I>::open(string FilenamePath, int N, vector<unsigned int> dim)
-{
-    _Filepath = FilenamePath;
-    _N = N;
-    _dim = dim;
+void LoadOCTPipeline<I>::configureOCTData(string path, OCTConfig *conf){
+    _Filepath = path;
+    _N = conf->TotalBScans;
+    unsigned long dim1 = conf->PointsPerAScan;
+    unsigned long dim2 = conf->AScansPerBScan - conf->StartTrim - conf->StopTrim;
+    _dim = vector<unsigned long>();
+    _dim.push_back(dim1);
+    _dim.push_back(dim2);
 }
 
 template<class I>
@@ -36,26 +39,32 @@ void LoadOCTPipeline<I>::workStage()
         return;
     }
 
-    long bufferSize = 1;
-    for(unsigned int ui : _dim){
-        bufferSize *= ui;
+    unsigned long arraySize = 1;
+    for(unsigned long ui : _dim){
+        arraySize *= ui;
     }
 
-    int I_size = sizeof(I);
-    bufferSize *= I_size;
+    int I_size = sizeof(I) / sizeof(unsigned char);
+    unsigned long bufferSize = arraySize*I_size;
 
     for(int i = 0; i < _N; i++){
         char* buffer = new char[bufferSize];
+        I* recastData = new I[arraySize];
 
         try{
             //Loop through data and wrap it as payloads
+            in.seekg(i*bufferSize, in.beg);
             in.read(buffer, bufferSize);
             //Recast data to make it easier to wrap
-            I* recastData = (I*)buffer;
+
+            for(int j = 0; j < bufferSize; j+=2){
+                recastData[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
+            }
 
             Payload<I> p(_dim, recastData);
             this->sendPayload(p);
             p.finished();
+            delete[] buffer;
         }catch(...){
             this->log("Error reading from file " + _Filepath);
         }

@@ -10,7 +10,6 @@ void NoDAQStage::preStage(){
 }
 
 void NoDAQStage::workStage(){
-
     int i = 0;
     while(!stopThread){
         //make some data
@@ -19,7 +18,7 @@ void NoDAQStage::workStage(){
         memset(buff, i, WIDTH*HEIGHT);
 
         //send data
-        Payload<unsigned short> p(vector<unsigned int> {WIDTH, HEIGHT}, buff);
+        Payload<unsigned short> p(vector<unsigned long> {WIDTH, HEIGHT}, buff);
         sendPayload(p);
 
         p.finished();
@@ -29,6 +28,6 @@ void NoDAQStage::workStage(){
     }
 }
 
-void NoDAQStage:: postStage(){
+void OSIP::NoDAQStage::postStage(){
 
 }

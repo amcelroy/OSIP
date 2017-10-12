@@ -19,7 +19,7 @@ namespace OSIP {
         /**
          * @brief Payload
          */
-        Payload(vector<unsigned int> dim, I* data);
+        Payload(vector<unsigned long> dim, I* data);
 
         Payload(){ }
 
@@ -52,10 +52,15 @@ namespace OSIP {
             return *this;
         }
 
-        void addData(vector<unsigned int> dim, I* data) {
+        void addData(vector<unsigned long> dim, I* data) {
             _dim.push_back(dim);
             _data.push_back(shared_ptr<I>(data));
-            vectorValid = true;
+
+            if(dim.size() > 0 && data){
+                vectorValid = true;
+            }else{
+                vectorValid = false;
+            }
         }
 
         /**
@@ -68,7 +73,7 @@ namespace OSIP {
          * @brief getDimensions Convenience function to get the first dimensions
          * @return Dimensions of at location 0
          */
-        vector<unsigned int> getFirstDimension() { return _dim.at(0); }
+        vector<unsigned long> getFirstDimension() { return _dim.at(0); }
 
         /**
          * @brief getData Returns all shares_ptr<I> data stored in this Payload
@@ -80,7 +85,7 @@ namespace OSIP {
          * @brief getDimensions Returns all dimension vectors
          * @return a vector of dimensions
          */
-        vector<vector<unsigned int>> getDimensions() { return _dim; }
+        vector<vector<unsigned long>> getDimensions() { return _dim; }
 
         /**
          * @brief finished Deletes shared_ptr<I> references held by this Payload and clears the dimensions vector
@@ -89,7 +94,7 @@ namespace OSIP {
             for(shared_ptr<I> p : _data){
                 p = nullptr;
             }
-            _dim.clear();
+            //_dim.clear();
         }
 
         bool isValid() { return vectorValid; }
@@ -97,7 +102,7 @@ namespace OSIP {
         /**
          * @brief _dim N Dimensions stored in a vector
          */
-        vector<vector<unsigned int>> _dim;
+        vector<vector<unsigned long>> _dim;
 
         /**
          * @brief wrapped_data Data to send

@@ -6,20 +6,23 @@
 #include "fftw3.h"
 #include "windowmaker.h"
 #include "boost/signals2.hpp"
+#include "DAQPipelineStages/loadoctpipeline.h"
 
 namespace OSIP {
     class PROCESSINGPIPELINESTAGESSHARED_EXPORT OCTPipelineStageCPU : public PipelineStage<unsigned short, float>
     {
 
     public:
-        OCTPipelineStageCPU(float Gain, float Bias, int PointsPerAScan, int AScansPerBScan);
+        OCTPipelineStageCPU();
 
         void preStage();
 
         void workStage();
 
         void postStage();
-    private:
+
+        void configure(OCTConfig config);
+    private:        
         void _computeIntensity(fftwf_complex *f, float *intensity);
 
         void _computePhase(fftwf_complex *f, float *phase);

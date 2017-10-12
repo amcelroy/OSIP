@@ -10,6 +10,7 @@
 #include <chrono>
 #include <thread>
 #include "boost/signals2.hpp"
+#include <assert.h>
 
 using namespace std;
 
@@ -20,6 +21,7 @@ namespace OSIP {
         boost::signals2::signal<void()> sig_StageFinished;
         boost::signals2::signal<void()> sig_StageStarted;
         boost::signals2::signal<void (float)> sig_StageTimer;
+        boost::signals2::signal<void (string)> sig_MessageLogged;
 
     public:
         PipelineStage();
@@ -40,7 +42,7 @@ namespace OSIP {
 
         void pipelineSleep(int milli);
 
-        void log(string msg) { _Log.push_back(msg); }
+        void log(string msg);
 
         vector<string> getLog() { return _Log; }
 

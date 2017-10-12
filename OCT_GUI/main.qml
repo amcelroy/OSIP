@@ -6,8 +6,10 @@ import QtQuick.Controls 1.4
 import edu.utexas.bme.menubackend 1.0
 import QtCharts 2.2
 
+import "BScan.js" as GLBScan;
 
 Window {
+    id: window
     title: qsTr("OCT_GUI")
     width: 1280
     height: 768
@@ -16,6 +18,15 @@ Window {
     onActiveChanged: {
         chartViewIntensity.legend.visible = false;
         chartViewPhase.legend.visible = false;
+    }
+
+    Timer {
+        interval: 33
+        repeat: true
+        running: true
+        onTriggered: {
+            bscanImage.source = "image://bscanProvider/intensity?" + Math.random();
+        }
     }
 
     MenuBackend{
@@ -57,30 +68,34 @@ Window {
         id: splitView
         orientation: Qt.Vertical
         anchors.fill: parent
+        width: 256
+        height: 256
 
         SplitView {
             id: splitView1
-            width: 100
-            height: 100
+            width: window.width / 2;
+            height: window.width / 2;
             orientation: Qt.Horizontal
             visible: true
 
-            Rectangle {
-                id: rectangle
-                x: 0
-                width: 100
-                height: 100
-                color: "#1d79c3"
-                clip: true
-                visible: true
-                border.color: "#e60b0b"
+            Image {
+                id: bscanImage
+                source: "image://bscanProvider/x"
+                width: 512
+                height: 512
+                cache: false
+//                transform: Rotation {
+//                    origin.x: bscanImage.width / 2;
+//                    origin.y: bscanImage.height / 2;
+//                    angle: 90
+//                }
             }
 
             Rectangle {
                 id: rectangle1
                 width: 200
-                height: 200
-                color: "#ffffff"
+                height: 512
+                color: "#000000"
             }
 
         }

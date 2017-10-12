@@ -10,6 +10,4 @@ template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<int>;
 template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<unsigned int>;
 template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<float>;
 template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<double>;
-template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<complex<float>>;
-template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<complex<double>>;
 

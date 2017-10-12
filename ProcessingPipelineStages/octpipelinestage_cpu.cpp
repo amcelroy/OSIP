@@ -2,12 +2,16 @@
 
 using namespace OSIP;
 
-OCTPipelineStageCPU::OCTPipelineStageCPU(float Gain, float Bias, int PointsPerAScan, int AScansPerBScan)
+OCTPipelineStageCPU::OCTPipelineStageCPU()
 {
-    _Gain = Gain;
-    _Bias = Bias;
-    _PointsPerAScan = PointsPerAScan;
-    _AScansPerBScan = AScansPerBScan;
+
+}
+
+void OCTPipelineStageCPU::configure(OCTConfig config){
+    _Bias = config.Bias;
+    _Gain = config.Gain;
+    _PointsPerAScan = config.PointsPerAScan;
+    _AScansPerBScan = config.AScansPerBScan - config.StartTrim - config.StopTrim;
 }
 
 void OCTPipelineStageCPU::preStage(){
@@ -18,20 +22,20 @@ void OCTPipelineStageCPU::preStage(){
         return;
     }
 
-    fftwf_plan_with_nthreads(2);
+    //fftwf_plan_with_nthreads(2);
 
     _fft_out_size = _PointsPerAScan/2 + 1;
 
-    fft_in = new float[_PointsPerAScan*_AScansPerBScan];
-    fft_out = new fftwf_complex[_fft_out_size*_AScansPerBScan];
+    float* fft_in = new float[_PointsPerAScan*_AScansPerBScan];
+    fftwf_complex* fft_out = new fftwf_complex[_fft_out_size*_AScansPerBScan];
 
     int rank = 1;
     int n[] = {_PointsPerAScan};
     int howmany = _AScansPerBScan;
-    int idist = 1;
-    int odist = 1;
-    int istride = _AScansPerBScan;
-    int ostride = _fft_out_size;
+    int idist = _PointsPerAScan;
+    int odist = _fft_out_size;
+    int istride = 1;
+    int ostride = 1;
     _fftplan = fftwf_plan_many_dft_r2c(rank,
                                        n,
                                        howmany,
@@ -53,6 +57,7 @@ void OCTPipelineStageCPU::workStage(){
     if(!fftwInit)
         return;
 
+    int frame = 0;
     while(!stopThread){
         if(pauseThread){
             pipelineSleep(10);
@@ -64,18 +69,22 @@ void OCTPipelineStageCPU::workStage(){
                 pipelineSleep(10);
             }else{
                 //operate on p
-                vector<unsigned int> dim = p.getFirstDimension();
+                vector<unsigned long> dim = p.getFirstDimension();
                 int totalDim = 1;
                 for(unsigned int i : dim){
                     totalDim *= i;
                 }
 
                 unsigned short* in = p.getFirstData().get();
+                float* fft_in = new float[_PointsPerAScan*_AScansPerBScan];
+                fftwf_complex* fft_out = new fftwf_complex[_fft_out_size*_AScansPerBScan];
 
                 //Apply hanning
                 for(int i = 0; i < totalDim; i++){
                     fft_in[i] = in[i]*_Gain - _Bias;
                 }
+
+                frame += 1;
 
                 //All done with the input data
                 p.finished();
@@ -95,14 +104,19 @@ void OCTPipelineStageCPU::workStage(){
 
                 //package
                 Payload<float> p_out;
-                p_out.addData(vector<unsigned int>(_fft_out_size, _AScansPerBScan), intensity);
-                p_out.addData(vector<unsigned int>(_fft_out_size, _AScansPerBScan), phase);
+                vector<unsigned long> dims;
+                dims.push_back(_fft_out_size);
+                dims.push_back(_AScansPerBScan);
+                p_out.addData(dims, intensity);
 
                 //send
                 sendPayload(p_out);
 
                 //Release the payload on our end
                 p_out.finished();
+
+                delete[] fft_in;
+                delete[] fft_out;
             }
         }
     }

@@ -7,13 +7,25 @@
 using namespace std;
 
 namespace OSIP {
+    struct OCTConfig {
+        int PointsPerAScan;
+        int AScansPerBScan;
+        int TotalBScans;
+        float Gain;
+        float Bias;
+        float Range;
+        int Bits;
+        int StopTrim;
+        int StartTrim;
+    };
+
     template<class I>
     class LoadOCTPipeline : public DAQStage<I>
     {
     public:
         LoadOCTPipeline();
 
-        void open(string FilenamePath, int N, vector<unsigned int> dim);
+        void configureOCTData(string path, OCTConfig *conf);
 
     protected:
         void preStage();
@@ -22,7 +34,7 @@ namespace OSIP {
 
         void postStage();
 
-        vector<unsigned int> _dim;
+        vector<unsigned long> _dim;
 
         int _N;
 
