@@ -82,19 +82,20 @@ void OCTPipelineStageCPU::workStage(){
                 shared_ptr<vector<unsigned short>> tmp = p.getFirstData();
                 int count = tmp.use_count();
 
-                unsigned short* in = tmp.get()->data();
                 float* fft_in = new float[_PointsPerAScan*_AScansPerBScan];
                 fftwf_complex* fft_out = new fftwf_complex[_fft_out_size*_AScansPerBScan];
 
                 //Apply hanning
                 for(int i = 0; i < totalDim; i++){
-                    fft_in[i] = in[i]*_Gain - _Bias;
+                    fft_in[i] = tmp->data()[i]*_Gain - _Bias;
                 }
 
                 frame += 1;
 
                 //All done with the input data
                 p.finished();
+
+                count = tmp.use_count();
 
                 //FFT
                 fftwf_execute_dft_r2c(_fftplan, fft_in, fft_out);

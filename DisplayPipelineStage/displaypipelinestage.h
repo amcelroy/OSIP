@@ -42,13 +42,13 @@ namespace OSIP {
          * @brief scaleTo8Bit Scales a value to 8 Bits (0 to 255)
          * @param array
          */
-        void scaleTo8Bit(I* array, vector<unsigned long> dim, unsigned char *output);
+        void scaleTo8Bit(vector<I> *array, vector<unsigned long> dim, vector<unsigned char> *output);
 
         /**
          * @brief scaleTo8Bit Scales a value to 8 Bits (0 to 255), then to RGBA using the look up tables
          * @param array
          */
-        void scaleToRGBA(I* array, vector<unsigned long> dim, unsigned int *output);
+        void scaleToRGBA(vector<I>* array, vector<unsigned long> dim, vector<unsigned int>* output);
 
     protected:
         /**

@@ -52,8 +52,6 @@ loop:
         char* buffer = new char[bufferSize];
         auto recastData = make_shared<vector<I>>(arraySize);
 
-        unsigned short *tmp = (unsigned short*)recastData.get();
-
         try{
             //Loop through data and wrap it as payloads
             in.seekg(i*bufferSize, in.beg);
@@ -61,7 +59,7 @@ loop:
             //Recast data to make it easier to wrap
 
             for(unsigned long j = 0; j < bufferSize; j+=2){
-                tmp[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
+                recastData->data()[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
             }
 
             Payload<I> p(_dim, recastData);

@@ -3,27 +3,35 @@
 
 #include <QQuickImageProvider>
 
+using namespace std;
+
 class BScanImageProvider : public QQuickImageProvider
 {
-    QImage* m_image = nullptr;
+    QImage m_image;
 
     QMutex m_imageLock;
+
+    shared_ptr<vector<unsigned int>> m_ptrHolder;
 
 public:
     BScanImageProvider();
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 
-    void setImage(QImage* i) {
-        m_imageLock.lock();
-
-        if(m_image){
-            delete[] m_image->bits();
-            m_image->~QImage();
+    void setPixels(shared_ptr<vector<unsigned int>> i, vector<unsigned long> dims) {
+        QMutexLocker qm(&m_imageLock);
+        if(dims.at(0) != 0){
+            //Insures the shared_ptr reference count is held here also
+            m_ptrHolder = i;
+            m_image = QImage((unsigned char*)i.get()->data(), (int)dims.at(0), (int)dims.at(1), QImage::Format_RGB32);
+            QPoint center = m_image.rect().center();
+            QMatrix matrix;
+            matrix.translate(center.x(), center.y());
+            matrix.rotate(90);
+            m_image = m_image.transformed(matrix);
+        }else{
+            m_image = QImage();
         }
-
-        m_image = i;
-        m_imageLock.unlock();   
     }
 };
 

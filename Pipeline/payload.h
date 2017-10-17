@@ -24,9 +24,10 @@ namespace OSIP {
         Payload(){ }
 
         ~Payload(){
-//            for(shared_ptr<I> p : _data){
-//                p = nullptr;
-//            }
+            for(shared_ptr<vector<I>> p : _data){
+                int count = p.use_count();
+                p = nullptr;
+            }
             _dim.clear();
         }
 
@@ -92,9 +93,10 @@ namespace OSIP {
          */
         void finished() {
             for(shared_ptr<vector<I>> p : _data){
+                int count = p.use_count();
                 p = nullptr;
             }
-            //_dim.clear();
+            _dim.clear();
         }
 
         bool isValid() { return vectorValid; }

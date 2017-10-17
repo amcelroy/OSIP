@@ -30,10 +30,10 @@ void OCTDisplayStage::workStage(){
                 minValue = -20;
                 maxValue = 30;
 
-                unsigned int* RGBA = new unsigned int[arraySize];
-                scaleToRGBA(datas.at(0).get(), dims.at(0), RGBA);
+                auto RGBA = make_shared<vector<unsigned int>>(arraySize);
+                scaleToRGBA(datas.at(0).get(), dims.at(0), RGBA.get());
 
-                m_bscanImageProvider->setImage(new QImage((unsigned char*)RGBA, (int)dims.at(0).at(0), (int)dims.at(0).at(1), QImage::Format_RGB32));
+                m_bscanImageProvider->setPixels(RGBA, dims.at(0));
 
                 if(m_FramesPerSecond != 0){
                     std::this_thread::sleep_for(std::chrono::milliseconds((long)(1/m_FramesPerSecond)));
@@ -42,8 +42,7 @@ void OCTDisplayStage::workStage(){
                 p.finished();
 
                 if(this->m_ProcessingFinished && this->m_DAQFinished){
-                    m_bscanImageProvider->setImage(NULL);
-                    this->pause();
+                    m_bscanImageProvider->setPixels(nullptr, vector<unsigned long> {0, 0});
                 }
             }
         }

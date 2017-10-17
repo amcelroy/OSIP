@@ -93,11 +93,6 @@ Window {
                 width: 512
                 height: 512
                 cache: false
-//                transform: Rotation {
-//                    origin.x: bscanImage.width / 2;
-//                    origin.y: bscanImage.height / 2;
-//                    angle: 90
-//                }
             }
 
             Rectangle {

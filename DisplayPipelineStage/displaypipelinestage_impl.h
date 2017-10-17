@@ -14,7 +14,7 @@ DisplayPipelineStage<I>::DisplayPipelineStage()
 }
 
 template<class I>
-void DisplayPipelineStage<I>::scaleTo8Bit(I* array, vector<unsigned long> dim, unsigned char *output){
+void DisplayPipelineStage<I>::scaleTo8Bit(vector<I>* array, vector<unsigned long> dim, vector<unsigned char>* output){
 
     if(array == NULL){
         assert( array == NULL);
@@ -28,15 +28,15 @@ void DisplayPipelineStage<I>::scaleTo8Bit(I* array, vector<unsigned long> dim, u
 
     I range = (maxValue - minValue);
     for(unsigned long i = 0; i < arraySize; i++){
-        double tmp = 255*(array[i] - minValue) / range;
+        double tmp = 255*(array->at(i) - minValue) / range;
         tmp = max(0.0, tmp);
         tmp = min(tmp, 255.0);
-        output[i] = (unsigned char)tmp;
+        output->data()[i] = (unsigned char)tmp;
     }
 }
 
 template<class I>
-void DisplayPipelineStage<I>::scaleToRGBA(I* array, vector<unsigned long> dim, unsigned int *output){
+void DisplayPipelineStage<I>::scaleToRGBA(vector<I>* array, vector<unsigned long> dim, vector<unsigned int>* output){
 
     if(array == NULL){
         assert( array == NULL);
@@ -50,10 +50,10 @@ void DisplayPipelineStage<I>::scaleToRGBA(I* array, vector<unsigned long> dim, u
 
     I range = (maxValue - minValue);
     for(unsigned long i = 0; i < arraySize; i++){
-        double tmp = 255*(array[i] - minValue) / range;
+        double tmp = 255*(array->at(i) - minValue) / range;
         tmp = max(0.0, tmp);
         tmp = min(tmp, 255.0);
-        output[i] = (unsigned int)(255 << 24 | m_redLUT.at(tmp) << 16 | m_greenLUT.at(tmp) << 8 | m_blueLUT.at(tmp));
+        output->data()[i] = (unsigned int)(255 << 24 | m_redLUT.at(tmp) << 16 | m_greenLUT.at(tmp) << 8 | m_blueLUT.at(tmp));
     }
 }
 
