@@ -30,6 +30,8 @@ namespace OSIP {
     public:
         Inlet();
 
+        int getItemsInInlet() { return _InQueue.size(); }
+
         /**
          * @brief writeData Write data to the Inlet queue
          * @param data Data to be written

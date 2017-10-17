@@ -68,4 +68,22 @@ void PipelineStage<I, O>::pipelineSleep(int milli){
     std::this_thread::sleep_for(std::chrono::milliseconds(milli));
 }
 
+template<class I, class O>
+boost::signals2::signal<void ()>::slot_type PipelineStage<I, O>::slotDAQFinished(){
+    m_DAQFinished = true;
+    return boost::signals2::signal<void ()>();
+}
+
+template<class I, class O>
+boost::signals2::signal<void ()>::slot_type PipelineStage<I, O>::slotSavingFinished(){
+    m_SavingFinished = true;
+    return boost::signals2::signal<void ()>();
+}
+
+template<class I, class O>
+boost::signals2::signal<void ()>::slot_type PipelineStage<I, O>::slotProcessingFinished(){
+    m_ProcessingFinished = true;
+    return boost::signals2::signal<void ()>();
+}
+
 #endif // PIPELINESTAGE_IMPL_H

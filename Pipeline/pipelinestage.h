@@ -11,6 +11,7 @@
 #include <thread>
 #include "boost/signals2.hpp"
 #include <assert.h>
+#include <memory>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ namespace OSIP {
 
         void flushOutlet();
 
-        void pause();
+        void pause() { pauseThread = true; }
 
         void pipelineSleep(int milli);
 
@@ -71,6 +72,12 @@ namespace OSIP {
          */
         void subscribeTiming(const boost::signals2::signal<void(float)>::slot_type &subscriber) { sig_StageTimer.connect(subscriber); }
 
+
+        virtual boost::signals2::signal<void ()>::slot_type slotDAQFinished();
+
+        virtual boost::signals2::signal<void ()>::slot_type slotSavingFinished();
+
+        virtual boost::signals2::signal<void ()>::slot_type slotProcessingFinished();
     protected:
         virtual void preStage();
 
@@ -106,6 +113,12 @@ namespace OSIP {
         void sendPayload(Payload<O> payload);
 
         Payload<I> fetchPayload();
+
+        bool m_DAQFinished = false;
+
+        bool m_ProcessingFinished = false;
+
+        bool m_SavingFinished = false;
 
         std::thread _StageThread;
     };

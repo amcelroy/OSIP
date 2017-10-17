@@ -11,7 +11,8 @@ QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12
 
 TEMPLATE = app
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    ../OCT_GUI/octconfigfile.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -46,3 +47,8 @@ unix|win32: LIBS += -L$$PWD/../ -lProcessingPipelineStages.1.0.0
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
 
+
+unix|win32: LIBS += -L$$PWD/../ -lfftw3f.3
+
+INCLUDEPATH += $$PWD/../
+DEPENDPATH += $$PWD/../

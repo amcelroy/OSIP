@@ -7,6 +7,7 @@
 #include "windowmaker.h"
 #include "boost/signals2.hpp"
 #include "DAQPipelineStages/loadoctpipeline.h"
+#include <boost/signals2.hpp>
 
 namespace OSIP {
     class PROCESSINGPIPELINESTAGESSHARED_EXPORT OCTPipelineStageCPU : public PipelineStage<unsigned short, float>
@@ -22,6 +23,17 @@ namespace OSIP {
         void postStage();
 
         void configure(OCTConfig config);
+
+        /**
+         * @brief notifyStarted Add a subscriber to get notified when the PipelineStage has started
+         * @param subscriber
+         */
+        void subscribeProcessingFinished(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_ProcessingFinished.connect(subscriber); }
+
+    protected:
+
+        boost::signals2::signal<void ()> sig_ProcessingFinished;
+
     private:        
         void _computeIntensity(fftwf_complex *f, float *intensity);
 

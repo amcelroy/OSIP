@@ -4,6 +4,8 @@
 #include "DAQPipelineStages/loadoctpipeline.h"
 #include "ProcessingPipelineStages/octpipelinestage_cpu.h"
 #include "octdisplaystage.h"
+#include <boost/signals2.hpp>
+#include <boost/bind.hpp>
 
 class OCTPipeline
 {

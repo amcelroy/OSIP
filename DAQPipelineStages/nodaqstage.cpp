@@ -13,9 +13,9 @@ void NoDAQStage::workStage(){
     int i = 0;
     while(!stopThread){
         //make some data
-        unsigned short *buff = new unsigned short[WIDTH*HEIGHT];
+        auto buff = make_shared<vector<unsigned short>>(WIDTH*HEIGHT);
 
-        memset(buff, i, WIDTH*HEIGHT);
+        memset(buff.get(), i, WIDTH*HEIGHT);
 
         //send data
         Payload<unsigned short> p(vector<unsigned long> {WIDTH, HEIGHT}, buff);

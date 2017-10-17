@@ -3,6 +3,7 @@
 
 #include "Pipeline/daqstage.h"
 #include <fstream>
+#include <boost/signals2.hpp>
 
 using namespace std;
 

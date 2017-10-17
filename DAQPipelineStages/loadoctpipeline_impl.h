@@ -47,9 +47,12 @@ void LoadOCTPipeline<I>::workStage()
     int I_size = sizeof(I) / sizeof(unsigned char);
     unsigned long bufferSize = arraySize*I_size;
 
+loop:
     for(int i = 0; i < _N; i++){
         char* buffer = new char[bufferSize];
-        I* recastData = new I[arraySize];
+        auto recastData = make_shared<vector<I>>(arraySize);
+
+        unsigned short *tmp = (unsigned short*)recastData.get();
 
         try{
             //Loop through data and wrap it as payloads
@@ -57,17 +60,26 @@ void LoadOCTPipeline<I>::workStage()
             in.read(buffer, bufferSize);
             //Recast data to make it easier to wrap
 
-            for(int j = 0; j < bufferSize; j+=2){
-                recastData[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
+            for(unsigned long j = 0; j < bufferSize; j+=2){
+                tmp[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
             }
 
             Payload<I> p(_dim, recastData);
             this->sendPayload(p);
             p.finished();
-            delete[] buffer;
         }catch(...){
             this->log("Error reading from file " + _Filepath);
         }
+
+        delete[] buffer;
+
+        this->sig_CurrentFrame(i);
+    }
+
+    this->sig_DAQFinished();
+
+    if(this->m_Loop == true){
+        goto loop;
     }
 }
 
@@ -76,5 +88,7 @@ void LoadOCTPipeline<I>::postStage()
 {
 
 }
+
+
 
 #endif // LOADDATA_IMPL_H

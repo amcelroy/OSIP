@@ -65,6 +65,10 @@ void OCTPipelineStageCPU::workStage(){
             //dequeue data
             Payload<unsigned short> p = fetchPayload();
 
+            if(this->m_DAQFinished && _Inlet->getItemsInInlet() == 0){
+                this->sig_ProcessingFinished();
+            }
+
             if(!p.isValid()){
                 pipelineSleep(10);
             }else{
@@ -75,7 +79,10 @@ void OCTPipelineStageCPU::workStage(){
                     totalDim *= i;
                 }
 
-                unsigned short* in = p.getFirstData().get();
+                shared_ptr<vector<unsigned short>> tmp = p.getFirstData();
+                int count = tmp.use_count();
+
+                unsigned short* in = tmp.get()->data();
                 float* fft_in = new float[_PointsPerAScan*_AScansPerBScan];
                 fftwf_complex* fft_out = new fftwf_complex[_fft_out_size*_AScansPerBScan];
 
@@ -92,12 +99,12 @@ void OCTPipelineStageCPU::workStage(){
                 //FFT
                 fftwf_execute_dft_r2c(_fftplan, fft_in, fft_out);
 
-                float* intensity = new float[_fft_out_size*_AScansPerBScan];
-                float* phase = new float[_fft_out_size*_AScansPerBScan];
+                auto intensity = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
+                auto phase = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
 
                 //Compute Log10 and phase
-                thread intensity_thread(&OCTPipelineStageCPU::_computeIntensity, this, fft_out, intensity);
-                thread phase_thread(&OCTPipelineStageCPU::_computePhase, this, fft_out, phase);
+                thread intensity_thread(&OCTPipelineStageCPU::_computeIntensity, this, fft_out, intensity.get()->data());
+                thread phase_thread(&OCTPipelineStageCPU::_computePhase, this, fft_out, phase.get()->data());
 
                 intensity_thread.join();
                 phase_thread.join();

@@ -3,6 +3,7 @@
 #include "ProcessingPipelineStages/octpipelinestage_cpu.h"
 #include "DAQPipelineStages/nodaqstage.h"
 #include "DAQPipelineStages/loadoctpipeline.h"
+#include "OCT_GUI/octconfigfile.h"
 
 using namespace OSIP;
 
@@ -10,17 +11,23 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    OCTPipelineStageCPU octProc(4/(powf(2, 12)), 2, 1376, 512);
+    OCTConfigFile octConfigFile;
     LoadOCTPipeline<unsigned short> loadOCT;
-    loadOCT.open("/Users/amcelroy/Code/OSIP/test_data/data.bin", 512, vector<unsigned int>() = {512, 1376});
+    OCTPipelineStageCPU octProc;
+    OCTConfig octConfig;
 
+    string path = "/Users/amcelroy/Code/OSIP/test_data/";
 
-    //shared_ptr<Inlet<unsigned char>> t = fft.getInlet();
+    octConfigFile.readOCTConfig(path + "parameters.oct_scan", &octConfig);
+
+    octProc.configure(octConfig);
+    loadOCT.configureOCTData(path + "data.bin", &octConfig);
 
     loadOCT.connect(octProc.getInlet());
 
     loadOCT.start();
     octProc.start();
+
 
     return a.exec();
 }

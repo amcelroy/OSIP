@@ -72,4 +72,11 @@ void DisplayPipelineStage<I>::postStage(){
 
 }
 
+template<class I>
+void DisplayPipelineStage<I>::setFramerate(float FramesPerSecond){
+    float tmp = FramesPerSecond;
+    tmp = max(0.0f, FramesPerSecond);
+    m_FramesPerSecond = tmp;
+}
+
 #endif // DISPLAYPIPELINESTAGE_IMPL_H

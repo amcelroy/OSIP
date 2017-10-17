@@ -9,6 +9,12 @@ OCTPipeline::OCTPipeline()
     //Connect all the Inlets
     _Loader->connect(_Processor->getInlet());
     _Processor->connect(_Display->getInlet());
+
+    //Connect the signals and slots
+    _Loader->subscribeDAQFinished(std::bind(&OCTDisplayStage::slotDAQFinished, _Display));
+    _Loader->subscribeDAQFinished(std::bind(&OCTPipelineStageCPU::slotDAQFinished, _Processor));
+
+    _Processor->subscribeProcessingFinished(std::bind(&OCTDisplayStage::slotProcessingFinished, _Display));
 }
 
 void OCTPipeline::start(OCTConfig config){

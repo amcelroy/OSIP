@@ -17,8 +17,10 @@ public:
     void setImage(QImage* i) {
         m_imageLock.lock();
 
-        if(m_image)
+        if(m_image){
+            delete[] m_image->bits();
             m_image->~QImage();
+        }
 
         m_image = i;
         m_imageLock.unlock();   

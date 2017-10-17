@@ -21,6 +21,15 @@ Window {
     }
 
     Timer {
+        interval: 5000
+        repeat: true
+        running: true
+        onTriggered: {
+            gc();
+        }
+    }
+
+    Timer {
         interval: 33
         repeat: true
         running: true

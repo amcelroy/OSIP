@@ -5,6 +5,7 @@
 #include "Pipeline/pipelinestage.h"
 #include <QObject>
 #include <bscanimageprovider.h>
+#include <boost/signals2.hpp>
 
 namespace OSIP {
 
@@ -27,12 +28,13 @@ namespace OSIP {
         OCTDisplayStageNotifier* getNotifier() { return &qt_Notifier; }
 
         void setImageProvider(BScanImageProvider *p) { m_bscanImageProvider = p; }
+
     protected:
-        void workStage();
+        void workStage() override;
 
-        void preStage();
+        void preStage() override;
 
-        void postStage();
+        void postStage() override;
 
     };
 }

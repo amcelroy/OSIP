@@ -3,14 +3,28 @@
 
 #include "displaypipelinestage_global.h"
 #include "Pipeline/pipelinestage_impl.h"
+#include <QObject>
 
 namespace OSIP {
+
     template<class I>
     class DISPLAYPIPELINESTAGESHARED_EXPORT DisplayPipelineStage : public PipelineStage<I, I>
     {
 
     public:
         DisplayPipelineStage();
+
+        /**
+         * @brief setFramerate Sets the display rate in FPS. Values <= 0 will run at full speed
+         * @param FramesPerSecond
+         */
+        void setFramerate(float FramesPerSecond);
+
+        /**
+         * @brief getFramerate Returns the framerate in FPS.
+         * @return
+         */
+        float getFramerate() { return m_FramesPerSecond; }
 
         /**
          * @brief setMin Sets min value to scale the data to
@@ -46,6 +60,11 @@ namespace OSIP {
          * @brief maxValue Maximum to scale the data to
          */
         I maxValue;
+
+        /**
+         * @brief m_FramesPerSecond Sets display rate in FPS, anything <= 0 disables FPS
+         */
+        float m_FramesPerSecond = 0;
 
         void workStage();
 

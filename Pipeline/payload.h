@@ -19,14 +19,14 @@ namespace OSIP {
         /**
          * @brief Payload
          */
-        Payload(vector<unsigned long> dim, I* data);
+        Payload(vector<unsigned long> dim, shared_ptr<vector<I>> data);
 
         Payload(){ }
 
         ~Payload(){
-            for(shared_ptr<I> p : _data){
-                p = nullptr;
-            }
+//            for(shared_ptr<I> p : _data){
+//                p = nullptr;
+//            }
             _dim.clear();
         }
 
@@ -52,9 +52,9 @@ namespace OSIP {
             return *this;
         }
 
-        void addData(vector<unsigned long> dim, I* data) {
+        void addData(vector<unsigned long> dim, shared_ptr<vector<I>> data) {
             _dim.push_back(dim);
-            _data.push_back(shared_ptr<I>(data));
+            _data.push_back(data);
 
             if(dim.size() > 0 && data){
                 vectorValid = true;
@@ -67,7 +67,7 @@ namespace OSIP {
          * @brief getData Convenience function to get the first dataset
          * @return shared_ptr<I> at location 0
          */
-        shared_ptr<I> getFirstData() { return _data.at(0); }
+        shared_ptr<vector<I>> getFirstData() { return _data.at(0); }
 
         /**
          * @brief getDimensions Convenience function to get the first dimensions
@@ -79,7 +79,7 @@ namespace OSIP {
          * @brief getData Returns all shares_ptr<I> data stored in this Payload
          * @return Vector containing shared_ptr<I> values
          */
-        vector<shared_ptr<I>> getData() { return _data; }
+        vector<shared_ptr<vector<I>>> getData() { return _data; }
 
         /**
          * @brief getDimensions Returns all dimension vectors
@@ -91,7 +91,7 @@ namespace OSIP {
          * @brief finished Deletes shared_ptr<I> references held by this Payload and clears the dimensions vector
          */
         void finished() {
-            for(shared_ptr<I> p : _data){
+            for(shared_ptr<vector<I>> p : _data){
                 p = nullptr;
             }
             //_dim.clear();
@@ -107,7 +107,7 @@ namespace OSIP {
         /**
          * @brief wrapped_data Data to send
          */
-        vector<shared_ptr<I>> _data;
+        vector<shared_ptr<vector<I>>> _data;
 
         /**
          * @brief vectorValid Quick flag to check if vector has been populated with anything
