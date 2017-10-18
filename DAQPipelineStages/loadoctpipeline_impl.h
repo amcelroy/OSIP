@@ -30,6 +30,48 @@ void LoadOCTPipeline<I>::preStage()
 }
 
 template<class I>
+void LoadOCTPipeline<I>::readFrame(int frameNumber){
+    ifstream in;
+    in.open(_Filepath, ios::in | ios::binary);
+    if(in.fail()){
+        this->log("Couldn't open file, halting pipeline stage");
+        return;
+    }
+
+    unsigned long arraySize = 1;
+    for(unsigned long ui : _dim){
+        arraySize *= ui;
+    }
+
+    int I_size = sizeof(I) / sizeof(unsigned char);
+    unsigned long bufferSize = arraySize*I_size;
+
+    char* buffer = new char[bufferSize];
+    auto recastData = make_shared<vector<I>>(arraySize);
+
+    try{
+        //Loop through data and wrap it as payloads
+        in.seekg(frameNumber*bufferSize, in.beg);
+        in.read(buffer, bufferSize);
+        //Recast data to make it easier to wrap
+
+        for(unsigned long j = 0; j < bufferSize; j+=2){
+            recastData->data()[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
+        }
+
+        Payload<I> p(_dim, recastData);
+        this->sendPayload(p);
+        p.finished();
+    }catch(...){
+        this->log("Error reading from file " + _Filepath);
+    }
+
+    delete[] buffer;
+
+    this->sig_CurrentFrame(frameNumber);
+}
+
+template<class I>
 void LoadOCTPipeline<I>::workStage()
 {
     ifstream in;
@@ -73,6 +115,9 @@ loop:
 
         this->sig_CurrentFrame(i);
     }
+
+    Payload<I> p(vector<unsigned long>(0), nullptr);
+    this->sendPayload(p);
 
     this->sig_DAQFinished();
 

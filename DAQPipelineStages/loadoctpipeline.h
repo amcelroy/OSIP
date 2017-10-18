@@ -28,6 +28,11 @@ namespace OSIP {
 
         void configureOCTData(string path, OCTConfig *conf);
 
+        /**
+         * @brief readFrame Reads a single frame and puts it on the outlet
+         * @param frameNumber
+         */
+        void readFrame(int frameNumber);
     protected:
         void preStage();
 

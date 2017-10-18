@@ -25,7 +25,6 @@ namespace OSIP {
 
         ~Payload(){
             for(shared_ptr<vector<I>> p : _data){
-                int count = p.use_count();
                 p = nullptr;
             }
             _dim.clear();
@@ -92,10 +91,7 @@ namespace OSIP {
          * @brief finished Deletes shared_ptr<I> references held by this Payload and clears the dimensions vector
          */
         void finished() {
-            for(shared_ptr<vector<I>> p : _data){
-                int count = p.use_count();
-                p = nullptr;
-            }
+            _data.clear();
             _dim.clear();
         }
 

@@ -16,7 +16,6 @@ void Inlet<I>::writeData(Payload<I> payloadIn)
 {
     lock_guard<mutex> lock(_QueueLock);
     this->_InQueue.push(payloadIn);
-    int count = payloadIn.getFirstData().use_count();
 }
 
 template<class I>

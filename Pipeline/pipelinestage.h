@@ -72,7 +72,6 @@ namespace OSIP {
          */
         void subscribeTiming(const boost::signals2::signal<void(float)>::slot_type &subscriber) { sig_StageTimer.connect(subscriber); }
 
-
         virtual boost::signals2::signal<void ()>::slot_type slotDAQFinished();
 
         virtual boost::signals2::signal<void ()>::slot_type slotSavingFinished();

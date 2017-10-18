@@ -30,9 +30,23 @@ namespace OSIP {
          */
         void subscribeProcessingFinished(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_ProcessingFinished.connect(subscriber); }
 
+        /**
+         * @brief notifyStarted Add a subscriber to get notified a frame is processed
+         * @param subscriber
+         */
+        void subscribeFrameProcessed(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_FrameProcessed.connect(subscriber); }
+
+        /**
+         * @brief setAScanToDisplay Sets the A-Scan that will be displayed to the user,
+         * this will be package in the payload
+         * @param ascanNumber
+         */
+        void setAScanToDisplay(int ascanNumber) { m_AScanToDisplay = ascanNumber; }
     protected:
 
         boost::signals2::signal<void ()> sig_ProcessingFinished;
+
+        boost::signals2::signal<void ()> sig_FrameProcessed;
 
     private:        
         void _computeIntensity(fftwf_complex *f, float *intensity);
@@ -40,6 +54,8 @@ namespace OSIP {
         void _computePhase(fftwf_complex *f, float *phase);
 
         WindowMaker _windowMaker;
+
+        unsigned int m_AScanToDisplay = 0;
 
         /**
          * @brief _fft_out_size Size of the output 1d-fft, usually _PointsPerAScan/2 + 1

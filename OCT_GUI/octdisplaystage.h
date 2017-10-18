@@ -14,6 +14,7 @@ namespace OSIP {
 
     signals:
         void onStateChanged();
+
     };
 
     class OCTDisplayStage : public DisplayPipelineStage<float>

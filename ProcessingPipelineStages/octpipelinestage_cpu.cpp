@@ -80,7 +80,6 @@ void OCTPipelineStageCPU::workStage(){
                 }
 
                 shared_ptr<vector<unsigned short>> tmp = p.getFirstData();
-                int count = tmp.use_count();
 
                 float* fft_in = new float[_PointsPerAScan*_AScansPerBScan];
                 fftwf_complex* fft_out = new fftwf_complex[_fft_out_size*_AScansPerBScan];
@@ -95,8 +94,6 @@ void OCTPipelineStageCPU::workStage(){
                 //All done with the input data
                 p.finished();
 
-                count = tmp.use_count();
-
                 //FFT
                 fftwf_execute_dft_r2c(_fftplan, fft_in, fft_out);
 
@@ -110,18 +107,25 @@ void OCTPipelineStageCPU::workStage(){
                 intensity_thread.join();
                 phase_thread.join();
 
+                auto startIt = intensity->begin() + _fft_out_size*m_AScanToDisplay;
+                auto endIt = intensity->begin() + _fft_out_size*(m_AScanToDisplay + 1);
+                auto ascan = make_shared<vector<float>>(vector<float>(startIt, endIt));
+
                 //package
                 Payload<float> p_out;
                 vector<unsigned long> dims;
                 dims.push_back(_fft_out_size);
                 dims.push_back(_AScansPerBScan);
                 p_out.addData(dims, intensity);
+                p_out.addData(vector<unsigned long>{ (unsigned long)_fft_out_size }, ascan);
 
                 //send
                 sendPayload(p_out);
 
                 //Release the payload on our end
                 p_out.finished();
+
+                sig_FrameProcessed();
 
                 delete[] fft_in;
                 delete[] fft_out;
