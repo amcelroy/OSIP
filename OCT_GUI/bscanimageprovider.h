@@ -22,9 +22,8 @@ public:
         QMutexLocker qm(&m_imageLock);
         if(i != nullptr){
             //Insures the shared_ptr reference count is held here also
-            m_ptrHolder = nullptr;
             m_ptrHolder = move(i);
-            m_image = QImage((unsigned char*)m_ptrHolder.get()->data(), (int)dims.at(0), (int)dims.at(1), QImage::Format_RGB32);
+            m_image = QImage((unsigned char*)m_ptrHolder->data(), (int)dims.at(0), (int)dims.at(1), QImage::Format_RGB32);
             QPoint center = m_image.rect().center();
             QMatrix matrix;
             matrix.translate(center.x(), center.y());

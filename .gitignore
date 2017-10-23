@@ -9,3 +9,10 @@
 *.dylib
 /build-PipelineStage-Desktop_Qt_5_9_1_clang_64bit-Debug/
 /build-ProcessingPipelineStages-Desktop_Qt_5_9_1_clang_64bit-Debug/
+/build-Peripheral-Desktop_Qt_5_9_2_clang_64bit-Debug/
+/build-Pipeline-Desktop_Qt_5_9_2_clang_64bit-Debug/
+/build-OCT_GUI_QQuick-Desktop_Qt_5_9_1_clang_64bit-Debug/
+/build-DisplayPipelineStage-Desktop_Qt_5_9_1_clang_64bit-Debug/
+/build-OCT_GUI-Desktop_Qt_5_9_2_clang_64bit-Debug/
+/build-OCT_3D-Desktop_Qt_5_9_1_clang_64bit-Debug/
+/build-OCT_GUI_APP-Desktop_Qt_5_9_1_clang_64bit-Debug/

@@ -19,6 +19,7 @@ namespace OSIP {
     template<class I, class O>
     class PipelineStage
     {
+    protected:
         boost::signals2::signal<void()> sig_StageFinished;
         boost::signals2::signal<void()> sig_StageStarted;
         boost::signals2::signal<void (float)> sig_StageTimer;

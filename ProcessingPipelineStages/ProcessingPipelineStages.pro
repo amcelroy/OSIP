@@ -50,3 +50,13 @@ unix|win32: LIBS += -L$$PWD/../ -lfftw3f
 
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
+
+unix {
+    target.path = /usr/lib
+    INSTALLS += target
+}
+
+unix|win32: LIBS += -L$$PWD/../ -lPeripheral.1.0.0
+
+INCLUDEPATH += $$PWD/../
+DEPENDPATH += $$PWD/../

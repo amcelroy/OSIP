@@ -31,6 +31,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DESTDIR = ../
 
 INCLUDEPATH += $$PWD/../boost_1_65
+INCLUDEPATH += $$PWD/../
 
 SOURCES += \
     inlet.cpp \
@@ -56,3 +57,8 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+unix|win32: LIBS += -L$$PWD/../ -lPeripheral.1.0.0
+
+INCLUDEPATH += $$PWD/../
+DEPENDPATH += $$PWD/../

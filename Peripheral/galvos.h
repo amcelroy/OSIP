@@ -1,11 +1,22 @@
-#ifndef NIGALVOS_H
-#define NIGALVOS_H
+#ifndef GALVOS_H
+#define GALVOS_H
 
+#include "peripheral.h"
 
-class NIGalvos : public peripheral
-{
-public:
-    NIGalvos();
-};
+namespace OSIP{
+    class Galvos : public Peripheral
+    {
+    public:
+        Galvos();
 
-#endif // NIGALVOS_H
+        void run() override;
+
+        void stop() override;
+
+        void pause() override;
+
+        void reset() override;
+    };
+}
+
+#endif // GALVOS_H
