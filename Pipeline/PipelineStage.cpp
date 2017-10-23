@@ -8,9 +8,7 @@ template class PIPELINESHARED_EXPORT OSIP::PipelineStage<char, unsigned short>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<char, int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<char, unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<char, float>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<char, complex<float>>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<char, double>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<char, complex<double>>;
 
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned char, char>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned char, unsigned char>;
@@ -19,9 +17,7 @@ template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned char, unsigned
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned char, int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned char, unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned char, float>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned char, complex<float>>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned char, double>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned char, complex<double>>;
 
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<short, char>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<short, unsigned char>;
@@ -30,9 +26,7 @@ template class PIPELINESHARED_EXPORT OSIP::PipelineStage<short, unsigned short>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<short, int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<short, unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<short, float>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<short, complex<float>>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<short, double>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<short, complex<double>>;
 
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned short, char>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned short, unsigned char>;
@@ -41,9 +35,7 @@ template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned short, unsigne
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned short, int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned short, unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned short, float>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned short, complex<float>>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned short, double>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned short, complex<double>>;
 
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<int, char>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<int, unsigned char>;
@@ -53,8 +45,6 @@ template class PIPELINESHARED_EXPORT OSIP::PipelineStage<int, int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<int, unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<int, float>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<int, double>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<int, complex<float>>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<int, complex<double>>;
 
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned int, char>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned int, unsigned char>;
@@ -64,8 +54,6 @@ template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned int, int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned int, unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned int, float>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned int, double>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned int, complex<float>>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<unsigned int, complex<double>>;
 
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<float, char>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<float, unsigned char>;
@@ -75,8 +63,6 @@ template class PIPELINESHARED_EXPORT OSIP::PipelineStage<float, int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<float, unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<float, float>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<float, double>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<float, complex<float>>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<float, complex<double>>;
 
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<double, char>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<double, unsigned char>;
@@ -86,8 +72,6 @@ template class PIPELINESHARED_EXPORT OSIP::PipelineStage<double, int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<double, unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<double, float>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<double, double>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<double, complex<float>>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<double, complex<double>>;
 
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<float>, char>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<float>, unsigned char>;
@@ -97,8 +81,6 @@ template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<float>, int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<float>, unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<float>, float>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<float>, double>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<float>, complex<float>>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<float>, complex<double>>;
 
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<double>, char>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<double>, unsigned char>;
@@ -108,5 +90,3 @@ template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<double>, int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<double>, unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<double>, float>;
 template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<double>, double>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<double>, complex<float>>;
-template class PIPELINESHARED_EXPORT OSIP::PipelineStage<complex<double>, complex<double>>;
