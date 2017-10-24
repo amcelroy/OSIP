@@ -3,5 +3,6 @@
         <file>main.qml</file>
         <file>glcode.js</file>
         <file>BScan.js</file>
+        <file>QML_DAQConfig.qml</file>
     </qresource>
 </RCC>

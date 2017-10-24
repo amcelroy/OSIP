@@ -7,6 +7,7 @@
 #include "octconfigfile.h"
 #include "DAQPipelineStages/loadoctpipeline.h"
 #include "bscanimageprovider.h"
+#include "qmldaqconfigbackend.h"
 
 
 int main(int argc, char *argv[])
@@ -16,6 +17,7 @@ int main(int argc, char *argv[])
     mainbackend _mainBackend;
 
     qmlRegisterType<MenuBackend>("edu.utexas.bme.menubackend", 1, 0, "MenuBackend");
+    qmlRegisterType<QMLDAQConfigBackend>("edu.utexas.bme.qmlconfigbackend", 1, 0, "QMLDAQConfigBackend");
 
     //Register the Image provider BEFORE loading the qml!!!
     BScanImageProvider* _bscanImageProvider = new BScanImageProvider();
@@ -57,13 +59,13 @@ int main(int argc, char *argv[])
     QObject::connect(qml_bscanSlider, SIGNAL(signalSliderChanged(QVariant)),
                      _mainBackend.getOCTPipeline(), SLOT(slotBScanSliderChanged(QVariant)));
 
-    _mainBackend.getOCTPipeline()->init();
-    _mainBackend.getOCTPipeline()->setBScanSlider(qml_bscanSlider);
-    _mainBackend.getOCTPipeline()->getDisplay()->setImageProvider(_bscanImageProvider);
-    _mainBackend.getOCTPipeline()->getDisplay()->setMax(40);
-    _mainBackend.getOCTPipeline()->getDisplay()->setMin(-20);
-    _mainBackend.loadOCT("/Users/amcelroy/Code/OSIP/test_data/");
-    _mainBackend.getOCTPipeline()->getLoader()->setLoop(false);
+//    _mainBackend.getOCTPipeline()->init();
+//    _mainBackend.getOCTPipeline()->setBScanSlider(qml_bscanSlider);
+//    _mainBackend.getOCTPipeline()->getDisplay()->setImageProvider(_bscanImageProvider);
+//    _mainBackend.getOCTPipeline()->getDisplay()->setMax(40);
+//    _mainBackend.getOCTPipeline()->getDisplay()->setMin(-20);
+//    _mainBackend.loadOCT("/Users/amcelroy/Code/OSIP/test_data/");
+//    _mainBackend.getOCTPipeline()->getLoader()->setLoop(false);
 
     return app.exec();
 }

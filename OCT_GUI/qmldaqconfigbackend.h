@@ -2,11 +2,19 @@
 #define QMLDAQCONFIGBACKEND_H
 
 #include <QObject>
+#include <QVariant>
 
-class QMLDAQConfigBackend
+class QMLDAQConfigBackend : public QObject
 {
+    Q_OBJECT
+
 public:
-    QMLDAQConfigBackend();
+    QMLDAQConfigBackend(QObject *parent = 0) { }
+
+public slots:
+
+    void saveDAQConfig(QVariant DAQConfigJSON);
+
 };
 
 #endif // QMLDAQCONFIGBACKEND_H

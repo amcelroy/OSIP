@@ -14,7 +14,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp
 
-RESOURCES += qml.qrc
+SOURCES += $$PWD/../OCT_GUI/qmldaqconfigbackend.cpp
+
+HEADERS += $$PWD/../OCT_GUI/qmldaqconfigbackend.h
+
+INCLUDEPATH += $$PWD/../OCT_GUI
+
+RESOURCES += $$PWD/../OCT_GUI/qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

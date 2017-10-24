@@ -22,7 +22,8 @@ SOURCES += main.cpp \
     octconfigfile.cpp \
     mainbackend.cpp \
     octdisplaystage.cpp \
-    bscanimageprovider.cpp
+    bscanimageprovider.cpp \
+    qmldaqconfigbackend.cpp
 
 RESOURCES += qml.qrc
 
@@ -44,7 +45,8 @@ HEADERS += \
     mainbackend.h \
     octdisplaystage.h \
     vertex.h \
-    bscanimageprovider.h
+    bscanimageprovider.h \
+    qmldaqconfigbackend.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../release/ -lPipeline.1.0.0
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../debug/ -lPipeline.1.0.0

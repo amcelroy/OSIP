@@ -47,7 +47,12 @@ Window {
             }
             MenuItem {
                 text: "DAQ"
-                onTriggered: menuBackend.selectedItem = text
+                onTriggered: {
+                    var component = Qt.createComponent("QML_DAQConfig.qml")
+                    var window    = component.createObject(window)
+                    window.show()
+                }
+
             }
             MenuItem {
                 text: "Galvos"
