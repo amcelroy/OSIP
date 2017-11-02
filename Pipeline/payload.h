@@ -19,7 +19,7 @@ namespace OSIP {
         /**
          * @brief Payload
          */
-        Payload(vector<unsigned long> dim, shared_ptr<vector<I>> data);
+        Payload(vector<unsigned long> dim, shared_ptr<vector<I>> data, string label);
 
         Payload(){ }
 
@@ -28,6 +28,7 @@ namespace OSIP {
                 p = nullptr;
             }
             _dim.clear();
+            _Labels.clear();
         }
 
         /**
@@ -37,6 +38,7 @@ namespace OSIP {
         Payload(const Payload &obj){
             this->_data = move(obj._data);
             this->_dim = move(obj._dim);
+            this->_Labels = move(obj._Labels);
             this->vectorValid = obj.vectorValid;
         }
 
@@ -48,13 +50,15 @@ namespace OSIP {
         Payload& operator= (const Payload& obj){
             this->_data = move(obj._data);
             this->_dim = move(obj._dim);
+            this->_Labels = move(obj._Labels);
             this->vectorValid = obj.vectorValid;
             return *this;
         }
 
-        void addData(vector<unsigned long> dim, shared_ptr<vector<I>> data) {
+        void addData(vector<unsigned long> dim, shared_ptr<vector<I>> data, string label) {
             _dim.push_back(dim);
             _data.push_back(data);
+            _Labels.push_back(label);
 
             if(dim.size() > 0 && data){
                 vectorValid = true;
@@ -76,10 +80,22 @@ namespace OSIP {
         vector<unsigned long> getFirstDimension() { return _dim.at(0); }
 
         /**
-         * @brief getData Returns all shares_ptr<I> data stored in this Payload
+         * @brief getDimensions Convenience function to get the first label
+         * @return Label at location 0
+         */
+        vector<unsigned long> getFirstLabel() { return _dim.at(0); }
+
+        /**
+         * @brief getData Returns all shared_ptr<I> data stored in this Payload
          * @return Vector containing shared_ptr<I> values
          */
         vector<shared_ptr<vector<I>>> getData() { return _data; }
+
+        /**
+         * @brief getDataNames Returns all Labels stored in this Payload
+         * @return Vector containing strings of Labels
+         */
+        vector<std::string> getDataNames() { return _Labels; }
 
         /**
          * @brief getDimensions Returns all dimension vectors
@@ -106,6 +122,11 @@ namespace OSIP {
          * @brief wrapped_data Data to send
          */
         vector<shared_ptr<vector<I>>> _data;
+
+        /**
+         * @brief _Labels Label of the data
+         */
+        vector<std::string> _Labels;
 
         /**
          * @brief vectorValid Quick flag to check if vector has been populated with anything

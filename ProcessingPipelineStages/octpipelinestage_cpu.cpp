@@ -116,8 +116,8 @@ void OCTPipelineStageCPU::workStage(){
                 vector<unsigned long> dims;
                 dims.push_back(_fft_out_size);
                 dims.push_back(_AScansPerBScan);
-                p_out.addData(dims, intensity);
-                p_out.addData(vector<unsigned long>{ (unsigned long)_fft_out_size }, ascan);
+                p_out.addData(dims, intensity, "Intensity");
+                p_out.addData(vector<unsigned long>{ (unsigned long)_fft_out_size }, ascan, "Intensity Ascan");
 
                 //send
                 sendPayload(p_out);
@@ -154,5 +154,14 @@ void OCTPipelineStageCPU::_computeIntensity(fftwf_complex *f, float *intensity){
 void OCTPipelineStageCPU::_computePhase(fftwf_complex *f, float *phase){
     for(int i = 0; i < _fft_out_size*_AScansPerBScan; i++){
         phase[i] = atan2f(f[i][1], f[i][0]);
+    }
+}
+
+void OCTPipelineStageCPU::_computeAttenuationSimple(fftwf_complex *f, float *atten){
+    for(int i = 0; i < _AScansPerBScan; i++){
+        for(int j = _fft_out_size - 1; j > -1; j--){
+            unsigned long lin_cord = i*_fft_out_size + j;
+
+        }
     }
 }

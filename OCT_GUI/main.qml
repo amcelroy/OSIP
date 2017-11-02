@@ -6,19 +6,32 @@ import QtQuick.Controls 1.4
 import edu.utexas.bme.menubackend 1.0
 import QtCharts 2.2
 import QtQuick.Controls.Styles 1.1
+import QtQuick.Dialogs 1.2
+import QtQuick 2.7
 
 import "BScan.js" as GLBScan;
 
-Window {
+ApplicationWindow {
     id: window
     title: qsTr("OCT_GUI")
     width: 1280
     height: 768
     visible: true
 
+    property var daqWindow;
+    property var galvoWindow;
+
     onActiveChanged: {
         chartViewIntensity.legend.visible = false;
         chartViewPhase.legend.visible = false;
+    }
+
+    Component.onCompleted: {
+        var daqcomponent = Qt.createComponent("QML_DAQConfig.qml")
+        daqWindow = daqcomponent.createObject(daqWindow)
+
+        var galvocomponent = Qt.createComponent("QML_GalvoConfig.qml")
+        galvoWindow = galvocomponent.createObject(galvoWindow)
     }
 
     MenuBackend{
@@ -48,15 +61,15 @@ Window {
             MenuItem {
                 text: "DAQ"
                 onTriggered: {
-                    var component = Qt.createComponent("QML_DAQConfig.qml")
-                    var window    = component.createObject(window)
-                    window.show()
+                    daqWindow.visible = true;
                 }
 
             }
             MenuItem {
                 text: "Galvos"
-                onTriggered: menuBackend.selectedItem = text
+                onTriggered: {
+                    galvoWindow.visible = true;
+                }
             }
         }
     }

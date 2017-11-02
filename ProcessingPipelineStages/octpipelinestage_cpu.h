@@ -53,6 +53,8 @@ namespace OSIP {
 
         void _computePhase(fftwf_complex *f, float *phase);
 
+        void _computeAttenuationSimple(fftwf_complex *f, float *atten);
+
         WindowMaker _windowMaker;
 
         unsigned int m_AScanToDisplay = 0;

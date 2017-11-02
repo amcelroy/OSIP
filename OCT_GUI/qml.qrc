@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>glcode.js</file>
-        <file>BScan.js</file>
         <file>QML_DAQConfig.qml</file>
+        <file>QML_GalvoConfig.qml</file>
+        <file>Support.js</file>
     </qresource>
 </RCC>

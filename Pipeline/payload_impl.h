@@ -6,9 +6,9 @@
 using namespace OSIP;
 
 template <class I>
-Payload<I>::Payload(vector<unsigned long> dim, shared_ptr<vector<I>> data)
+Payload<I>::Payload(vector<unsigned long> dim, shared_ptr<vector<I>> data, string label)
 {
-    addData(dim, data);
+    addData(dim, data, label);
 }
 
 #endif // PAYLOAD_IMPL_H

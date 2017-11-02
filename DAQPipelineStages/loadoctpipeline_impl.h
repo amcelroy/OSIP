@@ -59,7 +59,7 @@ void LoadOCTPipeline<I>::readFrame(int frameNumber){
             recastData->data()[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
         }
 
-        Payload<I> p(_dim, recastData);
+        Payload<I> p(_dim, recastData, "Loaded BScan");
         this->sendPayload(p);
         p.finished();
     }catch(...){
@@ -104,7 +104,7 @@ loop:
                 recastData->data()[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
             }
 
-            Payload<I> p(_dim, recastData);
+            Payload<I> p(_dim, recastData, "Loaded BScan");
             this->sendPayload(p);
             p.finished();
         }catch(...){
@@ -116,7 +116,7 @@ loop:
         this->sig_CurrentFrame(i);
     }
 
-    Payload<I> p(vector<unsigned long>(0), nullptr);
+    Payload<I> p(vector<unsigned long>(0), nullptr, "Empty Frame");
     this->sendPayload(p);
 
     this->sig_DAQFinished();

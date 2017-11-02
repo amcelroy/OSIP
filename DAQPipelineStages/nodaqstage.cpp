@@ -18,7 +18,7 @@ void NoDAQStage::workStage(){
         memset(buff.get(), i, WIDTH*HEIGHT);
 
         //send data
-        Payload<unsigned short> p(vector<unsigned long> {WIDTH, HEIGHT}, buff);
+        Payload<unsigned short> p(vector<unsigned long> {WIDTH, HEIGHT}, buff, "DAQ Data");
         sendPayload(p);
 
         p.finished();

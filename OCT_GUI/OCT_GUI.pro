@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     mainbackend.cpp \
     octdisplaystage.cpp \
     bscanimageprovider.cpp \
-    qmldaqconfigbackend.cpp
+    qmldaqconfigbackend.cpp \
+    qmlgalvobackend.cpp
 
 RESOURCES += qml.qrc
 
@@ -46,7 +47,8 @@ HEADERS += \
     octdisplaystage.h \
     vertex.h \
     bscanimageprovider.h \
-    qmldaqconfigbackend.h
+    qmldaqconfigbackend.h \
+    qmlgalvobackend.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../release/ -lPipeline.1.0.0
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../debug/ -lPipeline.1.0.0

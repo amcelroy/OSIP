@@ -71,7 +71,7 @@ void SavingStage<I>::_saveData(string path, void *data, unsigned long NBytes){
         ofs.open(path, std::ofstream::binary | std::ofstream::app);
 
         //Save data
-        ofs.write(data, NBytes);
+        //ofs.write(data, NBytes);
 
     }catch(exception e){
         this->sig_MessageLogged("Error saving file - ");
