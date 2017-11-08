@@ -59,13 +59,13 @@ Dialog {
         Grid {
             id: grid
             columns: 2
-            rows: 2
+            rows: 4
             horizontalItemAlignment: Grid.AlignHCenter
             verticalItemAlignment: Grid.AlignVCenter
 
             Label {
                 id: fastAxisAmplitudeLabel
-                text: qsTr("Fast Axis Voltage")
+                text: qsTr("Fast Axis Amplitude")
             }
 
             TextField {
@@ -76,11 +76,33 @@ Dialog {
 
             Label {
                 id: fastAxisOffsetLabel
-                text: qsTr("Fast Axis Voltage")
+                text: qsTr("Fast Axis Offset")
             }
 
             TextField {
                 id: fastAxisOffsetTextField
+                text: qsTr("Text Field")
+                scale: 0.8
+            }
+
+            Label {
+                id: slowAxisAmplitudeLabel
+                text: qsTr("Slow Axis Amplitude")
+            }
+
+            TextField {
+                id: slowAxisAmplitudeTextField
+                text: qsTr("Text Field")
+                scale: 0.8
+            }
+
+            Label {
+                id: slowAxisOffsetLabel
+                text: qsTr("Slow Axis Offset")
+            }
+
+            TextField {
+                id: slowAxisOffsetTextField
                 text: qsTr("Text Field")
                 scale: 0.8
             }

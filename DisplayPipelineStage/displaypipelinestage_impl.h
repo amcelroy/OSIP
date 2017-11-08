@@ -36,20 +36,20 @@ void DisplayPipelineStage<I>::scaleTo8Bit(vector<I>* array, vector<unsigned long
 }
 
 template<class I>
-void DisplayPipelineStage<I>::scaleToRGBA(vector<I>* array, vector<unsigned long> dim, vector<unsigned int>* output){
+void DisplayPipelineStage<I>::scaleToRGBA(vector<I>* array, vector<unsigned int>* output){
 
     if(array == NULL){
         assert( array == NULL);
         return;
     }
 
-    unsigned long arraySize = 1;
-    for(unsigned long l : dim){
-        arraySize *= l;
-    }
+//    unsigned long arraySize = 1;
+//    for(unsigned long l : dim){
+//        arraySize *= l;
+//    }
 
     I range = (maxValue - minValue);
-    for(unsigned long i = 0; i < arraySize; i++){
+    for(unsigned long i = 0; i < array->size(); i++){
         double tmp = 255*(array->at(i) - minValue) / range;
         tmp = max(0.0, tmp);
         tmp = min(tmp, 255.0);

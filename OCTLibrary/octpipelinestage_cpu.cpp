@@ -12,6 +12,7 @@ void OCTPipelineStageCPU::configure(OCTConfig config){
     _Gain = config.Gain;
     _PointsPerAScan = config.PointsPerAScan;
     _AScansPerBScan = config.AScansPerBScan - config.StartTrim - config.StopTrim;
+    _NumberOfBScans = config.TotalBScans;
 }
 
 void OCTPipelineStageCPU::preStage(){
@@ -75,9 +76,9 @@ void OCTPipelineStageCPU::workStage(){
                 //operate on p
                 vector<unsigned long> dim = p.getFirstDimension();
                 int totalDim = 1;
-                for(unsigned int i : dim){
-                    totalDim *= i;
-                }
+                totalDim *= dim[0];
+                totalDim *= dim[1];
+                int currentFrame = dim[2];
 
                 shared_ptr<vector<unsigned short>> tmp = p.getFirstData();
 
@@ -101,10 +102,12 @@ void OCTPipelineStageCPU::workStage(){
                 auto phase = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
                 auto mag = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
                 auto atten = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
+                auto enFace = make_shared<vector<float>>(_AScansPerBScan);
 
                 _computeMagnitude(fft_out, mag.get()->data());
                 _computeIntensity(mag.get()->data(), intensity.get()->data());
                 _computeAttenuationSimple(mag.get()->data(), atten.get()->data());
+                _computeEnFace(intensity->data(), enFace->data());
 
                 //Compute Log10 and phase
                 //thread intensity_thread(&OCTPipelineStageCPU::_computeIntensity, this, fft_out, intensity.get()->data());
@@ -124,7 +127,8 @@ void OCTPipelineStageCPU::workStage(){
                 dims.push_back(_AScansPerBScan);
                 p_out.addData(dims, intensity, "Intensity");
                 p_out.addData(dims, atten, "Attenuation");
-                p_out.addData(vector<unsigned long>{ (unsigned long)_fft_out_size }, ascan, "Intensity Ascan");
+                p_out.addData(vector<unsigned long>{ (unsigned long)_fft_out_size }, ascan, "Intensity_Ascan");
+                p_out.addData(vector<unsigned long>{ (unsigned long)enFace->size(), (unsigned long)_NumberOfBScans, (unsigned long)currentFrame }, enFace, "EnFace_Slice");
 
                 //send
                 sendPayload(p_out);
@@ -157,6 +161,17 @@ void OCTPipelineStageCPU::_computeMagnitude(fftwf_complex *f, float *mag){
     }
 }
 
+void OCTPipelineStageCPU::_computeEnFace(float *intensity, float *enface){
+    float range = _EnFaceUpper - _EnFaceLower;
+    for(int i = 0; i < _AScansPerBScan; i++){
+        float avg = 0;
+        for(int j = _EnFaceLower; j < _EnFaceUpper; j++){
+            avg += intensity[i*_fft_out_size + j];
+        }
+        enface[i] = avg / range;
+    }
+}
+
 void OCTPipelineStageCPU::_computeIntensity(float *mag, float *intensity){
     for(int i = 0; i < _fft_out_size*_AScansPerBScan; i++){
         intensity[i] = 10*log10f(mag[i]);
@@ -178,4 +193,12 @@ void OCTPipelineStageCPU::_computeAttenuationSimple(float *mag, float *atten){
             atten[lin_coord] = mag[lin_coord] / runningSum;
         }
     }
+}
+
+void OCTPipelineStageCPU::setEnfaceRange(int EnFace1, int EnFace2){
+    _EnFaceLower = min(EnFace1, EnFace2);
+    _EnFaceUpper = max(EnFace1, EnFace2);
+
+    _EnFaceLower = max(0, _EnFaceLower);
+    _EnFaceUpper = min(_fft_out_size, _EnFaceUpper);
 }

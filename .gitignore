@@ -17,3 +17,8 @@
 /build-OCT_3D-Desktop_Qt_5_9_1_clang_64bit-Debug/
 /build-OCT_GUI_APP-Desktop_Qt_5_9_1_clang_64bit-Debug/
 /build-OCT_DAQConfig-Desktop_Qt_5_9_2_clang_64bit-Debug/
+/build-DisplayPipelineStage-Desktop_Qt_5_9_2_clang_64bit-Debug/
+/build-OCTLibrary-Desktop_Qt_5_9_2_clang_64bit-Debug/
+/VTK-8.0.1-build/
+/VTK-8.0.1/
+/build-PipelineTest-Desktop_Qt_5_9_2_clang_64bit-Debug/

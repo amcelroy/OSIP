@@ -6,6 +6,14 @@
 
 QT       += core
 
+macx {
+    #Add Labview DAQmx framework
+    QMAKE_LFLAGS += -F/Library/Frameworks/
+    LIBS += -framework nidaqmxbase
+    LIBS += -framework nidaqmxbaselv
+    INCLUDEPATH += /Library/Frameworks/nidaqmxbase.framework/Headers
+}
+
 TARGET = Peripheral
 TEMPLATE = lib
 
@@ -30,12 +38,14 @@ DESTDIR = $$PWD/../
 
 SOURCES += \
         peripheral.cpp \
-    galvos.cpp
+    galvos.cpp \
+    nidaqmx.cpp
 
 HEADERS += \
         peripheral.h \
         peripheral_global.h \  
-    galvos.h
+    galvos.h \
+    nidaqmx.h
 
 unix {
     target.path = /usr/lib

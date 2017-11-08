@@ -18,13 +18,9 @@ INCLUDEPATH += $$PWD/../boost_1_65
 
 SOURCES += main.cpp \
     menubackend.cpp \
-    octpipeline.cpp \
-    octconfigfile.cpp \
-    mainbackend.cpp \
-    octdisplaystage.cpp \
-    bscanimageprovider.cpp \
     qmldaqconfigbackend.cpp \
-    qmlgalvobackend.cpp
+    qmlgalvobackend.cpp \
+    OCTBackend.cpp
 
 RESOURCES += qml.qrc
 
@@ -41,39 +37,14 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     menubackend.h \
-    octpipeline.h \
-    octconfigfile.h \
-    mainbackend.h \
-    octdisplaystage.h \
     vertex.h \
-    bscanimageprovider.h \
     qmldaqconfigbackend.h \
-    qmlgalvobackend.h
+    qmlgalvobackend.h \
+    OCTBackend.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../release/ -lPipeline.1.0.0
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../debug/ -lPipeline.1.0.0
 else:unix: LIBS += -L$$PWD/../ -lPipeline.1.0.0
-
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../release/ -lProcessingPipelineStages.1.0.0
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../debug/ -lProcessingPipelineStages.1.0.0
-else:unix: LIBS += -L$$PWD/../ -lProcessingPipelineStages.1.0.0
-
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../release/ -lDAQPipelineStages.1.0.0
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../debug/ -lDAQPipelineStages.1.0.0
-else:unix: LIBS += -L$$PWD/../ -lDAQPipelineStages.1.0.0
-
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../release/ -lProcessingPipelineStages.1.0.0
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../debug/ -lProcessingPipelineStages.1.0.0
-else:unix: LIBS += -L$$PWD/../ -lProcessingPipelineStages.1.0.0
 
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
@@ -85,6 +56,12 @@ else:unix: LIBS += -L$$PWD/../ -lDisplayPipelineStage.1.0.0
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
 
+unix|win32: LIBS += -L$$PWD/../ -lOCTLibrary.1.0.0
+
+INCLUDEPATH += $$PWD/../OCTLibrary
+DEPENDPATH += $$PWD/../OCTLibrary
+
 DISTFILES += \
     bscan_vshader.glsl \
     bscan_fshader.glsl
+

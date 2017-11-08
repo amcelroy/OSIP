@@ -1,7 +1,6 @@
 #ifndef LOADDATA_IMPL_H
 #define LOADDATA_IMPL_H
 
-#include "daqpipelinestages_global.h"
 #include "loadoctpipeline.h"
 
 using namespace OSIP;
@@ -19,8 +18,9 @@ void LoadOCTPipeline<I>::configureOCTData(string path, OCTConfig *conf){
     unsigned long dim1 = conf->PointsPerAScan;
     unsigned long dim2 = conf->AScansPerBScan - conf->StartTrim - conf->StopTrim;
     _dim = vector<unsigned long>();
-    _dim.push_back(dim1);
-    _dim.push_back(dim2);
+    _dim.push_back(dim1); //Points in A-Scan
+    _dim.push_back(dim2); //A-Scans per B-Scan
+    _dim.push_back(0); //current frame
 }
 
 template<class I>
@@ -39,9 +39,8 @@ void LoadOCTPipeline<I>::readFrame(int frameNumber){
     }
 
     unsigned long arraySize = 1;
-    for(unsigned long ui : _dim){
-        arraySize *= ui;
-    }
+    arraySize *= _dim[0];
+    arraySize *= _dim[1];
 
     int I_size = sizeof(I) / sizeof(unsigned char);
     unsigned long bufferSize = arraySize*I_size;
@@ -59,6 +58,7 @@ void LoadOCTPipeline<I>::readFrame(int frameNumber){
             recastData->data()[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
         }
 
+        _dim[2] = frameNumber;
         Payload<I> p(_dim, recastData, "Loaded BScan");
         this->sendPayload(p);
         p.finished();
@@ -82,9 +82,8 @@ void LoadOCTPipeline<I>::workStage()
     }
 
     unsigned long arraySize = 1;
-    for(unsigned long ui : _dim){
-        arraySize *= ui;
-    }
+    arraySize *= _dim[0];
+    arraySize *= _dim[1];
 
     int I_size = sizeof(I) / sizeof(unsigned char);
     unsigned long bufferSize = arraySize*I_size;
@@ -104,6 +103,7 @@ loop:
                 recastData->data()[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
             }
 
+            _dim[2] = i;
             Payload<I> p(_dim, recastData, "Loaded BScan");
             this->sendPayload(p);
             p.finished();

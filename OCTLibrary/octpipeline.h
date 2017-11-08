@@ -1,8 +1,8 @@
 #ifndef OCTPIPELINE_H
 #define OCTPIPELINE_H
 
-#include "DAQPipelineStages/loadoctpipeline.h"
-#include "ProcessingPipelineStages/octpipelinestage_cpu.h"
+#include "loadoctpipeline.h"
+#include "octpipelinestage_cpu.h"
 #include "octdisplaystage.h"
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -51,11 +51,13 @@ public slots:
     void slotMinScaleChanged(QVariant min);
     void slotMaxScaleChanged(QVariant max);
     void slotBScanSliderChanged(QVariant frame);
+    void slotEnfaceChanged(QVariant one, QVariant two);
 
 signals:
     void DAQChanged(QVariant PointsPerAScan, QVariant AScansPerBScan, QVariant NumberOfBScans);
     void BScanUpdated(QVariant CurrentBScan);
     void FrameProcessed();
+    void EnFaceUpdated(QVariant CurrentEnFace);
 };
 
 #endif // OCTPIPELINE_H

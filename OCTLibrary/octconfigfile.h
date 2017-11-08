@@ -1,7 +1,7 @@
 #ifndef OCTSETTINGSFILE_H
 #define OCTSETTINGSFILE_H
 
-#include "DAQPipelineStages/loadoctpipeline.h"
+#include "loadoctpipeline.h"
 #include "boost/algorithm/string.hpp"
 
 using namespace OSIP;

@@ -5,7 +5,6 @@
 #-------------------------------------------------
 
 QT       -= gui
-QT       += quick widgets
 
 TARGET = DisplayPipelineStage
 TEMPLATE = lib

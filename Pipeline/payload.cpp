@@ -14,7 +14,4 @@ template class PIPELINESHARED_EXPORT OSIP::Payload<long>;
 template class PIPELINESHARED_EXPORT OSIP::Payload<unsigned long>;
 
 template class PIPELINESHARED_EXPORT OSIP::Payload<float>;
-template class PIPELINESHARED_EXPORT OSIP::Payload<complex<float>>;
-
 template class PIPELINESHARED_EXPORT OSIP::Payload<double>;
-template class PIPELINESHARED_EXPORT OSIP::Payload<complex<double>>;

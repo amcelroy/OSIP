@@ -1,9 +1,9 @@
 #ifndef ALAZARTECHDAQSTAGE_H
 #define ALAZARTECHDAQSTAGE_H
 
-#include "daqpipelinestages_global.h"
+#include "octlibrary_global.h"
 
-class DAQPIPELINESTAGESSHARED_EXPORT AlazarTechDAQStage
+class OCTLIBRARYSHARED_EXPORT AlazarTechDAQStage
 {
 
 public:

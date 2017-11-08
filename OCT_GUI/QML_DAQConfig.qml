@@ -9,7 +9,7 @@ import "Support.js" as Support
 
 Dialog {
     id: window;
-    visible: true
+    visible: false
     width: 480
     height: 480
     title: qsTr("DAQ Config")
@@ -56,8 +56,8 @@ Dialog {
 
     Grid {
         columns: 2
-        anchors.fill: parent
         flow: Grid.TopToBottom
+        anchors.fill: parent
 
         verticalItemAlignment: Grid.AlignVCenter
         horizontalItemAlignment: Grid.AlignHCenter

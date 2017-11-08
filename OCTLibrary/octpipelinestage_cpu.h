@@ -1,16 +1,16 @@
 #ifndef OCTPIPELINESTAGE_H
 #define OCTPIPELINESTAGE_H
 
-#include "processingpipelinestages_global.h"
+#include "octlibrary_global.h"
 #include "Pipeline/pipelinestage.h"
 #include "fftw3.h"
 #include "windowmaker.h"
 #include "boost/signals2.hpp"
-#include "DAQPipelineStages/loadoctpipeline.h"
+#include "loadoctpipeline.h"
 #include <boost/signals2.hpp>
 
 namespace OSIP {
-    class PROCESSINGPIPELINESTAGESSHARED_EXPORT OCTPipelineStageCPU : public PipelineStage<unsigned short, float>
+    class OCTLIBRARYSHARED_EXPORT OCTPipelineStageCPU : public PipelineStage<unsigned short, float>
     {
 
     public:
@@ -23,6 +23,14 @@ namespace OSIP {
         void postStage();
 
         void configure(OCTConfig config);
+
+        /**
+         * @brief setEnfaceRange Sets the range over which to compute the enface, order doesn't matter,
+         * though they should be > 0 and < the image height - 1
+         * @param EnFace1 Enface range 1
+         * @param EnFace2 Enface range 2
+         */
+        void setEnfaceRange(int EnFace1, int EnFace2);
 
         /**
          * @brief notifyStarted Add a subscriber to get notified when the PipelineStage has started
@@ -56,6 +64,8 @@ namespace OSIP {
         void _computeAttenuationSimple(float *f, float *atten);
 
         void _computeMagnitude(fftwf_complex *f, float *mag);
+
+        void _computeEnFace(float *intensity, float *enface);
 
         WindowMaker _windowMaker;
 
@@ -102,6 +112,11 @@ namespace OSIP {
         int _AScansPerBScan;
 
         /**
+         * @brief _NumberOfBScans Number of B-Scans in the volume
+         */
+        int _NumberOfBScans;
+
+        /**
          * @brief _fftplan FFTW plan used to to compute FFT
          */
         fftwf_plan _fftplan;
@@ -110,6 +125,10 @@ namespace OSIP {
          * @brief fftwInit Flag to indicate successfull initialization of the FFT library
          */
         bool fftwInit = false;
+
+        int _EnFaceLower = 0;
+
+        int _EnFaceUpper = 0;
     };
 }
 

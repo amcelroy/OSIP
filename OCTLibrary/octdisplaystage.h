@@ -6,6 +6,7 @@
 #include <QObject>
 #include <bscanimageprovider.h>
 #include <boost/signals2.hpp>
+#include "enfaceimageprovider.h"
 
 namespace OSIP {
 
@@ -23,12 +24,16 @@ namespace OSIP {
         OCTDisplayStageNotifier qt_Notifier;
 
         BScanImageProvider* m_bscanImageProvider;
+
+        EnFaceImageProvider* m_enFaceImageProvider;
     public:
         OCTDisplayStage();
 
         OCTDisplayStageNotifier* getNotifier() { return &qt_Notifier; }
 
-        void setImageProvider(BScanImageProvider *p) { m_bscanImageProvider = p; }
+        void setBScanImageProvider(BScanImageProvider *p) { m_bscanImageProvider = p; }
+
+        void setEnFaceImageProvider(EnFaceImageProvider *p) { m_enFaceImageProvider = p; }
 
     protected:
         void workStage() override;

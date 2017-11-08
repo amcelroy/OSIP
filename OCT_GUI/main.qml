@@ -8,8 +8,7 @@ import QtCharts 2.2
 import QtQuick.Controls.Styles 1.1
 import QtQuick.Dialogs 1.2
 import QtQuick 2.7
-
-import "BScan.js" as GLBScan;
+import edu.utexas.bme.octbackend 1.0
 
 ApplicationWindow {
     id: window
@@ -36,6 +35,10 @@ ApplicationWindow {
 
     MenuBackend{
         id: menuBackend;
+    }
+
+    OCTBackend{
+        id: octBackend;
     }
 
     MenuBar{
@@ -78,8 +81,8 @@ ApplicationWindow {
         id: splitView
         orientation: Qt.Vertical
         anchors.fill: parent
-        width: 256
-        height: 256
+        width: windows.width / 2
+        height: window.width / 2
 
         SplitView {
             id: splitView1
@@ -95,6 +98,8 @@ ApplicationWindow {
                 color: "#000000";
 
                 Image {
+                    signal enfaceChanged(var x, var y);
+
                     id: bscanImage
                     objectName: "qml_BScanImage";
                     source: "image://bscanProvider/x";
@@ -104,9 +109,14 @@ ApplicationWindow {
 
                     function slotUpdateBScanImage(){
                         bscanImage.source = "image://bscanProvider/intensity?" + Math.random();
+                        enFaceImage.source = "image://enFaceProvider/intensity?" + Math.random();
                     }
 
-                    Rectangle {
+                    Component.onCompleted: {
+                        bscanImage.enfaceChanged(enface1MouseArea.y, enface2MouseArea.y);
+                    }
+
+                    /*Rectangle {
                         signal aScanSelectedChanged(var x);
 
                         id: aScanSelector;
@@ -125,6 +135,51 @@ ApplicationWindow {
                                 aScanSelector.aScanSelectedChanged(x);
                             }
                         }
+                    }*/
+
+                    Rectangle {
+
+                        id: enFace1;
+                        objectName: "qml_enFace1";
+                        width: parent.width;
+                        height: 3;
+                        x: 0;
+                        y: parent.height*.45;
+
+                        MouseArea {
+                            id: enface1MouseArea;
+                            anchors.fill: parent;
+                            drag.target: parent;
+                            drag.axis: Drag.YAxis;
+                            drag.maximumX: bscanImage.height*.98;
+                            drag.minimumX: bscanImage.height*.02;
+                            onReleased: {
+                                bscanImage.enfaceChanged(enface1MouseArea.y, enface2MouseArea.y);
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        signal enface2changed(var x);
+
+                        id: enFace2;
+                        objectName: "qml_enFace2";
+                        width: parent.width;
+                        height: 3;
+                        x: 0;
+                        y: parent.height*.5;
+
+                        MouseArea {
+                            id: enface2MouseArea;
+                            anchors.fill: parent;
+                            drag.target: parent;
+                            drag.axis: Drag.YAxis;
+                            drag.maximumX: bscanImage.height*.98;
+                            drag.minimumX: bscanImage.height*.02;
+                            onReleased: {
+                                bscanImage.enfaceChanged(enface1MouseArea.y, enface2MouseArea.y);
+                            }
+                        }
                     }
                 }
 
@@ -136,7 +191,7 @@ ApplicationWindow {
                     objectName: "qml_minMaxSlider";
                     orientation: Qt.Vertical;
                     width: 32;
-                    height: 512;
+                    height: parent.height*.9;
                     anchors.right: parent.right;
                     anchors.verticalCenter: parent.verticalCenter;
                     first.onValueChanged: firstChanged(first.value)
@@ -147,80 +202,66 @@ ApplicationWindow {
                     second.value: 40;
                 }
 
-                Slider{
-                    signal signalSliderChanged(var i);
-
-                    id: bscanSlider;
-                    objectName: "qml_bscanSlider";
-                    height: minMaxSlider.width;
-                    width: parent.width - 50;
-                    orientation: Qt.Horizontal;
+                Grid {
+                    columns: 3
                     anchors.bottom: parent.bottom;
                     anchors.horizontalCenter: parent.horizontalCenter;
-                    stepSize: 1;
-                    value: 0;
-                    minimumValue: 0;
-                    maximumValue: 100;
-                    onValueChanged: {
-                        signalSliderChanged(bscanSlider.value);
-                    }
-                    style: SliderStyle {
-                        groove: Rectangle{
-                            color: "#CC5500";
-                            implicitHeight: 6;
-                            radius: 6;
+                    width: parent.width*.8;
+
+                    Button {
+                        text: "Record"
+                        onClicked: {
+                            octBackend.record();
                         }
                     }
 
-                    function slotDAQChanged(pointsPerA, AperB, NumB){
-                        maximumValue = NumB;
-                    }
+                    Slider{
+                        signal signalSliderChanged(var i);
 
-                    function slotBScanUpdated(frame){
-                        value = frame;
+                        id: bscanSlider;
+                        objectName: "qml_bscanSlider";
+                        height: minMaxSlider.width;
+                        width: parent.width*.8;
+                        orientation: Qt.Horizontal;
+                        stepSize: 1;
+                        value: 0;
+                        minimumValue: 0;
+                        maximumValue: 100;
+                        onValueChanged: {
+                            signalSliderChanged(bscanSlider.value);
+                        }
+                        style: SliderStyle {
+                            groove: Rectangle{
+                                color: "#CC5500";
+                                implicitHeight: 6;
+                                radius: 6;
+                            }
+                        }
+
+                        function slotDAQChanged(pointsPerA, AperB, NumB){
+                            maximumValue = NumB;
+                        }
+
+                        function slotBScanUpdated(frame){
+                            value = frame;
+                        }
                     }
                 }
             }
 
             Rectangle {
-                id: rectangle1
-                width: 200
-                height: 512
-                color: "#000000"
-            }
-
-        }
-
-        SplitView {
-            id: splitView3
-            width: 100
-            height: 100
-            orientation: Qt.Horizontal
-
-            Rectangle {
-                id: chartAreaIntensity
-                width: 200
-                height: 200
+                id: enFaceRectangle
+                width: window.width / 2;
+                height: 512;
                 color: "#000000"
 
-                ChartView{
-                    id: chartViewIntensity
-                    plotAreaColor: "#ffffff"
-                    titleColor: "#000000"
-                    title: "Intensity"
-                    anchors.fill: parent
-                    antialiasing: true
-                    LineSeries {
-                        name: "LineSeries"
-                        XYPoint { x: 0; y: 0 }
-                        XYPoint { x: 1.1; y: 2.1 }
-                        XYPoint { x: 1.9; y: 3.3 }
-                        XYPoint { x: 2.1; y: 2.1 }
-                        XYPoint { x: 2.9; y: 4.9 }
-                        XYPoint { x: 3.4; y: 3.0 }
-                        XYPoint { x: 4.1; y: 3.3 }
-                    }
-
+                Image {
+                    id: enFaceImage
+                    objectName: "qml_EnFaceImage";
+                    source: "image://enFaceProvider/x";
+                    width: parent.width - minMaxSlider.width;
+                    height: parent.height - bscanSlider.height;
+                    cache: false;
                 }
             }
         }

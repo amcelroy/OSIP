@@ -1,13 +1,14 @@
 #include "loadoctpipeline.h"
 #include "loadoctpipeline_impl.h"
+#include "octlibrary_global.h"
 #include <complex>
 
-template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<char>;
-template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<unsigned char>;
-template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<short>;
-template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<unsigned short>;
-template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<int>;
-template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<unsigned int>;
-template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<float>;
-template class DAQPIPELINESTAGESSHARED_EXPORT OSIP::LoadOCTPipeline<double>;
+template class OCTLIBRARYSHARED_EXPORT OSIP::LoadOCTPipeline<char>;
+template class OCTLIBRARYSHARED_EXPORT OSIP::LoadOCTPipeline<unsigned char>;
+template class OCTLIBRARYSHARED_EXPORT OSIP::LoadOCTPipeline<short>;
+template class OCTLIBRARYSHARED_EXPORT OSIP::LoadOCTPipeline<unsigned short>;
+template class OCTLIBRARYSHARED_EXPORT OSIP::LoadOCTPipeline<int>;
+template class OCTLIBRARYSHARED_EXPORT OSIP::LoadOCTPipeline<unsigned int>;
+template class OCTLIBRARYSHARED_EXPORT OSIP::LoadOCTPipeline<float>;
+template class OCTLIBRARYSHARED_EXPORT OSIP::LoadOCTPipeline<double>;
 

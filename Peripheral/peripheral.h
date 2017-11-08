@@ -19,6 +19,8 @@ namespace OSIP {
 
         virtual void stop();
 
+        virtual void init();
+
         /**
          * @brief subscribePaused Sends signal when peripheral is paused
          * @param subscriber
@@ -43,6 +45,12 @@ namespace OSIP {
          */
         void subscribeStop(boost::signals2::signal<void ()>::slot_type subscriber) { sig_Stop.connect(subscriber); }
 
+        /**
+         * @brief subscribeInit Sends signal when peripheral is initialized
+         * @param subscriber
+         */
+        void subscribeInit(boost::signals2::signal<void ()>::slot_type subscriber) { sig_Init.connect(subscriber); }
+
     protected:
 
         boost::signals2::signal<void ()> sig_Paused;
@@ -52,6 +60,8 @@ namespace OSIP {
         boost::signals2::signal<void ()> sig_Reset;
 
         boost::signals2::signal<void ()> sig_Stop;
+
+        boost::signals2::signal<void ()> sig_Init;
     };
 }
 

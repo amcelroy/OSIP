@@ -4,6 +4,8 @@
 #include "pipeline_global.h"
 #include <vector>
 #include <complex>
+#include <string>
+#include <tuple>
 
 using namespace std;
 
@@ -65,6 +67,20 @@ namespace OSIP {
             }else{
                 vectorValid = false;
             }
+        }
+
+        tuple<shared_ptr<vector<I>>, vector<unsigned long>> findByDataName(string name){
+            shared_ptr<vector<I>> tmp_data;
+            vector<unsigned long> tmp_dim;
+
+            for(int i = 0; i < _data.size(); i++){
+                if(name.compare(_Labels[i]) == 0){
+                    tmp_data = _data[i];
+                    tmp_dim = _dim[i];
+                }
+            }
+
+            return tuple<shared_ptr<vector<I>>, vector<unsigned long>>(tmp_data, tmp_dim);
         }
 
         /**

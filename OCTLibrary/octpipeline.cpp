@@ -59,3 +59,7 @@ void OCTPipeline::slotBScanSliderChanged(QVariant frame){
     }
 }
 
+void OCTPipeline::slotEnfaceChanged(QVariant one, QVariant two){
+    _Processor->setEnfaceRange(one.toInt(), two.toInt());
+}
+

@@ -21,3 +21,7 @@ void Peripheral::reset(){
 void Peripheral::stop(){
     sig_Stop();
 }
+
+void Peripheral::init(){
+    sig_Init();
+}

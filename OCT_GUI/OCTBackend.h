@@ -5,7 +5,7 @@
 #include "octpipeline.h"
 #include "octconfigfile.h"
 
-class mainbackend : public QObject
+class OCTBackend : public QObject
 {
     Q_OBJECT
 
@@ -14,14 +14,14 @@ class mainbackend : public QObject
 
     OCTPipeline m_OCTPipeline;
 public:
-    mainbackend();
+    OCTBackend();
 
     OCTPipeline* getOCTPipeline() { return &m_OCTPipeline; }
 
 public slots:
     void loadOCT(string path);
 
-
+    void record();
 };
 
 #endif // MAINBACKEND_H
