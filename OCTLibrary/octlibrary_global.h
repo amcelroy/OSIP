@@ -1,0 +1,12 @@
+#ifndef OCTLIBRARY_GLOBAL_H
+#define OCTLIBRARY_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(OCTLIBRARY_LIBRARY)
+#  define OCTLIBRARYSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define OCTLIBRARYSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // OCTLIBRARY_GLOBAL_H
