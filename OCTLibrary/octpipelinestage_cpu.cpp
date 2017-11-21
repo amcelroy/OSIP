@@ -73,6 +73,8 @@ void OCTPipelineStageCPU::workStage(){
             if(!p.isValid()){
                 pipelineSleep(10);
             }else{
+                auto start = chrono::high_resolution_clock::now();
+
                 //operate on p
                 vector<unsigned long> dim = p.getFirstDimension();
                 int totalDim = 1;
@@ -105,16 +107,18 @@ void OCTPipelineStageCPU::workStage(){
                 auto enFace = make_shared<vector<float>>(_AScansPerBScan);
 
                 _computeMagnitude(fft_out, mag.get()->data());
-                _computeIntensity(mag.get()->data(), intensity.get()->data());
-                _computeAttenuationSimple(mag.get()->data(), atten.get()->data());
-                _computeEnFace(intensity->data(), enFace->data());
+                //_computeIntensity(mag.get()->data(), intensity.get()->data());
+                //_computeAttenuationSimple(mag.get()->data(), atten.get()->data());
 
                 //Compute Log10 and phase
-                //thread intensity_thread(&OCTPipelineStageCPU::_computeIntensity, this, fft_out, intensity.get()->data());
+                thread intensity_thread(&OCTPipelineStageCPU::_computeIntensity, this, mag.get()->data(), intensity.get()->data());
+                thread attenuation_thread(&OCTPipelineStageCPU::_computeAttenuationSimple, this, mag.get()->data(), atten.get()->data());
                 //thread phase_thread(&OCTPipelineStageCPU::_computePhase, this, fft_out, phase.get()->data());
 
-                //intensity_thread.join();
-                //phase_thread.join();
+                intensity_thread.join();
+                attenuation_thread.join();
+
+                _computeEnFace(intensity->data(), enFace->data());
 
                 auto startIt = intensity->begin() + _fft_out_size*m_AScanToDisplay;
                 auto endIt = intensity->begin() + _fft_out_size*(m_AScanToDisplay + 1);
@@ -135,6 +139,11 @@ void OCTPipelineStageCPU::workStage(){
 
                 //Release the payload on our end
                 p_out.finished();
+
+                auto stop = chrono::high_resolution_clock::now();
+
+                std::chrono::duration<double, std::micro> elapsed = stop - start;
+                this->sig_StageTimer(elapsed.count());
 
                 sig_FrameProcessed();
 

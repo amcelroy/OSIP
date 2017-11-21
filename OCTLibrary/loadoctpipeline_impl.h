@@ -30,7 +30,38 @@ void LoadOCTPipeline<I>::preStage()
 }
 
 template<class I>
+void LoadOCTPipeline<I>::reload(){
+    int start = 0;
+    if(m_StartBScan != -1 && m_StartBScan < _N){
+        start = m_StartBScan;
+    }
+
+    int stop = _N;
+    if(m_StopBScan > start && m_StartBScan < _N){
+        stop = m_StopBScan;
+    }
+
+    for(int i = start; i < stop; i++){
+        readFrame(i);
+    }
+}
+
+template<class I>
 void LoadOCTPipeline<I>::readFrame(int frameNumber){
+    if(m_BufferData){
+        if(m_BufferedData.size() == 0){
+            this->sig_MessageLogged("No data is buffered");
+        }else{
+            if(frameNumber < m_BufferedData.size() && frameNumber > 0){
+                this->sendPayload(m_BufferedData.at(frameNumber));
+            }else{
+                this->sig_MessageLogged("Requested frame is not buffered");
+            }
+        }
+
+        return;
+    }
+
     ifstream in;
     in.open(_Filepath, ios::in | ios::binary);
     if(in.fail()){
@@ -106,6 +137,11 @@ loop:
             _dim[2] = i;
             Payload<I> p(_dim, recastData, "Loaded BScan");
             this->sendPayload(p);
+
+            if(m_BufferData){
+                m_BufferedData.push_back(p);
+            }
+
             p.finished();
         }catch(...){
             this->log("Error reading from file " + _Filepath);

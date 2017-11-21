@@ -23,16 +23,40 @@ namespace OSIP {
     template<class I>
     class LoadOCTPipeline : public DAQStage<I>
     {
+    private:
+        bool m_BufferData = false;
+
+        vector<Payload<I>> m_BufferedData;
+
+        int m_StartAScan = -1;
+
+        int m_StartBScan = -1;
+
+        int m_StopAScan = -1;
+
+        int m_StopBScan = -1;
+
     public:
         LoadOCTPipeline();
 
         void configureOCTData(string path, OCTConfig *conf);
+
+        void setBufferData(bool YesNo) { m_BufferData = YesNo; }
 
         /**
          * @brief readFrame Reads a single frame and puts it on the outlet
          * @param frameNumber
          */
         void readFrame(int frameNumber);
+
+        void reload();
+
+        void setBounds(int startAScan, int stopAScan, int startBScan, int stopBScan) {
+            m_StartAScan = startAScan;
+            m_StartBScan = startBScan;
+            m_StopBScan = stopBScan;
+            m_StopAScan = stopAScan;
+        }
     protected:
         void preStage();
 
