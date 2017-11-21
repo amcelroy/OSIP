@@ -38,7 +38,8 @@ SOURCES += \
     pipelinestage.cpp \
     daqstage.cpp \
     payload.cpp \
-    savingstage.cpp
+    savingstage.cpp \
+    openclpipeline.cpp
 
 HEADERS += \
     pipeline_global.h \
@@ -52,6 +53,8 @@ HEADERS += \
     payload_impl.h \
     savingstage.h \
     savingstage_impl.h \
+    openclpipeline.h \
+    openclpipeline_impl.h
 
 unix {
     target.path = /usr/lib
