@@ -20,6 +20,14 @@ ApplicationWindow {
     property var daqWindow;
     property var galvoWindow;
 
+    function updateGUI(){
+        if(octBackend.Mode == octBackend.MODE_REVIEW){
+            reprocessOrGalvo.text = "Update En Face";
+        }else if(octBackend.Mode == octBackend.MODE_LIVE){
+
+        }
+    }
+
     onActiveChanged: {
         chartViewIntensity.legend.visible = false;
         chartViewPhase.legend.visible = false;
@@ -39,6 +47,10 @@ ApplicationWindow {
 
     OCTBackend{
         id: octBackend;
+        objectName: "qml_OCTBackend";
+        onModeChanged: {
+            window.updateGUI();
+        }
     }
 
     MenuBar{
@@ -262,6 +274,119 @@ ApplicationWindow {
                     width: parent.width - minMaxSlider.width;
                     height: parent.height - bscanSlider.height;
                     cache: false;
+
+                    MouseArea {
+                        property int startX: 0
+                        property int startY: 0
+                        property bool dragStarted: false
+                        property bool rectSelected: false
+
+
+                        id: enfaceMouseArea;
+                        anchors.fill: parent;
+                        drag.maximumX: parent.width;
+                        drag.minimumX: 0;
+                        drag.minimumY: 0;
+                        drag.maximumY: parent.height;
+
+                        Rectangle{
+                            id: selectionRectangle;
+                            color: "transparent";
+                            border.color: "yellow";
+
+                            function bounds(point){
+                                selectionRectangle.x = point.x - width/2;
+                                selectionRectangle.y = point.y - height/2;
+
+                                if(x + width > parent.width){
+                                    //Don't move x, allow y move
+                                    width = (parent.width - point.x)*2;
+                                    x = point.x - width/2;
+                                }
+
+                                if(x < 0){
+                                    //Don't move x, allow y move
+                                    width = (point.x)*2;
+                                    x = 0;
+                                }
+
+                                if(y < 0){
+                                    //Don't move x, allow y move
+                                    height = (point.y)*2;
+                                    y = 0;
+                                }
+
+                                if(y + height > parent.height){
+                                    //Don't move x, allow y move
+                                    height = (parent.height - point.y)*2;
+                                    y = point.y - height/2;
+                                }
+                            }
+                        }
+
+                        onPressed: {
+                            var p = selectionRectangle.mapFromItem(enfaceMouseArea,
+                                            enfaceMouseArea.mouseX,
+                                            enfaceMouseArea.mouseY);
+                            if(selectionRectangle.contains(p)){
+                                //Box was clicked on, move the box
+                                selectionRectangle.bounds(Qt.point(enfaceMouseArea.mouseX, enfaceMouseArea.mouseY));
+                                rectSelected = true;
+                            }else{
+                                //Point is outside of box, create a new box
+                                startX = enfaceMouseArea.mouseX;
+                                startY = enfaceMouseArea.mouseY;
+
+                                selectionRectangle.x = -1;
+                                selectionRectangle.y = -1;
+                                selectionRectangle.width = 0;
+                                selectionRectangle.height = 0;
+
+                                selectionRectangle.x = startX;
+                                selectionRectangle.y = startY;
+                                dragStarted = true;
+                                rectSelected = false;
+                            }
+                        }
+
+                        onPositionChanged: {
+                            if(dragStarted){
+                                selectionRectangle.width = enfaceMouseArea.mouseX - startX;
+                                selectionRectangle.height = enfaceMouseArea.mouseY - startY;
+                            }
+
+                            if(rectSelected){
+                                selectionRectangle.bounds(Qt.point(enfaceMouseArea.mouseX, enfaceMouseArea.mouseY));
+                            }
+                        }
+
+                        onReleased: {
+                            dragStarted = false;
+                            rectSelected = false;
+                            octBackend.enFaceSelectionBoundsChanged(selectionRectangle.x,
+                                                                    selectionRectangle.y,
+                                                                    selectionRectangle.width,
+                                                                    selectionRectangle.height,
+                                                                    enfaceMouseArea.width,
+                                                                    enfaceMouseArea.height);
+                        }
+
+
+                    }
+                }
+
+                Row {
+                    anchors.bottom: enFaceRectangle.bottom;
+                    anchors.horizontalCenter: enFaceRectangle.horizontalCenter;
+
+                    Button {
+                        id: reprocessOrGalvo
+                        text: "Update En Face"
+
+                        onClicked: {
+                            octBackend.reprocessEnFace();
+                        }
+                    }
                 }
             }
         }

@@ -11,13 +11,12 @@
 #include "qmlgalvobackend.h"
 #include "enfaceimageprovider.h"
 
-#define DEBUG_QML 1
+#define DEBUG_QML 0
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QQmlApplicationEngine engine;
-    OCTBackend octBackend;
 
     qmlRegisterType<MenuBackend>("edu.utexas.bme.menubackend", 1, 0, "MenuBackend");
     qmlRegisterType<QMLDAQConfigBackend>("edu.utexas.bme.qmlconfigbackend", 1, 0, "QMLDAQConfigBackend");
@@ -39,27 +38,28 @@ int main(int argc, char *argv[])
     QObject* qml_minMaxSlider = rootObject->findChild<QObject*>("qml_minMaxSlider");
     QObject* qml_bscanSlider = rootObject->findChild<QObject*>("qml_bscanSlider");
     QObject* qml_BScanImage = rootObject->findChild<QObject*>("qml_BScanImage");
+    OCTBackend* octBackend = rootObject->findChild<OCTBackend*>("qml_OCTBackend");
 
     //Connect QML Signals to C++ Slots
     QObject::connect(qml_minMaxSlider, SIGNAL(firstChanged(QVariant)),
-                     octBackend.getOCTPipeline(), SLOT(slotMinScaleChanged(QVariant)));
+                     octBackend->getOCTPipeline(), SLOT(slotMinScaleChanged(QVariant)));
     QObject::connect(qml_minMaxSlider, SIGNAL(secondChanged(QVariant)),
-                     octBackend.getOCTPipeline(), SLOT(slotMaxScaleChanged(QVariant)));
+                     octBackend->getOCTPipeline(), SLOT(slotMaxScaleChanged(QVariant)));
     QObject::connect(qml_BScanImage, SIGNAL(enfaceChanged(QVariant, QVariant)),
-                     octBackend.getOCTPipeline(), SLOT(slotEnfaceChanged(QVariant,QVariant)));
+                     octBackend->getOCTPipeline(), SLOT(slotEnfaceChanged(QVariant,QVariant)));
 
     //Connect C++ signals to QML Slots
 
     //Updates the DAQ parameters
-    QObject::connect(octBackend.getOCTPipeline(), SIGNAL(DAQChanged(QVariant,QVariant,QVariant)),
+    QObject::connect(octBackend->getOCTPipeline(), SIGNAL(DAQChanged(QVariant,QVariant,QVariant)),
                      qml_bscanSlider, SLOT(slotDAQChanged(QVariant,QVariant,QVariant)));
 
     //Updates the current frame displayed
-    QObject::connect(octBackend.getOCTPipeline(), SIGNAL(BScanUpdated(QVariant)),
+    QObject::connect(octBackend->getOCTPipeline(), SIGNAL(BScanUpdated(QVariant)),
                      qml_bscanSlider, SLOT(slotBScanUpdated(QVariant)));
 
     //Update and draw a processed frame
-    QObject::connect(octBackend.getOCTPipeline(), SIGNAL(FrameProcessed()),
+    QObject::connect(octBackend->getOCTPipeline(), SIGNAL(FrameProcessed()),
                      qml_BScanImage, SLOT(slotUpdateBScanImage()));
 
 //    //Updates the current frame displayed
@@ -67,18 +67,21 @@ int main(int argc, char *argv[])
 //                     qml_bscanSlider, SLOT(slotBScanUpdated(QVariant)));
 
     QObject::connect(qml_bscanSlider, SIGNAL(signalSliderChanged(QVariant)),
-                     octBackend.getOCTPipeline(), SLOT(slotBScanSliderChanged(QVariant)));
+                     octBackend->getOCTPipeline(), SLOT(slotBScanSliderChanged(QVariant)));
 
-#if DEBUG_QML
-    octBackend.getOCTPipeline()->init();
-    octBackend.getOCTPipeline()->setBScanSlider(qml_bscanSlider);
-    octBackend.getOCTPipeline()->getDisplay()->setBScanImageProvider(_bscanImageProvider);
-    octBackend.getOCTPipeline()->getDisplay()->setEnFaceImageProvider(_enfaceImageProvider);
-    octBackend.getOCTPipeline()->getDisplay()->setMax(40);
-    octBackend.getOCTPipeline()->getDisplay()->setMin(-20);
-    octBackend.loadOCT("/Users/amcelroy/Code/OSIP/test_data/");
-    octBackend.getOCTPipeline()->getLoader()->setLoop(false);
-    octBackend.getOCTPipeline()->slotEnfaceChanged(QVariant(100), QVariant(250));
+#if(DEBUG_QML == 0)
+    //Run a normal loading procedure
+    octBackend->setMode(OCTBackend::MODE_REVIEW);
+    octBackend->getOCTPipeline()->init();
+    octBackend->getOCTPipeline()->setBScanSlider(qml_bscanSlider);
+    octBackend->getOCTPipeline()->getLoader()->setBufferData(true);
+    octBackend->getOCTPipeline()->getDisplay()->setBScanImageProvider(_bscanImageProvider);
+    octBackend->getOCTPipeline()->getDisplay()->setEnFaceImageProvider(_enfaceImageProvider);
+    octBackend->getOCTPipeline()->getDisplay()->setMax(40);
+    octBackend->getOCTPipeline()->getDisplay()->setMin(-20);
+    octBackend->loadOCT("/Users/amcelroy/Code/OSIP/test_data/");
+    octBackend->getOCTPipeline()->getLoader()->setLoop(false);
+    octBackend->getOCTPipeline()->slotEnfaceChanged(QVariant(100), QVariant(250));
 #endif
 
     return app.exec();
