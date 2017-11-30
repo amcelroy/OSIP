@@ -387,6 +387,20 @@ ApplicationWindow {
                             octBackend.reprocessEnFace();
                         }
                     }
+
+                    Button {
+                        id: fullFieldButton
+                        text: "Full Field"
+
+                        onClicked: {
+                            //Add zoom out feature
+                            octBackend.onFullField();
+
+                            if(octBackend.Mode == OCTBackend.MODE_REVIEW){
+                                octBackend.reprocessEnFace();
+                            }
+                        }
+                    }
                 }
             }
         }

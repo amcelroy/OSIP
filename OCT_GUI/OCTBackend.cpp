@@ -27,7 +27,14 @@ void OCTBackend::record(){
 }
 
 void OCTBackend::reprocessEnFace(){
+    setMode(OCTBackend::MODE_LOADING);
     m_OCTPipeline.getLoader()->reload();
+}
+
+void OCTBackend::onFullField(){
+    if(m_Mode == OCTBackend::MODE_REVIEW){
+        m_OCTPipeline.getLoader()->setBounds(-1, -1, -1, -1);
+    }
 }
 
 void OCTBackend::enFaceSelectionBoundsChanged(QVariant xPixels,

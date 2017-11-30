@@ -59,6 +59,8 @@ public slots:
                                       QVariant selectionHeightPixels,
                                       QVariant canvasWidthPixels,
                                       QVariant canvasHeightPixels);
+
+    void onFullField();
 };
 
 #endif // MAINBACKEND_H

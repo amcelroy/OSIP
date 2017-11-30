@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     octBackend->setMode(OCTBackend::MODE_REVIEW);
     octBackend->getOCTPipeline()->init();
     octBackend->getOCTPipeline()->setBScanSlider(qml_bscanSlider);
-    octBackend->getOCTPipeline()->getLoader()->setBufferData(true);
+    //octBackend->getOCTPipeline()->getLoader()->setBufferData(true);
     octBackend->getOCTPipeline()->getDisplay()->setBScanImageProvider(_bscanImageProvider);
     octBackend->getOCTPipeline()->getDisplay()->setEnFaceImageProvider(_enfaceImageProvider);
     octBackend->getOCTPipeline()->getDisplay()->setMax(40);
