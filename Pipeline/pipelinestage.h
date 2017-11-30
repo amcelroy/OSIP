@@ -1,5 +1,5 @@
-#ifndef PIPELINE_H
-#define PIPELINE_H
+#ifndef PIPELINESTAGE_H
+#define PIPELINESTAGE_H
 
 #include "pipeline_global.h"
 #include "inlet.h"
@@ -125,4 +125,4 @@ namespace OSIP {
     };
 }
 
-#endif // PIPELINE_H
+#endif // PIPELINESTAGE_H

@@ -9,3 +9,5 @@ template class PIPELINESHARED_EXPORT OSIP::SavingStage<int>;
 template class PIPELINESHARED_EXPORT OSIP::SavingStage<unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::SavingStage<float>;
 template class PIPELINESHARED_EXPORT OSIP::SavingStage<double>;
+template class PIPELINESHARED_EXPORT OSIP::SavingStage<long>;
+template class PIPELINESHARED_EXPORT OSIP::SavingStage<unsigned long>;

@@ -54,7 +54,8 @@ HEADERS += \
     savingstage.h \
     savingstage_impl.h \
     openclpipeline.h \
-    openclpipeline_impl.h
+    openclpipeline_impl.h \
+    pipeline.h
 
 unix {
     target.path = /usr/lib
@@ -65,3 +66,11 @@ unix|win32: LIBS += -L$$PWD/../ -lPeripheral.1.0.0
 
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
+
+macx {
+    #Add OpenCL framework
+    XCODE_FRAMEWORKS = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks
+    QMAKE_LFLAGS += -F$${XCODE_FRAMEWORKS}
+    LIBS += -framework OpenCL
+    INCLUDEPATH += $${XCODE_FRAMEWORKS}/opencl.framework/Headers
+}

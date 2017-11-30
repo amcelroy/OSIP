@@ -9,3 +9,5 @@ template class PIPELINESHARED_EXPORT OSIP::DAQStage<int>;
 template class PIPELINESHARED_EXPORT OSIP::DAQStage<unsigned int>;
 template class PIPELINESHARED_EXPORT OSIP::DAQStage<float>;
 template class PIPELINESHARED_EXPORT OSIP::DAQStage<double>;
+template class PIPELINESHARED_EXPORT OSIP::DAQStage<long>;
+template class PIPELINESHARED_EXPORT OSIP::DAQStage<unsigned long>;

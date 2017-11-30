@@ -5,6 +5,7 @@
 #include "pipelinestage.h"
 #include "boost/signals2.hpp"
 #include "boost/endian/arithmetic.hpp"
+#include "boost/endian/conversion.hpp"
 #include <fstream>
 
 using namespace std;
@@ -16,29 +17,46 @@ namespace OSIP {
         boost::signals2::signal<void()> sig_SavingFinished;
 
         boost::endian::order m_SystemEndianess;
+
+        ofstream m_FileStream;
     public:
         SavingStage();
 
-        void toBinaryUInt16(string path, unsigned short* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
+        bool createFile(string path);
 
-        void toBinaryFloat(string path, float* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
+        void toBinaryUInt16(unsigned short* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
 
-        void toBinaryDouble(string path, double* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
+        void toBinaryFloat(float* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
 
-        void toBinaryInt16(string path, short* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
+        void toBinaryDouble(double* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
 
-        void toBinaryUInt32(string path, unsigned int* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
+        void toBinaryInt16(short* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
 
-        void toBinaryInt32(string path, int* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
+        void toBinaryUInt32(unsigned int* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
 
-        void toBinaryU8(string path, unsigned char* data, unsigned long N);
+        void toBinaryInt32(int* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
 
-        void toBinaryChar(string path, char* data, unsigned long N);
+        void toBinaryInt64(long* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
 
+        void toBinaryUInt64(unsigned long* data, unsigned long N, boost::endian::order endian = boost::endian::order::big);
+
+        void toBinaryU8(unsigned char* data, unsigned long N);
+
+        void toBinaryChar(char* data, unsigned long N);
+
+        /**
+         * @brief subscribeSavingFinished Subscribes to saving finished event
+         * @param subcriber
+         */
+        void subscribeSavingFinished(boost::signals2::signal<void ()>::slot_type &subcriber);
     protected:
-        virtual void postStage();
+        void preStage();
 
-        void _saveData(string path, void *data, unsigned long NBytes);
+        void workStage();
+
+        void postStage();
+
+        void _saveData(void *data, unsigned long NBytes);
     };
 }
 
