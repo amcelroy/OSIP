@@ -49,6 +49,7 @@ void PipelineStage<I, O>::start(){
     preStage();
 
     _StageThread = thread(&PipelineStage<I,O>::workStage, this);
+    _StageThread.detach();
 }
 
 template<class I, class O>

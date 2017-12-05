@@ -74,3 +74,12 @@ macx {
     LIBS += -framework OpenCL
     INCLUDEPATH += $${XCODE_FRAMEWORKS}/opencl.framework/Headers
 }
+
+macx: LIBS += -L$$PWD/../ -lboost_filesystem
+macx: LIBS += -L$$PWD/../ -lboost_system
+macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5
+macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_tools
+macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_hl
+macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_cpp
+macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_hl_cpp
+INCLUDEPATH += $$PWD/../HDF5/1.10.1/include

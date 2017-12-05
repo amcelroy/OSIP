@@ -7,114 +7,60 @@ using namespace OSIP;
 
 template<class I>
 SavingStage<I>::SavingStage(){
-    //Set system endianess first;
-    //https://stackoverflow.com/questions/1001307/detecting-endianness-programmatically-in-a-c-program
-    if ( htonl(47) == 47 ) {
-      // Big endian
-        m_SystemEndianess = boost::endian::order::big;
-    } else {
-      // Little endian.
-        m_SystemEndianess = boost::endian::order::little;
-    }
+//    //Set system endianess first;
+//    //https://stackoverflow.com/questions/1001307/detecting-endianness-programmatically-in-a-c-program
+//    if ( htonl(47) == 47 ) {
+//      // Big endian
+//        m_SystemEndianess = boost::endian::order::big;
+//    } else {
+//      // Little endian.
+//        m_SystemEndianess = boost::endian::order::little;
+//    }
 }
 
 template<class I>
-bool SavingStage<I>::createFile(string path){
-    bool fileCreated = false;
-
-    m_FileStream.open(path, std::ofstream::binary | std::ofstream::app);
-
-    if(m_FileStream.is_open()){
-        fileCreated = true;
-        this->sig_MessageLogged("File created: " + path);
-    }else{
-        this->sig_MessageLogged("Failed to create file: " + path);
-        return false;
-    }
-}
-
-template<class I>
-void SavingStage<I>::toBinaryUInt16(unsigned short* data, unsigned long N, boost::endian::order endian){
-    if(m_SystemEndianess == endian){
-        //save normally
-        _saveData(data, sizeof(unsigned short)*N);
-    }else{
-        int elements = N / sizeof(unsigned short);
-        for(int i = 0; i < elements; i++){
-            boost::endian::endian_reverse_inplace(data[i]);
+bool SavingStage<I>::setSavePath(string FolderPath){
+    boost::filesystem::path p(FolderPath);
+    if(boost::filesystem::exists(p)){ //valid folder?
+        if(boost::filesystem::is_directory(p)){ //valid directory?
+            this->m_FolderPath = FolderPath;
+            this->m_FolderPathSet = true;
+            return true;
         }
-        _saveData(data, sizeof(unsigned short)*N);
     }
+
+    m_FolderPathSet = false;
+    return false;
 }
 
 template<class I>
-void SavingStage<I>::toBinaryFloat(float* data, unsigned long N, boost::endian::order endian){
-    if(m_SystemEndianess == endian){
-        //save normally
-        _saveData(data, sizeof(float)*N);
-    }else{
-        int elements = N / sizeof(float);
-        for(int i = 0; i < elements; i++){
-            boost::endian::endian_reverse_inplace(data[i]);
-        }
-        _saveData(data, sizeof(float)*N);
-    }
+void SavingStage<I>::toBinaryUInt16(unsigned short* data, unsigned long N){
+    _saveData(data, sizeof(unsigned short)*N);
 }
 
 template<class I>
-void SavingStage<I>::toBinaryDouble(double* data, unsigned long N, boost::endian::order endian){
-    if(m_SystemEndianess == endian){
-        //save normally
-        _saveData(data, sizeof(double)*N);
-    }else{
-        int elements = N / sizeof(double);
-        for(int i = 0; i < elements; i++){
-            boost::endian::endian_reverse_inplace(data[i]);
-        }
-        _saveData(data, sizeof(double)*N);
-    }
+void SavingStage<I>::toBinaryFloat(float* data, unsigned long N){
+    _saveData(data, sizeof(float)*N);
 }
 
 template<class I>
-void SavingStage<I>::toBinaryInt16(short* data, unsigned long N, boost::endian::order endian){
-    if(m_SystemEndianess == endian){
-        //save normally
-        _saveData(data, sizeof(short)*N);
-    }else{
-        int elements = N / sizeof(short);
-        for(int i = 0; i < elements; i++){
-            boost::endian::endian_reverse_inplace(data[i]);
-        }
-        _saveData(data, sizeof(short)*N);
-    }
+void SavingStage<I>::toBinaryDouble(double* data, unsigned long N){
+    _saveData(data, sizeof(double)*N);
 }
 
 template<class I>
-void SavingStage<I>::toBinaryUInt32(unsigned int* data, unsigned long N, boost::endian::order endian){
-    if(m_SystemEndianess == endian){
-        //save normally
-        _saveData(data, sizeof(unsigned int)*N);
-    }else{
-        int elements = N / sizeof(unsigned int);
-        for(int i = 0; i < elements; i++){
-            boost::endian::endian_reverse_inplace(data[i]);
-        }
-        _saveData(data, sizeof(unsigned int)*N);
-    }
+void SavingStage<I>::toBinaryInt16(short* data, unsigned long N){
+    _saveData(data, sizeof(short)*N);
 }
 
 template<class I>
-void SavingStage<I>::toBinaryInt32(int* data, unsigned long N, boost::endian::order endian){
-    if(m_SystemEndianess == endian){
-        //save normally
-        _saveData(data, sizeof(int)*N);
-    }else{
-        int elements = N / sizeof(int);
-        for(int i = 0; i < elements; i++){
-            boost::endian::endian_reverse_inplace(data[i]);
-        }
-        _saveData(data, sizeof(int)*N);
-    }
+void SavingStage<I>::toBinaryUInt32(unsigned int* data, unsigned long N){
+    _saveData(data, sizeof(unsigned int)*N);
+}
+
+template<class I>
+void SavingStage<I>::toBinaryInt32(int* data, unsigned long N){
+    _saveData(data, sizeof(int)*N);
 }
 
 template<class I>
@@ -128,41 +74,23 @@ void SavingStage<I>::toBinaryChar(char* data, unsigned long N){
 }
 
 template<class I>
-void SavingStage<I>::toBinaryInt64(long* data, unsigned long N, boost::endian::order endian){
-    if(m_SystemEndianess == endian){
-        //save normally
-        _saveData(data, sizeof(long)*N);
-    }else{
-        int elements = N / sizeof(long);
-        for(int i = 0; i < elements; i++){
-            boost::endian::endian_reverse_inplace(data[i]);
-        }
-        _saveData(data, sizeof(long)*N);
-    }
+void SavingStage<I>::toBinaryInt64(long* data, unsigned long N){
+    _saveData(data, sizeof(long)*N);
 }
 
 template<class I>
-void SavingStage<I>::toBinaryUInt64(unsigned long* data, unsigned long N, boost::endian::order endian){
-    if(m_SystemEndianess == endian){
-        //save normally
-        _saveData(data, sizeof(unsigned long)*N);
-    }else{
-        int elements = N / sizeof(unsigned long);
-        for(int i = 0; i < elements; i++){
-            boost::endian::endian_reverse_inplace(data[i]);
-        }
-        _saveData(data, sizeof(unsigned long)*N);
-    }
+void SavingStage<I>::toBinaryUInt64(unsigned long* data, unsigned long N){
+    _saveData(data, sizeof(unsigned long)*N);
 }
 
 template<class I>
 void SavingStage<I>::_saveData(void *data, unsigned long NBytes){
-    try{
-        //Save data
-        m_FileStream.write((char*)data, NBytes);
-    }catch(exception e){
-        this->sig_MessageLogged("Error saving file - ");
-    }
+//    try{
+//        //Save data
+//        m_FileStream.write((char*)data, NBytes);
+//    }catch(exception e){
+//        this->sig_MessageLogged("Error saving file - ");
+//    }
 }
 
 template<class I>
@@ -177,31 +105,49 @@ void SavingStage<I>::postStage(){
 
 template<class I>
 void SavingStage<I>::workStage(){
-    if(m_FileStream.is_open()){
-//        while(!this->stopThread){
-//            if(this->pauseThread){
-//                this->pipelineSleep(10);
-//            }else{
-//                //dequeue data
-//                Payload<int> p = this->fetchPayload();
+    if(this->m_FolderPathSet){
+        while(!this->stopThread){
+            if(this->pauseThread){
+                this->pipelineSleep(10);
+            }else{
+                //dequeue data
+                Payload<I> p = this->fetchPayload();
 
-//                if(!p.isValid()){
-//                    this->pipelineSleep(10);
-//                }else{
-//                    auto start = chrono::high_resolution_clock::now();
+                if(!p.isValid()){
+                    this->pipelineSleep(10);
+                }else{
+                    vector<string> labels = p.getDataNames();
 
+                    auto start = chrono::high_resolution_clock::now();
+                    for(unsigned long i = 0; i < labels.size(); i++){
+                        if(m_StreamDictionary.count(labels.at(i)) == 0){
+                            //not found, create stream and add to map
+                            boost::filesystem::path folderPath(this->m_FolderPath);
+                            boost::filesystem::path name(labels[i] + ".bin");
+                            boost::filesystem::path fullpath = folderPath / name;
 
+                        }else{
+                            //found
 
-//                    auto stop = chrono::high_resolution_clock::now();
+                        }
+                    }
 
-//                    std::chrono::duration<double, std::micro> elapsed = stop - start;
-//                    this->sig_StageTimer(elapsed.count());
-//                }
-//            }
-//        }
+                    auto stop = chrono::high_resolution_clock::now();
+
+                    std::chrono::duration<double, std::micro> elapsed = stop - start;
+                    this->sig_StageTimer(elapsed.count());
+                }
+            }
+        }
+
+        this->sig_SavingFinished(false, "Saving Completed");
+    }else{
+        string error = "Folder path not set for the Saving Stage";
+        this->sig_MessageLogged(error);
+        this->sig_SavingFinished(true, error);
     }
 
-    this->sig_SavingFinished();
+
 
     postStage();
 }
