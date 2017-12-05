@@ -28,4 +28,10 @@ DISTFILES += \
     test.cl \
 
 HEADERS += \
-    openclpipeline_test.h
+    openclpipeline_test.h \
+    saving_test.h
+
+macx: LIBS += -L$$PWD/../ -lboost_filesystem
+macx: LIBS += -L$$PWD/../ -lboost_system
+
+TARGET = pipeline_test_exe
