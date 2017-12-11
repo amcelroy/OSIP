@@ -3,6 +3,7 @@
 
 #include "octlibrary_global.h"
 #include "Pipeline/pipelinestage.h"
+#include "Pipeline/openclpipeline.h"
 #include "fftw3.h"
 #include "windowmaker.h"
 #include "boost/signals2.hpp"
@@ -10,7 +11,7 @@
 #include <boost/signals2.hpp>
 
 namespace OSIP {
-    class OCTLIBRARYSHARED_EXPORT OCTPipelineStageCPU : public PipelineStage<unsigned short, float>
+    class OCTLIBRARYSHARED_EXPORT OCTPipelineStageCPU : public OpenCLPipeline<unsigned short, float>
     {
 
     public:
