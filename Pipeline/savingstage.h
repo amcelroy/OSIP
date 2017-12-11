@@ -8,6 +8,9 @@
 #include "boost/endian/conversion.hpp"
 #include "boost/filesystem.hpp"
 #include "hdf5.h"
+#include "H5Cpp.h"
+#include "zlib.h"
+#include "szlib.h"
 #include <fstream>
 
 using namespace std;
@@ -18,11 +21,13 @@ namespace OSIP {
     {
         boost::signals2::signal<void (bool, string)> sig_SavingFinished;
 
-        map<string, ofstream> m_StreamDictionary;
-
         string m_FolderPath;
 
+        string m_Filename = "";
+
         bool m_FolderPathSet = false;
+
+        H5::H5File* m_H5File;
     public:
         SavingStage();
 
@@ -32,6 +37,12 @@ namespace OSIP {
          * @return True if the folder path both exists and is a folder, false otherwise
          */
         bool setSavePath(string FolderPath);
+
+        /**
+         * @brief setFilename Sets the filename of the HDF5 file. If not set, the default is dataset.hdf5
+         * @param filename
+         */
+        void setFilename(const string &filename) { m_Filename = filename; }
 
         void toBinaryUInt16(unsigned short* data, unsigned long N);
 
@@ -58,6 +69,18 @@ namespace OSIP {
          * @param subcriber
          */
         void subscribeSavingFinished(const boost::signals2::signal<void (bool, string)>::slot_type &subscriber) { sig_SavingFinished.connect(subscriber); }
+
+        /**
+         * @brief getHDF5 Returns the H5 datatype based on the template class
+         * @return
+         */
+         H5::DataSet* _createDataSet(const string &name, const H5::DataSpace &ds);
+
+         /**
+          * @brief _writeDataSet Writes the H5 data based on the template class
+          * @param b
+          */
+         void _writeDataSet(H5::DataSet *ds, void *b);
     protected:
         void preStage() override;
 

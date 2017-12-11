@@ -8,7 +8,7 @@ QT       += core network opengl
 
 QT       -= gui
 
-QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12
+QMAKE_MAC_SDK = macosx10.12
 
 TARGET = Pipeline
 TEMPLATE = lib
@@ -39,7 +39,8 @@ SOURCES += \
     daqstage.cpp \
     payload.cpp \
     savingstage.cpp \
-    openclpipeline.cpp
+    openclpipeline.cpp \
+    peripheral.cpp
 
 HEADERS += \
     pipeline_global.h \
@@ -55,17 +56,13 @@ HEADERS += \
     savingstage_impl.h \
     openclpipeline.h \
     openclpipeline_impl.h \
-    pipeline.h
+    pipeline.h \
+    peripheral.h
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
-
-unix|win32: LIBS += -L$$PWD/../ -lPeripheral.1.0.0
-
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../
 
 macx {
     #Add OpenCL framework
@@ -82,4 +79,9 @@ macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_tools
 macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_hl
 macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_cpp
 macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_hl_cpp
+macx: LIBS += -L$$PWD/../szip/2.1.1/lib -lszip
+macx: LIBS += -L$$PWD/../zlib/1.2.11/lib -lz
+
 INCLUDEPATH += $$PWD/../HDF5/1.10.1/include
+INCLUDEPATH += $$PWD/../szip/2.1.1/include
+INCLUDEPATH += $$PWD/../zlib/1.2.11/include
