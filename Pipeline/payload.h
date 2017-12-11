@@ -21,7 +21,7 @@ namespace OSIP {
         /**
          * @brief Payload
          */
-        Payload(vector<unsigned long> dim, shared_ptr<vector<I>> data, string label);
+        Payload(vector<unsigned long long> dim, shared_ptr<vector<I>> data, string label);
 
         Payload(){ }
 
@@ -57,7 +57,7 @@ namespace OSIP {
             return *this;
         }
 
-        void addData(vector<unsigned long> dim, shared_ptr<vector<I>> data, string label) {
+        void addData(vector<unsigned long long> dim, shared_ptr<vector<I>> data, string label) {
             _dim.push_back(dim);
             _data.push_back(data);
             _Labels.push_back(label);
@@ -69,9 +69,9 @@ namespace OSIP {
             }
         }
 
-        tuple<shared_ptr<vector<I>>, vector<unsigned long>> findByDataName(string name){
+        tuple<shared_ptr<vector<I>>, vector<unsigned long long>> findByDataName(string name){
             shared_ptr<vector<I>> tmp_data;
-            vector<unsigned long> tmp_dim;
+            vector<unsigned long long> tmp_dim;
 
             for(int i = 0; i < _data.size(); i++){
                 if(name.compare(_Labels[i]) == 0){
@@ -80,7 +80,7 @@ namespace OSIP {
                 }
             }
 
-            return tuple<shared_ptr<vector<I>>, vector<unsigned long>>(tmp_data, tmp_dim);
+            return tuple<shared_ptr<vector<I>>, vector<unsigned long long>>(tmp_data, tmp_dim);
         }
 
         /**
@@ -93,13 +93,13 @@ namespace OSIP {
          * @brief getDimensions Convenience function to get the first dimensions
          * @return Dimensions of at location 0
          */
-        vector<unsigned long> getFirstDimension() { return _dim.at(0); }
+        vector<unsigned long long> getFirstDimension() { return _dim.at(0); }
 
         /**
          * @brief getDimensions Convenience function to get the first label
          * @return Label at location 0
          */
-        vector<unsigned long> getFirstLabel() { return _dim.at(0); }
+        std::string getFirstLabel() { return _Labels.at(0); }
 
         /**
          * @brief getData Returns all shared_ptr<I> data stored in this Payload
@@ -117,7 +117,7 @@ namespace OSIP {
          * @brief getDimensions Returns all dimension vectors
          * @return a vector of dimensions
          */
-        vector<vector<unsigned long>> getDimensions() { return _dim; }
+        vector<vector<unsigned long long>> getDimensions() { return _dim; }
 
         /**
          * @brief finished Deletes shared_ptr<I> references held by this Payload and clears the dimensions vector
@@ -125,14 +125,16 @@ namespace OSIP {
         void finished() {
             _data.clear();
             _dim.clear();
+            _Labels.clear();
         }
 
         bool isValid() { return vectorValid; }
+
     private:
         /**
          * @brief _dim N Dimensions stored in a vector
          */
-        vector<vector<unsigned long>> _dim;
+        vector<vector<unsigned long long>> _dim;
 
         /**
          * @brief wrapped_data Data to send

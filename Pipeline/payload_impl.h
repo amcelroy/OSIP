@@ -6,7 +6,7 @@
 using namespace OSIP;
 
 template <class I>
-Payload<I>::Payload(vector<unsigned long> dim, shared_ptr<vector<I>> data, string label)
+Payload<I>::Payload(vector<unsigned long long> dim, shared_ptr<vector<I>> data, string label)
 {
     addData(dim, data, label);
 }
