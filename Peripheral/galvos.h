@@ -4,19 +4,21 @@
 #include "peripheral.h"
 
 namespace OSIP{
-    class Galvos : public Peripheral
-    {
-    public:
-        Galvos();
+    namespace Peripherals{
+        class Galvos : public Peripheral
+        {
+        public:
+            Galvos();
 
-        void run() override;
+            void run() override;
 
-        void stop() override;
+            void stop() override;
 
-        void pause() override;
+            void pause() override;
 
-        void reset() override;
-    };
+            void reset() override;
+        };
+    }
 }
 
 #endif // GALVOS_H

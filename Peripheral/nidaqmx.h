@@ -4,29 +4,33 @@
 #include <NIDAQmxBase.h>
 #include "peripheral.h"
 
-namespace OSIP {
-    class NIDAQmx : public Peripheral
-    {
-    public:
-        NIDAQmx(std::string dev_channel);
+namespace OSIP{
+    namespace Peripherals{
+        class NIDAQmx : public Peripheral
+        {
+        public:
+            NIDAQmx(std::string dev_channel);
 
-        virtual void run();
+            virtual void run();
 
-        virtual void pause();
+            virtual void pause();
 
-        virtual void reset();
+            virtual void reset();
 
-        virtual void stop();
+            virtual void stop();
 
-        virtual void init();
+            virtual void init();
 
-    private:
+            TaskHandle getTaskHandle() { return m_Handle; }
 
-        TaskHandle m_Handle;
+        private:
 
-        std::string m_Channel;
+            TaskHandle m_Handle;
 
-    };
+            std::string m_Channel;
+
+        };
+    }
 }
 
 #endif // NIDAQMX_H

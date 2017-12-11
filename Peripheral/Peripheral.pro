@@ -37,17 +37,22 @@ INCLUDEPATH += $$PWD/../boost_1_65
 DESTDIR = $$PWD/../
 
 SOURCES += \
-        peripheral.cpp \
     galvos.cpp \
-    nidaqmx.cpp
+    nidaqmx.cpp \
+    nidaqmxgalvos.cpp
 
 HEADERS += \
-        peripheral.h \
         peripheral_global.h \  
     galvos.h \
-    nidaqmx.h
+    nidaqmx.h \
+    nidaqmxgalvos.h
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+macx: LIBS += -L$$PWD/../ -lPipeline.1.0.0
+
+INCLUDEPATH += $$PWD/../Pipeline
+DEPENDPATH += $$PWD/../Pipeline
