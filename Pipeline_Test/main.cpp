@@ -49,6 +49,28 @@ bool _Test_1_OpenCL_Test(OpenCLPipeline<unsigned short, float>* p){
 bool _Test_2_Saving_Test(string rootPath){
     SavingTest<int> i32_Save;
     i32_Save.run(rootPath);
+
+    SavingTest<unsigned int> u32_Save;
+    u32_Save.run(rootPath);
+
+    SavingTest<unsigned short> u16_Save;
+    u16_Save.run(rootPath);
+
+    SavingTest<short> i16_Save;
+    i16_Save.run(rootPath);
+
+    SavingTest<unsigned char> u8_Save;
+    u8_Save.run(rootPath);
+
+    SavingTest<char> i8_Save;
+    i8_Save.run(rootPath);
+
+    SavingTest<float> f_Save;
+    f_Save.run(rootPath);
+
+    SavingTest<double> d_Save;
+    d_Save.run(rootPath);
+
     return true;
 }
 

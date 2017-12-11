@@ -3,6 +3,8 @@ QT -= gui
 CONFIG += c++11 console
 CONFIG -= app_bundle
 
+QMAKE_MAC_SDK = macosx10.12
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -33,5 +35,22 @@ HEADERS += \
 
 macx: LIBS += -L$$PWD/../ -lboost_filesystem
 macx: LIBS += -L$$PWD/../ -lboost_system
+
+DEPENDPATH += $$PWD/../HDF5/1.10.1/lib
+macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5
+macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_tools
+macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_hl
+macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_cpp
+macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_hl_cpp
+
+DEPENDPATH += $$PWD/../szip/2.1.1/lib
+macx: LIBS += -L$$PWD/../szip/2.1.1/lib -lszip
+
+DEPENDPATH += $$PWD/../zlib/1.2.11/lib
+macx: LIBS += -L$$PWD/../zlib/1.2.11/lib -lz
+
+INCLUDEPATH += $$PWD/../HDF5/1.10.1/include
+INCLUDEPATH += $$PWD/../szip/2.1.1/include
+INCLUDEPATH += $$PWD/../zlib/1.2.11/include
 
 TARGET = pipeline_test_exe
