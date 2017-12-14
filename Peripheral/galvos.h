@@ -3,20 +3,26 @@
 
 #include "peripheral.h"
 
+using namespace std;
+
 namespace OSIP{
     namespace Peripherals{
-        class Galvos : public Peripheral
+        class Galvos
         {
+        private:
+            vector<double> m_FastAxisVoltages;
+
+            vector<double> m_SlowAxisVoltages;
+
         public:
             Galvos();
 
-            void run() override;
-
-            void stop() override;
-
-            void pause() override;
-
-            void reset() override;
+            void generateRaster(double SlowAxisAmplitude,
+                                double SlowAxisOffset,
+                                int SlowAxisPoints,
+                                double FastAxisAmplitude,
+                                double FastAxisOffset,
+                                int FastAxisPoints);
         };
     }
 }

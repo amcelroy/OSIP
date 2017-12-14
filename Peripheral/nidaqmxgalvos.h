@@ -9,15 +9,13 @@ using namespace std;
 
 namespace OSIP{
     namespace Peripherals{
-        class niDAQMXGalvos : public NIDAQmx
+        class niDAQMXGalvos : public NIDAQmx, public Galvos
         {
 
         public:
-            niDAQMXGalvos(const string &channel);
+            niDAQMXGalvos(string channel, unsigned long long SamplesPerChannel);
 
             void run() override;
-
-            void init() override;
 
             void pause() override;
 
