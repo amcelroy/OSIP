@@ -19,12 +19,12 @@ void OCTDisplayStage::workStage(){
             if(!p.isValid()){
                 this->pipelineSleep(50);
             }else{
-                vector<vector<unsigned long>> dims = p.getDimensions();
+                vector<vector<unsigned long long>> dims = p.getDimensions();
                 vector<shared_ptr<vector<float>>> datas = p.getData();
 
                 //dims: 0 - A per B, 1 - Total B, 2 - Current B
                 auto enFace = p.findByDataName("EnFace_Slice");
-                vector<unsigned long> enFaceDims = get<1>(enFace);
+                vector<unsigned long long> enFaceDims = get<1>(enFace);
                 shared_ptr<vector<float>> enFaceData = get<0>(enFace);
 
 

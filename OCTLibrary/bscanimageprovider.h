@@ -18,7 +18,7 @@ public:
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 
-    void setPixels(shared_ptr<vector<unsigned int>> i, vector<unsigned long> dims) {
+    void setPixels(shared_ptr<vector<unsigned int>> i, vector<unsigned long long> dims) {
         QMutexLocker qm(&m_imageLock);
         if(i != nullptr){
             //Insures the shared_ptr reference count is held here also

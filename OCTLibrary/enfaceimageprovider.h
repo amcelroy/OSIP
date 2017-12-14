@@ -27,7 +27,7 @@ public:
      * @param i Current row to update in the EnFace, should be A-Scans per B-Scan long
      * @param dims Dims should be the following: 0 - A-Scans per B-Scan, 1 - Number Of BScans, 2 - Current B-Scan
      */
-    void setRow(shared_ptr<vector<unsigned int>> i, vector<unsigned long> dims){
+    void setRow(shared_ptr<vector<unsigned int>> i, vector<unsigned long long> dims){
         if(m_EnFace == NULL){
             unsigned long size = dims[0]*dims[1];
             m_EnFace = new unsigned int[size];

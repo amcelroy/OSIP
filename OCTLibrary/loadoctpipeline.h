@@ -64,7 +64,7 @@ namespace OSIP {
 
         void postStage();
 
-        vector<unsigned long> _dim;
+        vector<unsigned long long> _dim;
 
         int _N;
 

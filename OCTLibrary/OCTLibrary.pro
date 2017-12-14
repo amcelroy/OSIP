@@ -26,8 +26,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 DESTDIR = $$PWD/../
 
-INCLUDEPATH += $$PWD/../boost_1_65
-
 SOURCES += \
         octlibrary.cpp \
     loadoctpipeline.cpp \
@@ -61,20 +59,26 @@ unix {
     INSTALLS += target
 }
 
+INCLUDEPATH += $$PWD/../dependancies/boost_1_65
+
 unix|win32: LIBS += -L$$PWD/../ -lPipeline.1.0.0
 
-INCLUDEPATH += $$PWD/../Pipeline
+INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
 
 unix|win32: LIBS += -L$$PWD/../ -lPeripheral.1.0.0
 
 INCLUDEPATH += $$PWD/../Peripheral
-DEPENDPATH += $$PWD/../
 
-unix|win32: LIBS += -L$$PWD/../ -lfftw3f.3
+win32 {
+    LIBS += -L$$PWD/../dependancies/fftw/lib/win-vs17_x64 -lfftw3f-3
+}
 
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../
+macx {
+    LIBS += -L$$PWD/../dependancies/fftw/lib/macOS-xcode_x64 -lfftw3f.3
+}
+
+INCLUDEPATH += $$PWD/../dependancies/fftw/include
 
 unix|win32: LIBS += -L$$PWD/../ -lDisplayPipelineStage.1.0.0
 

@@ -17,7 +17,7 @@ void LoadOCTPipeline<I>::configureOCTData(string path, OCTConfig *conf){
     _N = conf->TotalBScans;
     unsigned long dim1 = conf->PointsPerAScan;
     unsigned long dim2 = conf->AScansPerBScan - conf->StartTrim - conf->StopTrim;
-    _dim = vector<unsigned long>();
+    _dim = vector<unsigned long long>();
     _dim.push_back(dim1); //Points in A-Scan
     _dim.push_back(dim2); //A-Scans per B-Scan
     _dim.push_back(0); //current frame
@@ -117,7 +117,7 @@ void LoadOCTPipeline<I>::workStage()
     arraySize *= _dim[1];
 
     int I_size = sizeof(I) / sizeof(unsigned char);
-    unsigned long bufferSize = arraySize*I_size;
+    unsigned long long bufferSize = arraySize*I_size;
 
 loop:
     for(int i = 0; i < _N; i++){
@@ -152,7 +152,7 @@ loop:
         this->sig_CurrentFrame(i);
     }
 
-    Payload<I> p(vector<unsigned long>(0), nullptr, "Empty Frame");
+    Payload<I> p(vector<unsigned long long>(0), nullptr, "Empty Frame");
     this->sendPayload(p);
 
     this->sig_DAQFinished();

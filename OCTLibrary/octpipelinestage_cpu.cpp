@@ -76,7 +76,7 @@ void OCTPipelineStageCPU::workStage(){
                 auto start = chrono::high_resolution_clock::now();
 
                 //operate on p
-                vector<unsigned long> dim = p.getFirstDimension();
+                vector<unsigned long long> dim = p.getFirstDimension();
                 int totalDim = 1;
                 totalDim *= dim[0];
                 totalDim *= dim[1];
@@ -126,13 +126,13 @@ void OCTPipelineStageCPU::workStage(){
 
                 //package
                 Payload<float> p_out;
-                vector<unsigned long> dims;
+                vector<unsigned long long> dims;
                 dims.push_back(_fft_out_size);
                 dims.push_back(_AScansPerBScan);
                 p_out.addData(dims, intensity, "Intensity");
                 p_out.addData(dims, atten, "Attenuation");
-                p_out.addData(vector<unsigned long>{ (unsigned long)_fft_out_size }, ascan, "Intensity_Ascan");
-                p_out.addData(vector<unsigned long>{ (unsigned long)enFace->size(), (unsigned long)_NumberOfBScans, (unsigned long)currentFrame }, enFace, "EnFace_Slice");
+                p_out.addData(vector<unsigned long long>{ (unsigned long long)_fft_out_size }, ascan, "Intensity_Ascan");
+                p_out.addData(vector<unsigned long long>{ (unsigned long long)enFace->size(), (unsigned long long)_NumberOfBScans, (unsigned long)currentFrame }, enFace, "EnFace_Slice");
 
                 //send
                 sendPayload(p_out);
