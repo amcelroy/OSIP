@@ -42,3 +42,11 @@ macx: LIBS += -L$$PWD/../zlib/1.2.11/lib -lz
 INCLUDEPATH += $$PWD/../HDF5/1.10.1/include
 INCLUDEPATH += $$PWD/../szip/2.1.1/include
 INCLUDEPATH += $$PWD/../zlib/1.2.11/include
+
+macx {
+    #Add Labview DAQmx framework
+    QMAKE_LFLAGS += -F/Library/Frameworks/
+    LIBS += -framework nidaqmxbase
+    LIBS += -framework nidaqmxbaselv
+    INCLUDEPATH += /Library/Frameworks/nidaqmxbase.framework/Headers
+}
