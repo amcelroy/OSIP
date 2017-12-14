@@ -33,24 +33,21 @@ HEADERS += \
     openclpipeline_test.h \
     saving_test.h
 
-macx: LIBS += -L$$PWD/../ -lboost_filesystem
-macx: LIBS += -L$$PWD/../ -lboost_system
+macx {
+    LIBS += -L$$PWD/../dependancies/boost_1_65/lib/macOS-xcode_x64 -lboost_filesystem
+    LIBS += -L$$PWD/../dependancies/boost_1_65/lib/macOS-xcode_x64 -lboost_system
+    LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/macOS-xcode_x64 -lhdf5
+    LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/macOS-xcode_x64 -lhdf5_tools
+    LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/macOS-xcode_x64 -lhdf5_hl
+    LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/macOS-xcode_x64 -lhdf5_cpp
+    LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/macOS-xcode_x64 -lhdf5_hl_cpp
+    LIBS += -L$$PWD/../dependancies/szip/lib/macOS-xcode_x64 -lszip
+    LIBS += -L$$PWD/../dependancies/zlib/lib/macOS-xcode_x64 -lz
+}
 
-DEPENDPATH += $$PWD/../HDF5/1.10.1/lib
-macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5
-macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_tools
-macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_hl
-macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_cpp
-macx: LIBS += -L$$PWD/../HDF5/1.10.1/lib -lhdf5_hl_cpp
-
-DEPENDPATH += $$PWD/../szip/2.1.1/lib
-macx: LIBS += -L$$PWD/../szip/2.1.1/lib -lszip
-
-DEPENDPATH += $$PWD/../zlib/1.2.11/lib
-macx: LIBS += -L$$PWD/../zlib/1.2.11/lib -lz
-
-INCLUDEPATH += $$PWD/../HDF5/1.10.1/include
-INCLUDEPATH += $$PWD/../szip/2.1.1/include
-INCLUDEPATH += $$PWD/../zlib/1.2.11/include
+INCLUDEPATH += $$PWD/../dependancies/HDF5/1.10.1/include
+INCLUDEPATH += $$PWD/../dependancies/boost_1_65
+INCLUDEPATH += $$PWD/../dependancies/szip/include
+INCLUDEPATH += $$PWD/../dependancies/zlib/include
 
 TARGET = pipeline_test_exe
