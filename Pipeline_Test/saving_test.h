@@ -120,6 +120,8 @@ public:
         }
 
         payload.finished();
+
+        return true;
     }
 };
 

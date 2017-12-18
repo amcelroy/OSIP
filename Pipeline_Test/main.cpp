@@ -44,6 +44,7 @@ bool _Test_1_OpenCL_Test(OpenCLPipeline<unsigned short, float>* p){
 
 //        return false;
 //    }
+    return false;
 }
 
 bool _Test_2_Saving_Test(string rootPath){
