@@ -182,14 +182,15 @@ bool OpenCLPipeline<I, O>::compileProgram(string programText, const char *option
     cl_device_id idList[1] = { m_SelectedDevice.DeviceID };
     error = clBuildProgram(p, 1, &idList[0], options, NULL, NULL);
 
+    size_t count = 0;
     if(error == CL_BUILD_PROGRAM_FAILURE){
-        size_t count = 0;
         error = clGetProgramBuildInfo(p, m_SelectedDevice.DeviceID, CL_PROGRAM_BUILD_LOG, 0, NULL, &count);
-        char buffer[count];
+        char* buffer = new char[count];
         error = clGetProgramBuildInfo(p, m_SelectedDevice.DeviceID, CL_PROGRAM_BUILD_LOG, count, buffer, 0);
         string a(buffer);
         m_OpenCLBuildLog = a;
         this->sig_MessageLogged(a);
+        delete buffer;
         return false;
     }else if(error != CL_SUCCESS){
         this->sig_MessageLogged("Error creating opencl program with error - " + to_string(error));

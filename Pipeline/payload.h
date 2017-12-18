@@ -6,6 +6,7 @@
 #include <complex>
 #include <string>
 #include <tuple>
+#include <memory>
 
 using namespace std;
 

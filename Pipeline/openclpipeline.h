@@ -8,9 +8,9 @@
 #ifdef __clang__
     #include <OpenCL/opencl.h>
 #elif _WIN32
-    #include <opencl.h>
+    #include <CL/opencl.h>
 #elif _WIN64
-    #include <opencl.h>
+    #include <CL/opencl.h>
 #endif
 
 using namespace std;

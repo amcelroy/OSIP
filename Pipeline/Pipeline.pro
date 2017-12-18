@@ -77,6 +77,38 @@ macx {
     LIBS += -L$$PWD/../dependancies/zlib/lib/macOS-xcode_x64 -lz
 }
 
+win32 {
+    QMAKE_CXXFLAGS_WARN_ON -= -wd4661
+
+    LIBS += -L"C:\Program Files (x86)\AMD APP SDK\3.0\lib\x86_64" -lopencl
+    INCLUDEPATH += "C:\Program Files (x86)\AMD APP SDK\3.0\include"
+
+    Release {
+        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_filesystem-vc141-mt-1_65_1
+        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_system-vc141-mt-1_65_1
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_tools
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_cpp
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl_cpp
+    }
+
+    Debug {
+        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_filesystem-vc141-mt-gd-1_65_1
+        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_system-vc141-mt-gd-1_65_1
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_D
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_tools_D
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl_D
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_cpp_D
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl_cpp_D
+    }
+
+
+    DEPENDPATH += $$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64
+    LIBS += -L$$PWD/../dependancies/szip/lib/win-vs17_x64 -llibszip
+    LIBS += -L$$PWD/../dependancies/zlib/lib/win-vs17_x64 -llibzlib
+}
+
 INCLUDEPATH += $$PWD/../dependancies/HDF5/1.10.1/include
 INCLUDEPATH += $$PWD/../dependancies/boost_1_65
 INCLUDEPATH += $$PWD/../dependancies/szip/include
