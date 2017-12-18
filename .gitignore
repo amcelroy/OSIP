@@ -22,3 +22,5 @@
 /VTK-8.0.1-build/
 /VTK-8.0.1/
 /build-PipelineTest-Desktop_Qt_5_9_2_clang_64bit-Debug/
+*.user
+/Peripheral/Peripheral.pro.user.626b3b0
