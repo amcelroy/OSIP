@@ -2,18 +2,20 @@
 #define NIDAQMXGALVOS_H
 
 #include "peripheral.h"
-#include "nidaqmx.h"
+#include <NIDAQmx.h>
 #include "galvos.h"
 
 using namespace std;
 
 namespace OSIP{
     namespace Peripherals{
-        class niDAQMXGalvos : public NIDAQmx, public Galvos
+        class niDAQMXGalvos : public Peripheral, public Galvos
         {
 
         public:
             niDAQMXGalvos(string channel, unsigned long long SamplesPerChannel);
+
+            void init() override;
 
             void run() override;
 
@@ -22,7 +24,23 @@ namespace OSIP{
             void reset() override;
 
             void stop() override;
+
+            TaskHandle getTaskHandle() { return m_Handle; }
+
+            void setSampClkTiming(string channel);
+
+
+        private:
+
+            TaskHandle m_Handle;
+
+            std::string m_Device;
+
+            std::string m_ExternalSamplClk = "PFI7";
+
+            unsigned long long m_SamplesPerChannel;
         };
+
     }
 }
 

@@ -6,14 +6,6 @@
 
 QT       += core
 
-macx {
-    #Add Labview DAQmx framework
-    QMAKE_LFLAGS += -F/Library/Frameworks/
-    LIBS += -framework nidaqmxbase
-    LIBS += -framework nidaqmxbaselv
-    INCLUDEPATH += /Library/Frameworks/nidaqmxbase.framework/Headers
-}
-
 TARGET = Peripheral
 TEMPLATE = lib
 
@@ -32,28 +24,35 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-DESTDIR = $$PWD/../
+DESTDIR = ../
 
 SOURCES += \
     galvos.cpp \
-    nidaqmx.cpp \
     nidaqmxgalvos.cpp
 
 HEADERS += \
         peripheral_global.h \  
     galvos.h \
-    nidaqmx.h \
     nidaqmxgalvos.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
+
+win32 {
+    INCLUDEPATH += "C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include"
+    LIBS += -L"C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64\msvc" -lNIDAQmx
+
+    LIBS += -L$$PWD/../Pipeline.dll
 }
 
-macx: LIBS += -L$$PWD/../ -lPipeline.1.0.0
+macx {
+    #Add Labview DAQmx framework
+    QMAKE_LFLAGS += -F/Library/Frameworks/
+    LIBS += -framework nidaqmxbase
+    LIBS += -framework nidaqmxbaselv
+    INCLUDEPATH += /Library/Frameworks/nidaqmxbase.framework/Headers
 
-INCLUDEPATH += $$PWD/../Pipeline
-DEPENDPATH += $$PWD/../Pipeline
+    LIBS += -L$$PWD/../ -lPipeline.1.0.0
+}
 
 INCLUDEPATH += $$PWD/../dependancies/boost_1_65
 INCLUDEPATH += $$PWD/../dependancies/fftw/include
+INCLUDEPATH += $$PWD/../Pipeline
