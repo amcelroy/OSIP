@@ -32,21 +32,15 @@ HEADERS += \
         displaypipelinestage_global.h \ 
     displaypipelinestage_impl.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
+win32 {
+    LIBS += -L$$PWD/../Peripheral.dll
+    LIBS += -L$$PWD/../ -lPipeline
 }
 
-unix|win32: LIBS += -L$$PWD/../ -lPipeline.1.0.0
-
-INCLUDEPATH += $$PWD/../
-
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
+macx {
+    LIBS += -L$$PWD/../ -lPipeline.1.0.0
+    LIBS += -L$$PWD/../ -lPeripheral.1.0.0
 }
-
-unix|win32: LIBS += -L$$PWD/../ -lPeripheral.1.0.0
 
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
