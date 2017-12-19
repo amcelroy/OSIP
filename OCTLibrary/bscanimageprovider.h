@@ -2,6 +2,8 @@
 #define BSCANIMAGEPROVIDER_H
 
 #include <QQuickImageProvider>
+#include <QMutex>
+#include <memory>
 
 using namespace std;
 

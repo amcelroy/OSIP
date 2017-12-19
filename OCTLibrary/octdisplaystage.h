@@ -1,8 +1,8 @@
 #ifndef OCTDISPLAYSTAGE_H
 #define OCTDISPLAYSTAGE_H
 
-#include "DisplayPipelineStage/displaypipelinestage.h"
-#include "Pipeline/pipelinestage.h"
+#include "displaypipelinestage.h"
+#include "pipelinestage.h"
 #include <QObject>
 #include <bscanimageprovider.h>
 #include <boost/signals2.hpp>

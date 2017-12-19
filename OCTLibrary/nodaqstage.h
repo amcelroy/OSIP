@@ -10,9 +10,9 @@ namespace OSIP {
     public:
         NoDAQStage();
 
-        static const int WIDTH = 1024;
+        static const unsigned long long WIDTH = 1024;
 
-        static const int HEIGHT = 1024;
+        static const unsigned long long HEIGHT = 1024;
     private:
         void preStage();
 

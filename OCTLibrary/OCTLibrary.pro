@@ -54,33 +54,24 @@ HEADERS += \
     bscanimageprovider.h \
     enfaceimageprovider.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
-
-INCLUDEPATH += $$PWD/../dependancies/boost_1_65
-
-unix|win32: LIBS += -L$$PWD/../ -lPipeline.1.0.0
-
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../
-
-unix|win32: LIBS += -L$$PWD/../ -lPeripheral.1.0.0
-
-INCLUDEPATH += $$PWD/../Peripheral
-
 win32 {
-    LIBS += -L$$PWD/../dependancies/fftw/lib/win-vs17_x64 -lfftw3f-3
+    LIBS += -L$$PWD/../dependancies/fftw/lib/win-vs17_x64/lfftw3f-3.dll
+    LIBS += -L$$PWD/../Peripheral.dll
+    LIBS += -L$$PWD/../Pipeline.lib
+    LIBS += -L$$PWD/../DisplayPipelineStage.dll
 }
 
 macx {
     LIBS += -L$$PWD/../dependancies/fftw/lib/macOS-xcode_x64 -lfftw3f.3
+    LIBS += -L$$PWD/../ -lPipeline.1.0.0
+    LIBS += -L$$PWD/../ -lPeripheral.1.0.0
+    LIBS += -L$$PWD/../ -lDisplayPipelineStage.1.0.0
 }
 
+
+INCLUDEPATH += $$PWD/../dependancies/boost_1_65
+INCLUDEPATH += $$PWD/../Peripheral
+INCLUDEPATH += $$PWD/../Pipeline
 INCLUDEPATH += $$PWD/../dependancies/fftw/include
-
-unix|win32: LIBS += -L$$PWD/../ -lDisplayPipelineStage.1.0.0
-
 INCLUDEPATH += $$PWD/../DisplayPipelineStage
 DEPENDPATH += $$PWD/../

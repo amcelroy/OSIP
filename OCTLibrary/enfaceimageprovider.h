@@ -3,6 +3,7 @@
 
 #include <QQuickImageProvider>
 #include <memory>
+#include <QMutex>
 
 using namespace std;
 
