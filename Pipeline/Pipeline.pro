@@ -54,11 +54,6 @@ HEADERS += \
     pipeline.h \
     peripheral.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
-
 macx {
     QMAKE_MAC_SDK = macosx10.12
     #Add OpenCL framework
