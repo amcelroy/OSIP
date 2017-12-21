@@ -1,7 +1,6 @@
 #ifndef PAYLOAD_H
 #define PAYLOAD_H
 
-#include "pipeline_global.h"
 #include <vector>
 #include <complex>
 #include <string>
@@ -22,7 +21,9 @@ namespace OSIP {
         /**
          * @brief Payload
          */
-        Payload(vector<unsigned long long> dim, shared_ptr<vector<I>> data, string label);
+        Payload(vector<unsigned long long> dim, shared_ptr<vector<I>> data, string label){
+            addData(dim, data, label);
+        }
 
         Payload(){ }
 

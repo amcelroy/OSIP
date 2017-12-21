@@ -1,8 +1,7 @@
 #ifndef DAQSTAGE_H
 #define DAQSTAGE_H
 
-#include "pipeline_global.h"
-#include "pipelinestage.h"
+#include "pipelinestage.hpp"
 #include <boost/signals2.hpp>
 
 namespace OSIP {

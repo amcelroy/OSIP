@@ -1,10 +1,10 @@
 #ifndef INLET_H
 #define INLET_H
 
-#include "pipeline_global.h"
+
 #include <vector>
 #include <queue>
-#include "payload.h"
+#include "payload.hpp"
 #include <mutex>
 #include <complex>
 #include "boost/signals2.hpp"
@@ -28,7 +28,7 @@ namespace OSIP {
          */
         mutex _QueueLock;
     public:
-        Inlet();
+        Inlet(){ }
 
         int getItemsInInlet() { return _InQueue.size(); }
 
@@ -37,14 +37,26 @@ namespace OSIP {
          * @param data Data to be written
          * @return True if data is successfully written
          */
-        void writeData(Payload<I> data);
+        void writeData(Payload<I> data){
+            lock_guard<mutex> lock(_QueueLock);
+            this->_InQueue.push(data);
+        }
 
         /**
          * @brief readData Read data from the Inlet queue
          * @param data Data to be read, allocated by the caller
          * @return True if the data is successfully read
          */
-        Payload<I> readData();
+        Payload<I> readData(){
+            lock_guard<mutex> lock(_QueueLock);
+            if(!_InQueue.empty()){
+                Payload<I> dataOut = _InQueue.front();
+                _InQueue.pop();
+                return dataOut;
+            }
+
+            return Payload<I>();
+        }
 
         /**
          * @brief notifyQueueSize Adds a subscriber that gets notified about the size of elements in the Inlet queue

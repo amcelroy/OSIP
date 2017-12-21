@@ -1,22 +1,18 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-09-16T20:14:51
+# Project created by QtCreator 2017-12-20T13:39:04
 #
 #-------------------------------------------------
 
-QT       += core network opengl
+QT       -= core gui
 
-QT       -= gui
-
-TARGET = Pipeline
+TARGET = DAQ
 TEMPLATE = lib
 
-DEFINES += PIPELINE_LIBRARY
-
-CONFIG += c++11
+DEFINES += DAQ_LIBRARY
 
 # The following define makes your compiler emit warnings if you use
-# any feature of Qt which as been marked as deprecated (the exact warnings
+# any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -26,20 +22,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-DESTDIR = ../
+DESTDIR = $$PWD/../
 
-SOURCES +=
+SOURCES += \
+        daq.cpp
 
 HEADERS += \
-    daqstage.hpp \
-    openclpipeline.hpp \
-    savingstage.hpp \
-    pipelinestage.hpp \
-    pipeline.hpp \
-    peripheral.hpp \
-    payload.hpp \
-    inlet.hpp \
-    displaypipelinestage.hpp
+        daq.h
 
 macx {
     QMAKE_MAC_SDK = macosx10.12
@@ -91,9 +80,14 @@ win32 {
     DEPENDPATH += $$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64
     LIBS += -L$$PWD/../dependancies/szip/lib/win-vs17_x64 -llibszip
     LIBS += -L$$PWD/../dependancies/zlib/lib/win-vs17_x64 -llibzlib
+    LIBS += -L$$PWD/../dependancies/Alazar/lib/x64/ -latsapi
 }
 
+INCLUDEPATH += $$PWD/../Pipeline
 INCLUDEPATH += $$PWD/../dependancies/HDF5/1.10.1/include
 INCLUDEPATH += $$PWD/../dependancies/boost_1_65
 INCLUDEPATH += $$PWD/../dependancies/szip/include
 INCLUDEPATH += $$PWD/../dependancies/zlib/include
+INCLUDEPATH += -L$$PWD/../dependancies/Alazar/include
+
+

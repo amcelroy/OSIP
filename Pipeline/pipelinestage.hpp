@@ -1,8 +1,7 @@
 #ifndef PIPELINESTAGE_H
 #define PIPELINESTAGE_H
 
-#include "pipeline_global.h"
-#include "inlet.h"
+#include "inlet.hpp"
 #include <vector>
 #include <complex>
 #include <thread>
@@ -27,25 +26,47 @@ namespace OSIP {
         boost::signals2::signal<void (string)> sig_MessageLogged;
 
     public:
-        PipelineStage();
+        PipelineStage(){
+            _Inlet = shared_ptr<Inlet<I>>(new Inlet<I>);
+        }
 
         shared_ptr<Inlet<I>> getInlet() { return _Inlet; }
 
-        void connect(shared_ptr<Inlet<O>> inlet);
+        void connect(shared_ptr<Inlet<O>> inlet){
+            _Outlets.push_back(inlet);
+        }
 
-        void start();
+        void start() {
+            sig_StageFinished();
+
+            stopThread = false;
+
+            preStage();
+
+            _StageThread = thread(&PipelineStage<I,O>::workStage, this);
+            _StageThread.detach();
+        }
 
         void stop() { stopThread = true; }
 
-        void flushInlet();
+        void flushInlet() {
+            //TODO
+        }
 
-        void flushOutlet();
+        void flushOutlet() {
+            //TODO
+        }
 
         void pause() { pauseThread = true; }
 
-        void pipelineSleep(int milli);
+        void pipelineSleep(int milli){
+            std::this_thread::sleep_for(std::chrono::milliseconds(milli));
+        }
 
-        void log(string msg);
+        void log(string msg){
+            _Log.push_back(msg);
+            sig_MessageLogged(msg);
+        }
 
         vector<string> getLog() { return _Log; }
 
@@ -74,17 +95,40 @@ namespace OSIP {
          */
         void subscribeTiming(const boost::signals2::signal<void(float)>::slot_type &subscriber) { sig_StageTimer.connect(subscriber); }
 
-        virtual boost::signals2::signal<void ()>::slot_type slotDAQFinished();
+        virtual boost::signals2::signal<void ()>::slot_type slotDAQFinished(){
+            m_DAQFinished = true;
+            return boost::signals2::signal<void ()>();
+        }
 
-        virtual boost::signals2::signal<void ()>::slot_type slotSavingFinished();
+        virtual boost::signals2::signal<void ()>::slot_type slotSavingFinished(){
+            m_SavingFinished = true;
+            return boost::signals2::signal<void ()>();
+        }
 
-        virtual boost::signals2::signal<void ()>::slot_type slotProcessingFinished();
+        virtual boost::signals2::signal<void ()>::slot_type slotProcessingFinished(){
+            m_ProcessingFinished = true;
+            return boost::signals2::signal<void ()>();
+        }
+
     protected:
-        virtual void preStage();
+        virtual void preStage(){
+            sig_StageStarted();
+        }
 
-        virtual void postStage();
+        virtual void postStage(){
+            sig_StageFinished();
+        }
 
-        virtual void workStage();
+        virtual void workStage(){
+            sig_StageFinished();
+
+            stopThread = false;
+
+            preStage();
+
+            _StageThread = thread(&PipelineStage<I,O>::workStage, this);
+            _StageThread.detach();
+        }
 
         /**
          * @brief _Inlet Allocated during object instantiation
@@ -111,9 +155,17 @@ namespace OSIP {
          */
         vector<string> _Log;
 
-        void sendPayload(Payload<O> payload);
+        void sendPayload(Payload<O> payload){
+            if(_Outlets.size() != 0){
+                for(shared_ptr<Inlet<O>> o : _Outlets){
+                    o.get()->writeData(payload);
+                }
+            }
+        }
 
-        Payload<I> fetchPayload();
+        Payload<I> fetchPayload(){
+            return _Inlet.get()->readData();
+        }
 
         bool m_DAQFinished = false;
 
