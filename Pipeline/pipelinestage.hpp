@@ -119,15 +119,8 @@ namespace OSIP {
             sig_StageFinished();
         }
 
-        virtual void workStage(){
-            sig_StageFinished();
+        virtual void work(){
 
-            stopThread = false;
-
-            preStage();
-
-            _StageThread = thread(&PipelineStage<I,O>::workStage, this);
-            _StageThread.detach();
         }
 
         /**

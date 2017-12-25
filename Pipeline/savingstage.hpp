@@ -67,7 +67,7 @@ namespace OSIP {
 
     protected:
 
-        void workStage() override{
+        void work() override{
             if(this->m_FolderPathSet){
                 //not found, create stream and add to map
                 boost::filesystem::path folderPath(this->m_FolderPath);

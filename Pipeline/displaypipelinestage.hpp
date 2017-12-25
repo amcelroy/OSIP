@@ -106,7 +106,7 @@ namespace OSIP {
          */
         float m_FramesPerSecond = 0;
 
-        void workStage();
+        void work();
 
         void preStage();
 
