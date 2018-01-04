@@ -5,6 +5,8 @@
 #include "octpipeline.h"
 #include "octconfigfile.h"
 
+using namespace OSIP;
+
 class OCTBackend : public QObject
 {
     Q_OBJECT

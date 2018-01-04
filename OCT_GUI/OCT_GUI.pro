@@ -43,26 +43,68 @@ HEADERS += \
     qmlgalvobackend.h \
     OCTBackend.h
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../release/ -lPipeline.1.0.0
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../debug/ -lPipeline.1.0.0
-else:unix: LIBS += -L$$PWD/../ -lPipeline.1.0.0
+macx {
+    QMAKE_MAC_SDK = macosx10.12
+    #Add OpenCL framework
+    XCODE_FRAMEWORKS = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks
+    QMAKE_LFLAGS += -F$${XCODE_FRAMEWORKS}
+    LIBS += -framework OpenCL
+    INCLUDEPATH += $${XCODE_FRAMEWORKS}/opencl.framework/Headers
 
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../
+    LIBS += -L$$PWD/../dependancies/boost_1_65/lib/macOS-xcode_x64 -lboost_filesystem
+    LIBS += -L$$PWD/../dependancies/boost_1_65/lib/macOS-xcode_x64 -lboost_system
+    LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/macOS-xcode_x64 -lhdf5
+    LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/macOS-xcode_x64 -lhdf5_tools
+    LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/macOS-xcode_x64 -lhdf5_hl
+    LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/macOS-xcode_x64 -lhdf5_cpp
+    LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/macOS-xcode_x64 -lhdf5_hl_cpp
+    LIBS += -L$$PWD/../dependancies/fftw/lib/macOS-xcode_x64 -lfftw3f
+    LIBS += -L$$PWD/../dependancies/szip/lib/macOS-xcode_x64 -lszip
+    LIBS += -L$$PWD/../dependancies/zlib/lib/macOS-xcode_x64 -lz
+    LIBS += -L$$PWD/.. -lOCTLibrary
+}
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../release/ -lDisplayPipelineStage.1.0.0
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../debug/ -lDisplayPipelineStage.1.0.0
-else:unix: LIBS += -L$$PWD/../ -lDisplayPipelineStage.1.0.0
+win32 {
+    QMAKE_CXXFLAGS_WARN_ON -= -wd4661
 
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../
+    ###OPENCL###
+    LIBS += -L"C:\Program Files (x86)\AMD APP SDK\3.0\lib\x86_64" -lopencl
+    LIBS += -L"C:\Intel\OpenCL\sdk\lib\x64" -lopencl
+    INCLUDEPATH += "C:\Program Files (x86)\AMD APP SDK\3.0\include"
+    INCLUDEPATH += "C:\Intel\OpenCL\sdk\include"
 
-unix|win32: LIBS += -L$$PWD/../ -lOCTLibrary.1.0.0
+    Release {
+        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_filesystem-vc141-mt-1_65_1
+        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_system-vc141-mt-1_65_1
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_tools
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_cpp
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl_cpp
+    }
 
+    Debug {
+        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_filesystem-vc141-mt-gd-1_65_1
+        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_system-vc141-mt-gd-1_65_1
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_D
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_tools_D
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl_D
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_cpp_D
+        LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl_cpp_D
+    }
+
+    DEPENDPATH += $$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64
+    LIBS += -L$$PWD/../dependancies/szip/lib/win-vs17_x64 -llibszip
+    LIBS += -L$$PWD/../dependancies/zlib/lib/win-vs17_x64 -llibzlib
+}
+
+INCLUDEPATH += $$PWD/../Peripheral
+INCLUDEPATH += $$PWD/../Pipeline
 INCLUDEPATH += $$PWD/../OCTLibrary
-DEPENDPATH += $$PWD/../OCTLibrary
-
-DISTFILES += \
-    bscan_vshader.glsl \
-    bscan_fshader.glsl
+INCLUDEPATH += $$PWD/../dependancies/HDF5/1.10.1/include
+INCLUDEPATH += $$PWD/../dependancies/boost_1_65
+INCLUDEPATH += $$PWD/../dependancies/fftw/include
+INCLUDEPATH += $$PWD/../dependancies/szip/include
+INCLUDEPATH += $$PWD/../dependancies/zlib/include
+DEPENDPATH += $$PWD/../ s
 
