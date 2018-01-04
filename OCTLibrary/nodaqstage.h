@@ -2,7 +2,7 @@
 #define NODAQSTAGE_H
 
 #include "octlibrary_global.h"
-#include "Pipeline/daqstage_impl.h"
+#include "pipeline.hpp"
 
 namespace OSIP {
     class OCTLIBRARYSHARED_EXPORT NoDAQStage : public OSIP::DAQStage<unsigned short>
@@ -14,11 +14,28 @@ namespace OSIP {
 
         static const unsigned long long HEIGHT = 1024;
     private:
-        void preStage();
+        void preStage() { }
 
-        void workStage();
+        void work() override {
+            int i = 0;
+            while(!stopThread){
+                //make some data
+                auto buff = make_shared<vector<unsigned short>>(WIDTH*HEIGHT);
 
-        void postStage();
+                memset(buff.get(), i, WIDTH*HEIGHT);
+
+                //send data
+                Payload<unsigned short> p(vector<unsigned long long> {WIDTH, HEIGHT}, buff, "DAQ Data");
+                sendPayload(p);
+
+                p.finished();
+                i++;
+
+                pipelineSleep(10);
+            }
+        }
+
+        void postStage() { }
 
     };
 }

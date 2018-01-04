@@ -16,9 +16,16 @@ class BScanImageProvider : public QQuickImageProvider
     shared_ptr<vector<unsigned int>> m_ptrHolder;
 
 public:
-    BScanImageProvider();
+    BScanImageProvider()
+        : QQuickImageProvider(QQmlImageProviderBase::Image)
+    {
 
-    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
+    }
+
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize){
+        QMutexLocker qm(&m_imageLock);
+        return m_image;
+    }
 
     void setPixels(shared_ptr<vector<unsigned int>> i, vector<unsigned long long> dims) {
         QMutexLocker qm(&m_imageLock);

@@ -15,13 +15,20 @@ class EnFaceImageProvider : public QQuickImageProvider
 
     QImage m_image;
 public:
-    EnFaceImageProvider();
+    EnFaceImageProvider()
+        : QQuickImageProvider(QQmlImageProviderBase::Image)
+    {
+
+    }
+
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize){
+        QMutexLocker qm(&m_imageLock);
+        return m_image;
+    }
 
     ~EnFaceImageProvider(){
         delete m_EnFace;
     }
-
-    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 
     /**
      * @brief setRow

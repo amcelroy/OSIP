@@ -1,8 +1,7 @@
 #ifndef OCTDISPLAYSTAGE_H
 #define OCTDISPLAYSTAGE_H
 
-#include "displaypipelinestage.h"
-#include "pipelinestage.h"
+#include "pipeline.hpp"
 #include <QObject>
 #include <bscanimageprovider.h>
 #include <boost/signals2.hpp>
@@ -36,7 +35,7 @@ namespace OSIP {
         void setEnFaceImageProvider(EnFaceImageProvider *p) { m_enFaceImageProvider = p; }
 
     protected:
-        void workStage() override;
+        void work() override;
 
         void preStage() override;
 

@@ -2,7 +2,7 @@
 #define OCTPIPELINESTAGE_H
 
 #include "octlibrary_global.h"
-#include "Pipeline/pipelinestage.h"
+#include "pipeline.hpp"
 #include "fftw3.h"
 #include "windowmaker.h"
 #include "boost/signals2.hpp"
@@ -16,11 +16,11 @@ namespace OSIP {
     public:
         OCTPipelineStageCPU();
 
-        void preStage();
+        void preStage() override;
 
-        void workStage();
+        void work() override;
 
-        void postStage();
+        void postStage() override;
 
         void configure(OCTConfig config);
 

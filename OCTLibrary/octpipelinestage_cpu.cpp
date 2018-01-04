@@ -53,7 +53,7 @@ void OCTPipelineStageCPU::preStage(){
      fftwInit = true;
 }
 
-void OCTPipelineStageCPU::workStage(){
+void OCTPipelineStageCPU::work(){
 
     if(!fftwInit)
         return;

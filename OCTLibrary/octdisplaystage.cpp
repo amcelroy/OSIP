@@ -1,5 +1,7 @@
 #include "octdisplaystage.h"
 
+using namespace OSIP;
+
 OCTDisplayStage::OCTDisplayStage()
 {
 
@@ -9,7 +11,7 @@ void OCTDisplayStage::preStage(){
 
 }
 
-void OCTDisplayStage::workStage(){
+void OCTDisplayStage::work(){
     while(!this->stopThread){
         if(this->pauseThread){
             pipelineSleep(50);
