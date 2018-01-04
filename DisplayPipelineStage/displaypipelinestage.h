@@ -1,8 +1,7 @@
 #ifndef DISPLAYPIPELINESTAGE_H
 #define DISPLAYPIPELINESTAGE_H
 
-#include "displaypipelinestage_global.h"
-#include "Pipeline/pipelinestage_impl.h"
+#include "Pipeline/pipeline.hpp"
 #include <QObject>
 
 namespace OSIP {
