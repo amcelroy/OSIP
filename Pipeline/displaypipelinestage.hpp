@@ -106,11 +106,11 @@ namespace OSIP {
          */
         float m_FramesPerSecond = 0;
 
-        void work();
+        void work() { }
 
-        void preStage();
+        void preStage() { }
 
-        void postStage();
+        void postStage() { }
 
         vector<unsigned char> m_redLUT;
 

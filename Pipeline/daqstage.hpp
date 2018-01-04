@@ -26,7 +26,7 @@ namespace OSIP {
         boost::signals2::signal<void ()> sig_DAQFinished;
 
     public:
-        DAQStage();
+        DAQStage() { }
 
         /**
          * @brief setLoop Sets DAQ to loop acquistion
