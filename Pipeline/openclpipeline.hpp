@@ -280,7 +280,7 @@ namespace OSIP {
                 string a(buffer);
                 m_OpenCLBuildLog = a;
                 this->sig_MessageLogged(a);
-                delete buffer;
+                delete[] buffer;
                 return false;
             }else if(error != CL_SUCCESS){
                 this->sig_MessageLogged("Error creating opencl program with error - " + to_string(error));
