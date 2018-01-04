@@ -137,7 +137,7 @@ namespace OSIP {
                 this->sig_SavingFinished(true, error);
             }
 
-            postStage();
+            this->postStage();
         }
 
     private:
