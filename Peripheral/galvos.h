@@ -1,7 +1,7 @@
 #ifndef GALVOS_H
 #define GALVOS_H
 
-#include "peripheral.h"
+#include "peripheral.hpp"
 
 using namespace std;
 

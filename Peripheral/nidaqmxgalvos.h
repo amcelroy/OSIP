@@ -1,7 +1,7 @@
 #ifndef NIDAQMXGALVOS_H
 #define NIDAQMXGALVOS_H
 
-#include "peripheral.h"
+#include "peripheral.hpp"
 #include <NIDAQmx.h>
 #include "galvos.h"
 

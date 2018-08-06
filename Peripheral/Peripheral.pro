@@ -39,8 +39,6 @@ HEADERS += \
 win32 {
     INCLUDEPATH += "C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include"
     LIBS += -L"C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64\msvc" -lNIDAQmx
-
-    LIBS += -L$$PWD/../Pipeline.dll
 }
 
 macx {
