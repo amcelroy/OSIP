@@ -7,7 +7,7 @@
 #include "payload.hpp"
 #include <mutex>
 #include <complex>
-#include "boost/signals2.hpp"
+#include <boost/signals2.hpp>
 
 using namespace std;
 
@@ -40,6 +40,12 @@ namespace OSIP {
         void writeData(Payload<I> data){
             lock_guard<mutex> lock(_QueueLock);
             this->_InQueue.push(data);
+        }
+
+        void flush(){
+            lock_guard<mutex> lock(_QueueLock);
+            queue<Payload<I>> empty;
+            swap(_InQueue, empty);
         }
 
         /**

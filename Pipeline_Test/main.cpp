@@ -1,5 +1,5 @@
 #include <QCoreApplication>
-#include <pipeline.h>
+#include <pipeline.hpp>
 #include <iostream>
 #include "saving_test.h"
 

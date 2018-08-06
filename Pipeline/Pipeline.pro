@@ -39,7 +39,7 @@ HEADERS += \
     peripheral.hpp \
     payload.hpp \
     inlet.hpp \
-    displaypipelinestage.hpp
+    displaypipelinestage.hpp \
 
 macx {
     QMAKE_MAC_SDK = macosx10.12

@@ -77,9 +77,6 @@ win32 {
     DEPENDPATH += $$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64
     LIBS += -L$$PWD/../dependancies/szip/lib/win-vs17_x64 -llibszip
     LIBS += -L$$PWD/../dependancies/zlib/lib/win-vs17_x64 -llibzlib
-
-    #OSIP Libraries
-    LIBS += -L$$PWD/../ -lPipeline
 }
 
 INCLUDEPATH += $$PWD/../dependancies/HDF5/1.10.1/include

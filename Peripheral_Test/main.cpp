@@ -1,6 +1,6 @@
 #include <QCoreApplication>
 
-#include "pipeline.h"
+#include "pipeline.hpp"
 #include "nidaqmxgalvos.h"
 
 using namespace OSIP;

@@ -25,9 +25,14 @@ namespace OSIP {
         boost::signals2::signal<void (float)> sig_StageTimer;
         boost::signals2::signal<void (string)> sig_MessageLogged;
 
+        double d_ThreadWorkTime = 0.0;
     public:
         PipelineStage(){
             _Inlet = shared_ptr<Inlet<I>>(new Inlet<I>);
+        }
+
+        double getThreadWorkTimeMicroSeconds(){
+            return d_ThreadWorkTime;
         }
 
         shared_ptr<Inlet<I>> getInlet() { return _Inlet; }
@@ -51,6 +56,7 @@ namespace OSIP {
 
         void flushInlet() {
             //TODO
+            _Inlet->flush();
         }
 
         void flushOutlet() {
@@ -119,9 +125,7 @@ namespace OSIP {
             sig_StageFinished();
         }
 
-        virtual void work(){
-
-        }
+        virtual void work() = 0;
 
         /**
          * @brief _Inlet Allocated during object instantiation

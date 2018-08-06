@@ -21,7 +21,7 @@ namespace OSIP {
         /**
          * @brief Payload
          */
-        Payload(vector<unsigned long long> dim, shared_ptr<vector<I>> data, string label){
+        Payload(vector<unsigned long long> dim, const shared_ptr<vector<I>> &data, string label){
             addData(dim, data, label);
         }
 
@@ -59,7 +59,7 @@ namespace OSIP {
             return *this;
         }
 
-        void addData(vector<unsigned long long> dim, shared_ptr<vector<I>> data, string label) {
+        void addData(vector<unsigned long long> dim, const shared_ptr<vector<I>> &data, string label) {
             _dim.push_back(dim);
             _data.push_back(data);
             _Labels.push_back(label);

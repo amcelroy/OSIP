@@ -1,7 +1,7 @@
 #ifndef SAVING_TEST_H
 #define SAVING_TEST_H
 
-#include <pipeline.h>
+#include <pipeline.hpp>
 #include <boost/signals2.hpp>
 
 using namespace OSIP;
@@ -52,6 +52,8 @@ class SavingTest{
         return data;
     }
 public:
+    SavingTest() { }
+
     bool run(string path){
         Payload<I> payload;
 

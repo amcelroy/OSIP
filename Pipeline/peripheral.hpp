@@ -1,7 +1,6 @@
 #ifndef PERIPHERAL_H
 #define PERIPHERAL_H
 
-#include "pipeline_global.h"
 #include "boost/signals2.hpp"
 
 namespace OSIP {
