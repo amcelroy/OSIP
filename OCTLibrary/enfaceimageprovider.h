@@ -4,10 +4,11 @@
 #include <QQuickImageProvider>
 #include <memory>
 #include <QMutex>
+#include "octlibrary_global.h"
 
 using namespace std;
 
-class EnFaceImageProvider : public QQuickImageProvider
+class OCTLIBRARYSHARED_EXPORT EnFaceImageProvider : public QQuickImageProvider
 {
     unsigned int* m_EnFace = NULL;
 
@@ -27,7 +28,7 @@ public:
     }
 
     ~EnFaceImageProvider(){
-        delete m_EnFace;
+        delete[] m_EnFace;
     }
 
     /**
@@ -35,24 +36,14 @@ public:
      * @param i Current row to update in the EnFace, should be A-Scans per B-Scan long
      * @param dims Dims should be the following: 0 - A-Scans per B-Scan, 1 - Number Of BScans, 2 - Current B-Scan
      */
-    void setRow(shared_ptr<vector<unsigned int>> i, vector<unsigned long long> dims){
+    void setRow(const vector<unsigned int> &i, vector<unsigned long long> dims){
         if(m_EnFace == NULL){
-            unsigned long size = dims[0]*dims[1];
-            m_EnFace = new unsigned int[size];
+            m_EnFace = new unsigned int[dims[0]*dims[1]];
         }
 
         QMutexLocker qm(&m_imageLock);
-        if(i != nullptr){
-            //Insures the shared_ptr reference count is held here also
-            memcpy(&(m_EnFace[(int)dims[2]*dims[0]]), i->data(), dims[0]*sizeof(unsigned int));
-            m_image = QImage((unsigned char*)m_EnFace, dims[0], dims[1], QImage::Format_RGB32);
-
-//            QPoint center = m_image.rect().center();
-//            QMatrix matrix;
-//            matrix.translate(center.x(), center.y());
-//            matrix.rotate(90);
-//            m_image = m_image.transformed(matrix);
-        }
+        memcpy(m_EnFace + dims[0]*dims[2], i.data(), sizeof(unsigned int)*i.size());
+        m_image = QImage((unsigned char*)m_EnFace, dims[0], dims[1], QImage::Format_RGB32);
     }
 };
 

@@ -1,8 +1,9 @@
 #ifndef WINDOWMAKER_H
 #define WINDOWMAKER_H
 
+#include "octlibrary_global.h"
 
-class WindowMaker
+class OCTLIBRARYSHARED_EXPORT WindowMaker
 {
 public:
     WindowMaker();

@@ -1,21 +1,22 @@
 #ifndef OCTPIPELINE_H
 #define OCTPIPELINE_H
 
-#include "loadoctpipeline.h"
+#include <loadoctpipeline.hpp>
 #include "octpipelinestage_cpu.h"
 #include "octdisplaystage.h"
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 #include <QObject>
+#include "octlibrary_global.h"
 
 using namespace OSIP;
 
-class OCTPipeline : public QObject
+class OCTLIBRARYSHARED_EXPORT OCTPipeline : public QObject
 {
     Q_OBJECT
 
 private:
-    shared_ptr<OSIP::LoadOCTPipeline<unsigned short>> _Loader;
+    shared_ptr<OSIP::LoadOCTPipeline> _Loader;
 
     shared_ptr<OSIP::OCTPipelineStageCPU> _Processor;
 
@@ -30,7 +31,7 @@ public:
     OCTPipeline(QObject *parent = 0){ }
 
     void init(){
-        _Loader = shared_ptr<LoadOCTPipeline<unsigned short>>(new LoadOCTPipeline<unsigned short>());
+        _Loader = shared_ptr<LoadOCTPipeline>(new LoadOCTPipeline());
         _Processor = shared_ptr<OCTPipelineStageCPU>(new OCTPipelineStageCPU());
         _Display = shared_ptr<OCTDisplayStage>(new OCTDisplayStage());
 
@@ -54,7 +55,7 @@ public:
         _Processor->subscribeFrameProcessed(std::bind(&OCTPipeline::slotFrameProcessed, this));
     }
 
-    OSIP::LoadOCTPipeline<unsigned short>* getLoader() { return _Loader.get(); }
+    OSIP::LoadOCTPipeline* getLoader() { return _Loader.get(); }
 
     OSIP::OCTPipelineStageCPU* getProcessor() { return _Processor.get(); }
 
@@ -100,10 +101,6 @@ public slots:
         if(m_ProcessingFinished){
             _Loader->readFrame(frame.toInt());
         }
-    }
-
-    void slotEnfaceChanged(QVariant one, QVariant two){
-         _Processor->setEnfaceRange(one.toInt(), two.toInt());
     }
 
 signals:

@@ -6,8 +6,9 @@
 #include "fftw3.h"
 #include "windowmaker.h"
 #include "boost/signals2.hpp"
-#include "loadoctpipeline.h"
+#include <loadoctpipeline.hpp>
 #include <boost/signals2.hpp>
+#include <omp.h>
 
 namespace OSIP {
     class OCTLIBRARYSHARED_EXPORT OCTPipelineStageCPU : public PipelineStage<unsigned short, float>
@@ -57,13 +58,9 @@ namespace OSIP {
         boost::signals2::signal<void ()> sig_FrameProcessed;
 
     private:        
-        void _computeIntensity(float *mag, float *intensity);
+        //void _computeIntensity(float *mag, float *intensity);
 
-        void _computePhase(fftwf_complex *f, float *phase);
-
-        void _computeAttenuationSimple(float *f, float *atten);
-
-        void _computeMagnitude(fftwf_complex *f, float *mag);
+        void _computeBscan(fftwf_complex *f, float *intensity, float *atten);
 
         void _computeEnFace(float *intensity, float *enface);
 
@@ -79,12 +76,12 @@ namespace OSIP {
         /**
          * @brief fft_in Array used to store pre-fft data
          */
-        float* fft_in;
+        vector<float> *fft_in = NULL;
 
         /**
          * @brief fft_out Array to store post-fft data
          */
-        fftwf_complex* fft_out;
+        vector<fftwf_complex> *fft_out = NULL;
 
         /**
          * @brief _window Array to store pre-fft window data
