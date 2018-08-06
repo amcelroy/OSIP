@@ -28,6 +28,7 @@ void OCTBackend::record(){
 
 void OCTBackend::reprocessEnFace(){
     setMode(OCTBackend::MODE_LOADING);
+    //TODO: Add threading during reload
     m_OCTPipeline.getLoader()->reload();
 }
 
@@ -35,6 +36,31 @@ void OCTBackend::onFullField(){
     if(m_Mode == OCTBackend::MODE_REVIEW){
         m_OCTPipeline.getLoader()->setBounds(-1, -1, -1, -1);
     }
+}
+
+QString OCTBackend::getBenchmarks(){
+    string s_results = "";
+
+    try{
+        double LoaderTime = m_OCTPipeline.getLoader()->getThreadWorkTimeMicroSeconds();
+        double ProcessTime = m_OCTPipeline.getProcessor()->getThreadWorkTimeMicroSeconds();
+        double DisplayTime = m_OCTPipeline.getDisplay()->getThreadWorkTimeMicroSeconds();
+
+        s_results = "Load Time: " + to_string(LoaderTime/1000) + "ms \r\n" +
+                    "Process Time: " + to_string(ProcessTime/1000) + "ms \r\n" +
+                    "Display Time: " + to_string(DisplayTime/1000) + "ms \r\n";
+    }catch(...){
+
+    }
+
+    return QString(s_results.c_str());
+}
+
+void OCTBackend::enFaceSliderChanged(QVariant depth1, QVariant depth2){
+    int low = min(depth1.toInt(), depth2.toInt());
+    int high = max(depth1.toInt(), depth2.toInt());
+
+    m_OCTPipeline.getProcessor()->setEnfaceRange(low, high);
 }
 
 void OCTBackend::enFaceSelectionBoundsChanged(QVariant xPixels,

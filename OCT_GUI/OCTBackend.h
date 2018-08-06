@@ -12,6 +12,8 @@ class OCTBackend : public QObject
     Q_OBJECT
 
     Q_PROPERTY(MODE Mode READ getMode WRITE setMode NOTIFY modeChanged)
+
+    Q_PROPERTY(QString Benchmarks READ getBenchmarks NOTIFY onBenchmarksChanged)
 public:
     OCTBackend();
 
@@ -37,6 +39,9 @@ public:
     void onProcessingFinished(){
         m_Mode = MODE_REVIEW;
     }
+
+    QString getBenchmarks();
+
 private:
     OCTConfigFile m_octcf;
     OCTConfig m_octc;
@@ -48,12 +53,16 @@ private:
 signals:
     void modeChanged();
 
+    void onBenchmarksChanged();
+
 public slots:
     void loadOCT(string path);
 
     void record();
 
     void reprocessEnFace();
+
+    void enFaceSliderChanged(QVariant depth1, QVariant depth2);
 
     void enFaceSelectionBoundsChanged(QVariant xPixels,
                                       QVariant yPixels,

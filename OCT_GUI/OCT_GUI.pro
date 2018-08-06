@@ -96,6 +96,8 @@ win32 {
     DEPENDPATH += $$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64
     LIBS += -L$$PWD/../dependancies/szip/lib/win-vs17_x64 -llibszip
     LIBS += -L$$PWD/../dependancies/zlib/lib/win-vs17_x64 -llibzlib
+    LIBS += -L$$PWD/../dependancies/fftw/lib/win-vs17_x64 -llibfftw3f-3
+    LIBS += -L$$PWD/../ -lOCTLibrary
 }
 
 INCLUDEPATH += $$PWD/../Peripheral
@@ -106,5 +108,5 @@ INCLUDEPATH += $$PWD/../dependancies/boost_1_65
 INCLUDEPATH += $$PWD/../dependancies/fftw/include
 INCLUDEPATH += $$PWD/../dependancies/szip/include
 INCLUDEPATH += $$PWD/../dependancies/zlib/include
-DEPENDPATH += $$PWD/../ s
+DEPENDPATH += $$PWD/../
 

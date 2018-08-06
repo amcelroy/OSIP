@@ -5,11 +5,12 @@
 #include "menubackend.h"
 #include "OCTBackend.h"
 #include "octconfigfile.h"
-#include "loadoctpipeline.h"
+#include "loadoctpipeline.hpp"
 #include "bscanimageprovider.h"
 #include "qmldaqconfigbackend.h"
 #include "qmlgalvobackend.h"
 #include "enfaceimageprovider.h"
+#include "ascanbackend.h"
 
 #define DEBUG_QML 0
 
@@ -22,6 +23,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<QMLDAQConfigBackend>("edu.utexas.bme.qmlconfigbackend", 1, 0, "QMLDAQConfigBackend");
     qmlRegisterType<QMLGalvoBackend>("edu.utexas.bme.qmlgalvobackend", 1, 0, "QMLGalvoBackend");
     qmlRegisterType<OCTBackend>("edu.utexas.bme.octbackend", 1, 0, "OCTBackend");
+    qmlRegisterType<AScanBackend>("edu.utexas.bme.octbackend.ascan", 1, 0, "AScanBackend");
 
     //Register the Image provider BEFORE loading the qml!!!
     BScanImageProvider* _bscanImageProvider = new BScanImageProvider();
@@ -38,6 +40,7 @@ int main(int argc, char *argv[])
     QObject* qml_minMaxSlider = rootObject->findChild<QObject*>("qml_minMaxSlider");
     QObject* qml_bscanSlider = rootObject->findChild<QObject*>("qml_bscanSlider");
     QObject* qml_BScanImage = rootObject->findChild<QObject*>("qml_BScanImage");
+    AScanBackend* qml_AScanBackend = rootObject->findChild<AScanBackend*>("qml_AScanBackend");
     OCTBackend* octBackend = rootObject->findChild<OCTBackend*>("qml_OCTBackend");
 
     //Connect QML Signals to C++ Slots
@@ -46,7 +49,7 @@ int main(int argc, char *argv[])
     QObject::connect(qml_minMaxSlider, SIGNAL(secondChanged(QVariant)),
                      octBackend->getOCTPipeline(), SLOT(slotMaxScaleChanged(QVariant)));
     QObject::connect(qml_BScanImage, SIGNAL(enfaceChanged(QVariant, QVariant)),
-                     octBackend->getOCTPipeline(), SLOT(slotEnfaceChanged(QVariant,QVariant)));
+                     octBackend, SLOT(enFaceSliderChanged(QVariant,QVariant)));
 
     //Connect C++ signals to QML Slots
 
@@ -74,14 +77,15 @@ int main(int argc, char *argv[])
     octBackend->setMode(OCTBackend::MODE_REVIEW);
     octBackend->getOCTPipeline()->init();
     octBackend->getOCTPipeline()->setBScanSlider(qml_bscanSlider);
-    //octBackend->getOCTPipeline()->getLoader()->setBufferData(true);
+    octBackend->getOCTPipeline()->getLoader()->setBufferData(true);
     octBackend->getOCTPipeline()->getDisplay()->setBScanImageProvider(_bscanImageProvider);
     octBackend->getOCTPipeline()->getDisplay()->setEnFaceImageProvider(_enfaceImageProvider);
+    octBackend->getOCTPipeline()->getDisplay()->setAScanBackend(qml_AScanBackend);
     octBackend->getOCTPipeline()->getDisplay()->setMax(40);
     octBackend->getOCTPipeline()->getDisplay()->setMin(-20);
-    octBackend->loadOCT("/Users/amcelroy/Code/OSIP/test_data/");
+    octBackend->loadOCT("C:\\Users\\Austin\\Desktop\\OSIP\\test_data\\");
     octBackend->getOCTPipeline()->getLoader()->setLoop(false);
-    octBackend->getOCTPipeline()->slotEnfaceChanged(QVariant(100), QVariant(250));
+    octBackend->enFaceSliderChanged(QVariant(100), QVariant(250));
 #endif
 
     return app.exec();
