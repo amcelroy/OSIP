@@ -8,7 +8,7 @@
 #include "boost/signals2.hpp"
 #include <loadoctpipeline.hpp>
 #include <boost/signals2.hpp>
-#include <omp.h>
+//#include <omp.h>
 
 namespace OSIP {
     class OCTLIBRARYSHARED_EXPORT OCTPipelineStageCPU : public PipelineStage<unsigned short, float>
@@ -51,6 +51,15 @@ namespace OSIP {
          * @param ascanNumber
          */
         void setAScanToDisplay(int ascanNumber) { m_AScanToDisplay = ascanNumber; }
+
+        int getWidth(){
+            return _AScansPerBScan;
+        }
+
+        int getHeight(){
+            return _fft_out_size;
+        }
+
     protected:
 
         boost::signals2::signal<void ()> sig_ProcessingFinished;
@@ -76,12 +85,12 @@ namespace OSIP {
         /**
          * @brief fft_in Array used to store pre-fft data
          */
-        vector<float> *fft_in = NULL;
+        vector<float> *fft_in;
 
         /**
          * @brief fft_out Array to store post-fft data
          */
-        vector<fftwf_complex> *fft_out = NULL;
+        fftwf_complex *fft_out;
 
         /**
          * @brief _window Array to store pre-fft window data

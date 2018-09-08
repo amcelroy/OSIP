@@ -9,7 +9,7 @@ QT += quick widgets
 QT += quickcontrols2
 
 TARGET = OCTLibrary
-TEMPLATE = lib
+TEMPLATE = app
 
 DEFINES += OCTLIBRARY_LIBRARY
 
@@ -32,7 +32,8 @@ SOURCES += \
     octpipelinestage_cpu.cpp \
     windowmaker.cpp \
     octconfigfile.cpp \
-    ascanbackend.cpp
+    main.cpp \
+    websocketserver.cpp
 
 HEADERS += \
         octlibrary.h \
@@ -42,11 +43,9 @@ HEADERS += \
     octpipelinestage_cpu.h \
     windowmaker.h \
     nodaqstage.h \
-    bscanimageprovider.h \
-    enfaceimageprovider.h \
     loadoctpipeline.hpp \
     octconfigfile.h \
-    ascanbackend.h
+    websocketserver.h
 
 macx {
     QMAKE_MAC_SDK = macosx10.13
@@ -110,4 +109,5 @@ INCLUDEPATH += $$PWD/../dependancies/boost_1_65
 INCLUDEPATH += $$PWD/../dependancies/fftw/include
 INCLUDEPATH += $$PWD/../dependancies/szip/include
 INCLUDEPATH += $$PWD/../dependancies/zlib/include
+INCLUDEPATH += $$PWD/../dependancies
 DEPENDPATH += $$PWD/..

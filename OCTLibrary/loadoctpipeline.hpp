@@ -222,6 +222,10 @@ namespace OSIP {
             m_State = LOAD_STATE::RELOAD;
         }
 
+        int getNumberOfFrames(){
+            return _N;
+        }
+
         void setBounds(int startAScan, int stopAScan, int startBScan, int stopBScan) {
             m_StartAScan = startAScan;
             m_StartBScan = startBScan;

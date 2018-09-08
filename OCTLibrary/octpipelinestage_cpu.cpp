@@ -13,8 +13,7 @@ void OCTPipelineStageCPU::configure(OCTConfig config){
     _PointsPerAScan = config.PointsPerAScan;
     _AScansPerBScan = config.AScansPerBScan - config.StartTrim - config.StopTrim;
     _NumberOfBScans = config.TotalBScans;
-
-    omp_set_num_threads(2);
+    //omp_set_num_threads(2);
 }
 
 void OCTPipelineStageCPU::preStage(){
@@ -29,8 +28,10 @@ void OCTPipelineStageCPU::preStage(){
 
     _fft_out_size = _PointsPerAScan/2 + 1;
 
-    float* fft_in = new float[_PointsPerAScan*_AScansPerBScan];
-    fftwf_complex* fft_out = new fftwf_complex[_fft_out_size*_AScansPerBScan];
+    fft_in = new vector<float>(_PointsPerAScan*_AScansPerBScan);
+    fft_out = fftwf_alloc_complex(_fft_out_size*_AScansPerBScan);
+
+    setEnfaceRange(1, _fft_out_size - 1);
 
     int rank = 1;
     int n[] = {_PointsPerAScan};
@@ -42,7 +43,7 @@ void OCTPipelineStageCPU::preStage(){
     _fftplan = fftwf_plan_many_dft_r2c(rank,
                                        n,
                                        howmany,
-                                       fft_in,
+                                       fft_in->data(),
                                        NULL,
                                        istride,
                                        idist,
@@ -90,15 +91,10 @@ void OCTPipelineStageCPU::work(){
                 std::chrono::duration<double, std::milli> dequeue_elapsed = dequeue_time - start;
                 double time = dequeue_elapsed.count();
 
-                if(fft_in == NULL){
-                    fft_in = new vector<float>(_PointsPerAScan*_AScansPerBScan);
-                    fft_out = new vector<fftwf_complex>(_fft_out_size*_AScansPerBScan);
-                }
-
                 //Apply hanning
                 auto hann_start = chrono::high_resolution_clock::now();
                 auto tmp_ptr = tmp->data();
-#pragma omp parallel for
+//#pragma omp parallel for
                 for(int i = 0; i < totalDim; i++){
                     fft_in->data()[i] = tmp_ptr[i]*_Gain - _Bias;
                 }
@@ -114,7 +110,7 @@ void OCTPipelineStageCPU::work(){
 
                 //FFT
                 auto fft_start = chrono::high_resolution_clock::now();
-                fftwf_execute_dft_r2c(_fftplan, fft_in->data(), fft_out->data());
+                fftwf_execute_dft_r2c(_fftplan, fft_in->data(), fft_out);
                 auto fft_time = chrono::high_resolution_clock::now();
                 std::chrono::duration<double, std::milli> fft_elapsed = fft_time - fft_start;
                 time = fft_elapsed.count();
@@ -129,7 +125,7 @@ void OCTPipelineStageCPU::work(){
                 time = alloc_elapsed.count();
 
                 auto mag_start = chrono::high_resolution_clock::now();
-                _computeBscan(fft_out->data(), intensity.get()->data(), atten.get()->data());
+                _computeBscan(fft_out, intensity.get()->data(), atten.get()->data());
                 auto mag_time = chrono::high_resolution_clock::now();
                 std::chrono::duration<double, std::milli> mag_elapsed = mag_time - mag_start;
                 time = mag_elapsed.count();
@@ -182,17 +178,8 @@ void OCTPipelineStageCPU::postStage(){
     fftwf_cleanup_threads();
     fftwInit = false;
 
-    delete[] fft_in;
-    delete[] fft_out;
+    delete _window;
 }
-
-//void OCTPipelineStageCPU::_computeMagnitudeAndIntensity(fftwf_complex *f, float *mag, float *intensity){
-//#pragma omp parallel for
-//    for(int i = 0; i < _fft_out_size*_AScansPerBScan; i++){
-//        mag[i] = f[i][0]*f[i][0] + f[i][1]*f[i][1];
-//        intensity[i] = 10*log10f(mag[i]);
-//    }
-//}
 
 void OCTPipelineStageCPU::_computeEnFace(float *intensity, float *enface){
     float range = _EnFaceUpper - _EnFaceLower;
@@ -205,20 +192,8 @@ void OCTPipelineStageCPU::_computeEnFace(float *intensity, float *enface){
     }
 }
 
-//void OCTPipelineStageCPU::_computeIntensity(float *mag, float *intensity){
-//    for(int i = 0; i < _fft_out_size*_AScansPerBScan; i++){
-//        intensity[i] = 10*log10f(mag[i]);
-//    }
-//}
-
-//void OCTPipelineStageCPU::_computePhase(fftwf_complex *f, float *phase){
-//    for(int i = 0; i < _fft_out_size*_AScansPerBScan; i++){
-//        phase[i] = atan2f(f[i][1], f[i][0]);
-//    }
-//}
-
 void OCTPipelineStageCPU::_computeBscan(fftwf_complex *f, float *intensity, float *atten){
-#pragma omp parallel for
+//#pragma omp parallel for
     for(int i = 0; i < _AScansPerBScan; i++){
         float runningSum = 0;
         for(int j = _fft_out_size - 1; j >= 0; j--){

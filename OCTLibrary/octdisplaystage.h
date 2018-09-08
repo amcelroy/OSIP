@@ -4,42 +4,30 @@
 #include "pipeline.hpp"
 #include <QObject>
 #include <QVector>
-#include <bscanimageprovider.h>
 #include <boost/signals2.hpp>
-#include "enfaceimageprovider.h"
 #include "octlibrary_global.h"
-#include "ascanbackend.h"
 
 namespace OSIP {
-
-    class OCTLIBRARYSHARED_EXPORT OCTDisplayStageNotifier : public QObject{
-    Q_OBJECT
-
-    signals:
-        void onStateChanged();
-
-    };
 
     class OCTLIBRARYSHARED_EXPORT OCTDisplayStage : public DisplayPipelineStage<float>
     {
     private:
-        OCTDisplayStageNotifier qt_Notifier;
+        vector<unsigned char> m_bscan_8bit;
 
-        BScanImageProvider* m_bscanImageProvider;
+        vector<unsigned char> m_enface_8bit;
 
-        EnFaceImageProvider* m_enFaceImageProvider;
+        mutex m_BScanAccessMutex;
 
-        AScanBackend* m_AScanBackend;
+        mutex m_EnFaceAccessMutex;
+
     public:
         OCTDisplayStage() { }
 
-        OCTDisplayStageNotifier* getNotifier() { return &qt_Notifier; }
+        vector<unsigned char>* getLastBScan8Bit(){
+            lock_guard<mutex> lock(m_BScanAccessMutex);
+            return &m_bscan_8bit;
+        }
 
-        void setBScanImageProvider(BScanImageProvider *p) { m_bscanImageProvider = p; }
-
-        void setEnFaceImageProvider(EnFaceImageProvider *p) { m_enFaceImageProvider = p; }
-
-        void setAScanBackend(AScanBackend* a){ m_AScanBackend = a; }
     protected:
         void work() override;
 

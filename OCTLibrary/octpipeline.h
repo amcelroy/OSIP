@@ -11,9 +11,8 @@
 
 using namespace OSIP;
 
-class OCTLIBRARYSHARED_EXPORT OCTPipeline : public QObject
+class OCTLIBRARYSHARED_EXPORT OCTPipeline
 {
-    Q_OBJECT
 
 private:
     shared_ptr<OSIP::LoadOCTPipeline> _Loader;
@@ -26,9 +25,8 @@ private:
 
     bool m_ProcessingFinished = false;
 
-    QObject *qml_BScanSlider;
 public:
-    OCTPipeline(QObject *parent = 0){ }
+    OCTPipeline(){ }
 
     void init(){
         _Loader = shared_ptr<LoadOCTPipeline>(new LoadOCTPipeline());
@@ -47,12 +45,12 @@ public:
         _Loader->subscribeDAQFinished(std::bind(&OCTPipeline::slotDAQFinished, this));
 
         //Signal that current frame from the loader
-        _Loader->subscribeCurrentFrame(std::bind(&OCTPipeline::slotBScanChanged, this, std::placeholders::_1));
+        //_Loader->subscribeCurrentFrame(std::bind(&OCTPipeline::slotBScanChanged, this, std::placeholders::_1));
 
         //Signal that the processing is done
         _Processor->subscribeProcessingFinished(std::bind(&OCTDisplayStage::slotProcessingFinished, _Display));
         _Processor->subscribeProcessingFinished(std::bind(&OCTPipeline::slotProcessingFinished, this));
-        _Processor->subscribeFrameProcessed(std::bind(&OCTPipeline::slotFrameProcessed, this));
+        //_Processor->subscribeFrameProcessed(std::bind(&OCTPipeline::slotFrameProcessed, this));
     }
 
     OSIP::LoadOCTPipeline* getLoader() { return _Loader.get(); }
@@ -63,51 +61,16 @@ public:
 
     void start(OCTConfig config){
         _Processor->configure(config);
-
-        qml_BScanSlider->setProperty("enabled", QVariant(false));
-
-        emit DAQChanged(QVariant(config.PointsPerAScan),
-                        QVariant(config.AScansPerBScan),
-                        QVariant(config.TotalBScans));
-
         _Display->start();
         _Processor->start();
         _Loader->start();
     }
 
-    void slotBScanChanged(int CurrentFrame) { BScanUpdated(QVariant(CurrentFrame)); }
-
     void slotDAQFinished() { m_LoadingFinished = true; }
-
-    void setBScanSlider(QObject *o) { qml_BScanSlider = o; }
 
     void slotProcessingFinished(){
         m_ProcessingFinished  = true;
-        qml_BScanSlider->setProperty("enabled", QVariant(true));
     }
-
-    void slotFrameProcessed() { emit FrameProcessed(); }
-
-public slots:
-    void slotMinScaleChanged(QVariant min){
-        _Display->setMin(min.toFloat());
-    }
-
-    void slotMaxScaleChanged(QVariant max){
-        _Display->setMax(max.toFloat());
-    }
-
-    void slotBScanSliderChanged(QVariant frame){
-        if(m_ProcessingFinished){
-            _Loader->readFrame(frame.toInt());
-        }
-    }
-
-signals:
-    void DAQChanged(QVariant PointsPerAScan, QVariant AScansPerBScan, QVariant NumberOfBScans);
-    void BScanUpdated(QVariant CurrentBScan);
-    void FrameProcessed();
-    void EnFaceUpdated(QVariant CurrentEnFace);
 };
 
 #endif // OCTPIPELINE_H

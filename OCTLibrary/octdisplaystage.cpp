@@ -35,49 +35,45 @@ void OCTDisplayStage::work(){
                 vector<qreal> q_intAScan(get<1>(intAScan)[0]); //new qreal vector of size rawAScan
                 vector<float>* tmp_raw_ptr = get<0>(rawAScan).get();
                 vector<float>* tmp_int_ptr = get<0>(intAScan).get();
-                for(int i = 0; i < q_rawAScan.size(); i++){
+                for(unsigned long i = 0; i < q_rawAScan.size(); i++){
                     q_rawAScan[i] = tmp_raw_ptr->at(i);
                 }
-                for(int i = 0; i < q_intAScan.size(); i++){
+                for(unsigned long i = 0; i < q_intAScan.size(); i++){
                     q_intAScan[i] = tmp_int_ptr->at(i);
                 }
-                tmp_raw_ptr = NULL;
-                tmp_int_ptr = NULL;
+                //tmp_raw_ptr = NULL;
+                //tmp_int_ptr = NULL;
 
                 unsigned long arraySize = 1;
                 for(unsigned long l : dims.at(0)){
                     arraySize *= l;
                 }
 
-                auto RGBA = vector<unsigned int>(arraySize);
-                auto RGBA_enFace = vector<unsigned int>(enFaceDims[0]);
+                if(m_bscan_8bit.size() != arraySize){
+                    m_bscan_8bit = vector<unsigned char>(arraySize);
+                }
 
+                if(m_enface_8bit.size() != enFaceDims[0]){
+                    m_enface_8bit = vector<unsigned char>(enFaceDims[0]);
+                }
+
+                lock_guard<mutex> lock1(m_BScanAccessMutex);
                 auto tmp_ptr = datas.at(0).get();
-                scaleToRGBA(tmp_ptr->data(), RGBA.data(), RGBA.size());
-                tmp_ptr = NULL;
+                scaleTo8Bit(tmp_ptr, &m_bscan_8bit);
+                //tmp_ptr = NULL;
 
+                lock_guard<mutex> lock2(m_EnFaceAccessMutex);
                 auto en_face_tmp_ptr = enFaceData.get();
-                scaleToRGBA(en_face_tmp_ptr->data(), RGBA_enFace.data(), RGBA_enFace.size());
-                en_face_tmp_ptr = NULL;
+                scaleTo8Bit(en_face_tmp_ptr, &m_enface_8bit);
+                //en_face_tmp_ptr = NULL;
 
-//                thread color_thread(&OCTDisplayStage::scaleToRGBA, this, datas.at(0).get(), RGBA.get());
-//                thread end_face_color_thread(&OCTDisplayStage::scaleToRGBA, this, enFaceData.get(), RGBA_enFace.get());
-
-//                color_thread.join();
-//                end_face_color_thread.join();
-                m_bscanImageProvider->setPixels(RGBA, dims.at(0));
-                m_AScanBackend->setRawAScan(q_rawAScan);
-                m_AScanBackend->setIntensityAScan(q_intAScan);
-                m_enFaceImageProvider->setRow(RGBA_enFace, enFaceDims);
-
-
-                if(m_FramesPerSecond != 0){
-                    std::this_thread::sleep_for(std::chrono::milliseconds((long)(1/m_FramesPerSecond)));
+                if(m_FramesPerSecond != 0.0f){
+                    std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long>(1/m_FramesPerSecond)));
                 }
 
                 auto stop = chrono::high_resolution_clock::now();
                 std::chrono::duration<double, std::micro> elapsed = stop - start;
-                this->sig_StageTimer(elapsed.count());
+                this->sig_StageTimer(static_cast<float>(elapsed.count()));
                 d_ThreadWorkTime = elapsed.count();
 
                 p.finished();
