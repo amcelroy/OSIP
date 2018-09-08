@@ -42,7 +42,7 @@ HEADERS += \
     displaypipelinestage.hpp \
 
 macx {
-    QMAKE_MAC_SDK = macosx10.12
+    QMAKE_MAC_SDK = macosx10.13
     #Add OpenCL framework
     XCODE_FRAMEWORKS = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks
     QMAKE_LFLAGS += -F$${XCODE_FRAMEWORKS}

@@ -1,0 +1,186 @@
+<html id="mainpage">
+    <link rel="stylesheet" type="text/css" href="./oct_gui.css">
+    <link rel="stylesheet" type="text/css" href="./nouislider.css">
+
+    <div id="header">
+        <span class="helper"></span>
+        <img id="texasLogo" src="Texas__oneColor_gray.svg" height="48"/>
+        UT Bell OCT Server      
+    </div>
+
+    <div id="Options">
+        <span class="helper"></span>
+        <button class="buttonGraphic" onclick="playButtonClick()">
+            Play
+        </button>
+        <button class="buttonGraphic" onclick="pauseButtonClick()">
+            Pause
+        </button>
+        <div id="sliderBScanSelect"></div>
+        <button class="buttonGraphic" onclick="stopButtonCick()">
+            Stop
+        </button>
+    </div>
+
+    <div id="Display">
+        <canvas id="BScanCanvas" width="600" height="600"></canvas>
+        <div id="sliderMinMax"></div>
+        <canvas id="EnFaceCanvas"></canvas>
+        <div id="divSettings"></div>
+    </div>
+
+    <script type="text/javascript" src="./nouislider.js"></script>
+    <script type="text/javascript">
+        var socket = new WebSocket('ws://localhost:9090');
+        var bscanCanvas = document.getElementById("BScanCanvas");
+        var lastFrame = {};
+        var lastMessage = '';
+        var sliderMinMax = document.getElementById('sliderMinMax');
+        var sliderBScanSelect = document.getElementById('sliderBScanSelect');
+        var socketOpen = 0;
+        var g_frameReady = 0;
+        var g_numberOfFrames = 0;
+        var g_stopPlayback = 0;
+        var g_currentFrame = 0;
+        var g_intervalPlaybackHandle = 0;
+        var m_LUT = [66049,66049,66305,66561,66817,67073,67329,67585,67841,68097,68353,68609,68865,69121,69377,69633,69889,70145,70401,70657,70913,71169,71425,71681,71937,72193,72449,72705,72961,73217,73473,73729,73985,74241,74497,74753,75009,75265,75521,75777,76033,76289,76545,76801,77057,77313,77569,77825,78081,78337,78593,78849,79105,79361,79617,79873,80129,80385,80641,80897,81153,81409,81665,81921,147458,278276,409094,539912,670730,801548,932366,1063184,1194002,1324820,1455638,1586456,1717274,1848092,1978910,2109728,2240546,2371364,2502182,2633000,2763818,2894636,3025454,3156272,3287090,3417908,3548726,3679544,3810362,3941180,4071998,4202816,4268097,4398915,4529733,4660551,4791369,4922187,5053005,5183823,5314641,5445459,5576277,5707095,5837913,5968731,6099549,6230367,6361185,6492003,6622821,6753639,6884457,7015275,7146093,7276911,7407729,7538547,7669365,7800183,7931001,8061819,8192637,8323455,8454525,8586107,8717689,8849271,8980853,9112435,9244017,9375599,9507181,9638763,9770345,9901927,10033509,10165091,10296673,10428255,10559837,10691419,10823001,10954583,11086165,11217747,11349329,11480911,11612493,11744075,11875657,12007239,12138821,12270403,12401985,12533568,12599358,12730940,12862522,12994104,13125686,13257268,13388850,13520432,13652014,13783596,13915178,14046760,14178342,14309924,14441506,14573088,14704670,14836252,14967834,15099416,15230998,15362580,15494162,15625744,15757326,15888908,16020490,16152072,16283654,16415236,16546818,16678401,16678916,16679432,16679948,16680464,16680980,16681496,16682012,16682528,16683044,16683560,16684076,16684592,16685108,16685624,16686140,16686656,16687171,16687687,16688203,16688719,16689235,16689751,16690267,16690783,16691299,16691815,16692331,16692847,16693363,16693879,16694395,16694911,16695171,16695687,16696203,16696719,16697235,16697751,16698267,16698783,16699299,16699815,16700331,16700847,16701363,16701879,16702395,16702911,16703426,16703942,16704458,16704974,16705490,16706006,16706522,16707038,16707554,16708070,16708586,16709102,16709618,16710134,16710650,16710650];
+        for(var i = 0; i < m_LUT.length; i++){
+            m_LUT[i] += 0xFF000000;
+        }    
+
+        socket.onopen = () => {
+            socketOpen = 1;
+        }
+
+        noUiSlider.create(sliderMinMax, {
+            start: [20, 80],
+            connect: true,
+            range: {
+                'min': 0,
+                'max': 100
+            },
+            orientation: 'vertical'
+        });
+
+        noUiSlider.create(sliderBScanSelect, {
+            start: [1],
+            connect: true,
+            step: 1,
+            range: {
+                'min': 0,
+                'max': 100
+            },
+        });
+
+        sliderBScanSelect.noUiSlider.on('update', function(v, h){
+            if(socketOpen){
+                var _json = { "request" : "frame", "frame" : parseFloat(v[h]) };
+                socket.send(JSON.stringify(_json));
+            }
+        });
+
+        bscanCanvas.ondragstart = function () {
+            //record start coordinate
+        }
+
+        bscanCanvas.ondrag = function () {
+            //draw highlighted enface region
+        }
+
+        bscanCanvas.ondragend = function(){
+            //send en face coordinates to server
+        }
+
+        function pauseButtonClick(){
+            var j = { "request" : "frame", "frame" : 0 };
+            socket.send(JSON.stringify(j));
+        }
+
+        function stopButtonCick(){
+            g_stopPlayback = 1;
+            var j = { "request" : "load" };
+            socket.send(JSON.stringify(j));
+            clearInterval(g_intervalPlaybackHandle);
+        }
+
+        function requestFramePlayback(){
+            if(g_frameReady){
+                if(g_currentFrame >= 0 && g_currentFrame < g_numberOfFrames){
+                    var _json = { "request" : "frame", "frame" : i };
+                    g_frameReady = 0;
+                    socket.send(JSON.stringify(_json));
+                    g_currentFrame += 1;
+                }else{
+                    clearInterval(g_intervalPlaybackHandle);
+                }
+            }
+        }
+
+        function playButtonClick(){
+            g_currentFrame = 0;
+            g_frameReady = 1;
+            g_intervalPlaybackHandle = setInterval(requestFramePlayback, 25);
+        }
+        
+        socket.onmessage = function (event) {
+            if(event.data instanceof Blob){
+                var arrayBuffer;
+                var fileReader = new FileReader();
+                fileReader.onload = (event) => {
+                    lastFrame = event.target.result;
+                };
+                fileReader.readAsArrayBuffer(event.data);
+            }else{
+                lastMessage = JSON.parse(event.data);
+                switch(lastMessage["response"]){
+                    case "frame":
+                        var c = document.getElementById("BScanCanvas");
+                        var width = lastMessage["width"];
+                        var height = lastMessage["height"];
+                        var uint8 = new Uint8Array(lastFrame);
+                        var imageDataArray = new Uint8ClampedArray(height*width*4);
+                        for(var i = 0; i < height*width; i++){
+                            var tmp = m_LUT[uint8[i]];
+                            imageDataArray[4*i] = tmp & 0xFF;
+                            imageDataArray[4*i + 1] = (tmp >> 8) & 0xFF;
+                            imageDataArray[4*i + 2] = (tmp >> 16) & 0xFF;
+                            imageDataArray[4*i + 3] = 255;
+                        }
+                        var image = new ImageData(imageDataArray, height, width);
+                        var ctx = c.getContext("2d");
+
+                        //Render to offscreen canvas
+                        var offScreenCanvas = document.createElement('canvas');
+                        offScreenCanvas.width = c.width;
+                        offScreenCanvas.height = c.height;
+                        var offscreenContext = offScreenCanvas.getContext("2d");
+                        offscreenContext.putImageData(image, 0, 0);
+
+                        //ctx.drawImage(image, 0, 0);
+                        ctx.save();
+                        ctx.translate(c.width / 2, c.height / 2);
+                        ctx.rotate(90.0 * Math.PI / 180);
+                        ctx.drawImage(offScreenCanvas, 0, 0, width, width, -c.width/2, -c.height/2, c.width, c.height);
+                        ctx.restore();
+                        //ctx.drawImage(offScreenCanvas, 0, 0);
+                        g_frameReady = 1;
+                        break;
+
+                    case "load":
+                        g_numberOfFrames = lastMessage["frames"];
+                        sliderBScanSelect.noUiSlider.updateOptions({
+                            range: {
+                                'min': 0,
+                                'max': g_numberOfFrames 
+                            }
+                        });
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+    </script>
+
+</html>

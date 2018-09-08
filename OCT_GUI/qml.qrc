@@ -1,9 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>main.qml</file>
-        <file>QML_DAQConfig.qml</file>
-        <file>QML_GalvoConfig.qml</file>
-        <file>Support.js</file>
-        <file>QML_ViewAscan.qml</file>
-    </qresource>
-</RCC>

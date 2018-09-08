@@ -1,0 +1,88 @@
+.buttonGraphic {
+    height: 48px;
+    widows: 48px;
+    display: inline-block;
+}
+
+.helper {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+#mainpage {
+    background-color: rgb(51, 63, 72);
+}
+
+#header {
+    background-color:  rgb(191, 87, 0);
+    height: 64;
+    border: 2px;
+    border-color: rgb(255, 255, 255);
+    border-radius: 10px;
+    border-style: solid;
+    margin-bottom: 2px;
+    font-size: 32;
+    vertical-align: middle;
+}
+
+#texasLogo {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+#options {
+    background-color:  rgb(191, 87, 0);
+    height: 64;
+    border: 2px;
+    border-color: rgb(255, 255, 255);
+    border-radius: 10px;
+    border-style: solid;
+    margin-bottom: 2px;
+    vertical-align: middle;
+}
+
+#display {
+    display: flex;
+    border-color: rgb(255, 255, 255);
+    border-radius: 10px;
+    border-style: solid;
+}
+
+#divButtons {
+    display: flex;
+}
+
+#BScanCanvas{
+    width: 600px;
+    height: 600px;
+    display: inline-block;
+    border-radius: 10px;
+}
+
+#sliderMinMax{
+    display: inline-block;
+    height: 512;
+    margin: 10px;
+}
+
+#sliderBScanSelect {
+    width: 50%;
+    display: inline-block;
+}
+
+#EnFaceCanvas{
+    width: 600px;
+    height: 600px;
+    background-color: blue;
+    display: inline-block;
+    border-radius: 10px;
+}
+
+#divSettings{
+    border-radius: 10px;
+    height: 600px;
+    flex: 1;
+    background-color: blueviolet;
+    display: inline-block;
+}

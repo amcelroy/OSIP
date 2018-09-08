@@ -1,8 +1,13 @@
 #ifndef NIDAQMXGALVOS_H
 #define NIDAQMXGALVOS_H
 
+<<<<<<< Updated upstream
 #include "peripheral.hpp"
 #include <NIDAQmx.h>
+=======
+#include <peripheral.hpp>
+#include <NIDAQmxBase.h>
+>>>>>>> Stashed changes
 #include "galvos.h"
 
 using namespace std;

@@ -1,7 +1,11 @@
 #ifndef GALVOS_H
 #define GALVOS_H
 
+<<<<<<< Updated upstream
 #include "peripheral.hpp"
+=======
+#include "peripheral_global.h"
+>>>>>>> Stashed changes
 
 using namespace std;
 

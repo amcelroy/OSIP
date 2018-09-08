@@ -42,15 +42,15 @@ win32 {
 }
 
 macx {
+    QMAKE_MAC_SDK = macosx10.13
+
     #Add Labview DAQmx framework
     QMAKE_LFLAGS += -F/Library/Frameworks/
     LIBS += -framework nidaqmxbase
     LIBS += -framework nidaqmxbaselv
     INCLUDEPATH += /Library/Frameworks/nidaqmxbase.framework/Headers
-
-    LIBS += -L$$PWD/../ -lPipeline.1.0.0
 }
 
 INCLUDEPATH += $$PWD/../dependancies/boost_1_65
-INCLUDEPATH += $$PWD/../dependancies/fftw/include
+#INCLUDEPATH += $$PWD/../dependancies/fftw/include
 INCLUDEPATH += $$PWD/../Pipeline
