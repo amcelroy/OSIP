@@ -15,11 +15,11 @@ namespace OSIP {
         OSIP_CLOCK_SOURCE ClockSource;
         float VoltageGain;
         float VoltageBias;
-        unsigned int PointsPerTrigger;
-        unsigned int TriggersPerBuffer;
-        unsigned int TotalBuffers;
-        unsigned int DAQClockRate;
-        unsigned int Bits;
+        unsigned long PointsPerTrigger;
+        unsigned long TriggersPerBuffer;
+        unsigned long TotalBuffers;
+        unsigned long DAQClockRate;
+        unsigned long Bits;
         OSIP_TRIGGER_SOURCE Trigger;
         OSIP_CHANNELS Channels;
         double TriggerTimeoutMS;
@@ -49,12 +49,17 @@ namespace OSIP {
         /**
          * @brief CurrentFrame Signal that emits the current frame
          */
-        boost::signals2::signal<void (int)> sig_CurrentFrame;
+        boost::signals2::signal<void (unsigned long)> sig_CurrentFrame;
 
         /**
          * @brief DAQFinished Signal that emits when the DAQ is finished
          */
         boost::signals2::signal<void ()> sig_DAQFinished;
+
+        /**
+         * @brief DAQStarted Signal that emits when the DAQ is started
+         */
+        boost::signals2::signal<void ()> sig_DAQStarted;
 
         /**
          * @brief sig_DAQChanged Signal emitted when the DAQ values change
@@ -101,7 +106,7 @@ namespace OSIP {
          * virtual function
          * @param subscriber
          */
-        void subscribeCurrentFrame(const boost::signals2::signal<void(int)>::slot_type &subscriber) { sig_CurrentFrame.connect(subscriber); }
+        void subscribeCurrentFrame(const boost::signals2::signal<void(unsigned long)>::slot_type &subscriber) { sig_CurrentFrame.connect(subscriber); }
 
         /**
          * @brief notifyTiming Add a subscriber to get notified when the DAQStage task is finished
@@ -115,6 +120,12 @@ namespace OSIP {
          * @param subscriber
          */
         void subscribeDAQChanged(const boost::signals2::signal<DAQParameters()>::slot_type &subscriber) { sig_DAQChanged.connect(subscriber); }
+
+        /**
+         * @brief subscribeDAQStarted Add subscriber when the DAQ is started
+         * @param subscriber
+         */
+        void subscribeDAQStarted(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_DAQStarted.connect(subscriber); }
     };
 }
 #endif // DAQSTAGE_H

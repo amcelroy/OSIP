@@ -3,6 +3,19 @@
 
 #include "boost/signals2.hpp"
 
+#pragma once
+
+// Define EXPORTED for any platform
+#ifdef _WIN32
+# ifdef WIN_EXPORT
+#   define EXPORTED  __declspec( dllexport )
+# else
+#   define EXPORTED  __declspec( dllimport )
+# endif
+#else
+# define EXPORTED
+#endif
+
 namespace OSIP {
     namespace Peripherals{
         class Peripheral
@@ -11,7 +24,7 @@ namespace OSIP {
         public:
             Peripheral(){ }
 
-            ~Peripheral() { }
+            virtual ~Peripheral() { }
 
             virtual void run(){ sig_Run(); }
 

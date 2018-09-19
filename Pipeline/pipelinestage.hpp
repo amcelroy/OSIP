@@ -31,6 +31,10 @@ namespace OSIP {
             _Inlet = shared_ptr<Inlet<I>>(new Inlet<I>);
         }
 
+        virtual ~PipelineStage(){
+
+        }
+
         double getThreadWorkTimeMicroSeconds(){
             return d_ThreadWorkTime;
         }
@@ -113,6 +117,11 @@ namespace OSIP {
 
         virtual boost::signals2::signal<void ()>::slot_type slotProcessingFinished(){
             m_ProcessingFinished = true;
+            return boost::signals2::signal<void ()>();
+        }
+
+        virtual boost::signals2::signal<void ()>::slot_type slotDAQStarted(){
+            m_DAQFinished = false;
             return boost::signals2::signal<void ()>();
         }
 

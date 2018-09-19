@@ -4,10 +4,6 @@
 #
 #-------------------------------------------------
 
-QT       += core network opengl
-
-QT       -= gui
-
 TARGET = Pipeline
 TEMPLATE = lib
 
@@ -69,8 +65,6 @@ win32 {
     INCLUDEPATH += "C:\Intel\OpenCL\sdk\include"
 
     Release {
-        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_filesystem-vc141-mt-1_65_1
-        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_system-vc141-mt-1_65_1
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_tools
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl
@@ -79,8 +73,6 @@ win32 {
     }
 
     Debug {
-        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_filesystem-vc141-mt-gd-1_65_1
-        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_system-vc141-mt-gd-1_65_1
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_D
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_tools_D
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl_D
@@ -97,3 +89,4 @@ INCLUDEPATH += $$PWD/../dependancies/HDF5/1.10.1/include
 INCLUDEPATH += $$PWD/../dependancies/boost_1_65
 INCLUDEPATH += $$PWD/../dependancies/szip/include
 INCLUDEPATH += $$PWD/../dependancies/zlib/include
+INCLUDEPATH += $$PWD/../dependancies

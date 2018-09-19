@@ -5,12 +5,15 @@
 #include "boost/signals2.hpp"
 #include "boost/endian/arithmetic.hpp"
 #include "boost/endian/conversion.hpp"
-#include "boost/filesystem.hpp"
+//#include "boost/filesystem.hpp"
 #include "hdf5.h"
 #include "H5Cpp.h"
 #include "zlib.h"
 #include "szlib.h"
 #include <fstream>
+
+#include <sys/types.h>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -40,14 +43,32 @@ namespace OSIP {
          * @return True if the folder path both exists and is a folder, false otherwise
          */
         bool setSavePath(string FolderPath){
-            boost::filesystem::path p(FolderPath);
-            if(boost::filesystem::exists(p)){ //valid folder?
-                if(boost::filesystem::is_directory(p)){ //valid directory?
-                    this->m_FolderPath = FolderPath;
-                    this->m_FolderPathSet = true;
-                    return true;
-                }
+            //From: https://stackoverflow.com/questions/18100097/portable-way-to-check-if-directory-exists-windows-linux-c/18101042
+
+            struct stat info;
+
+            if( stat( FolderPath.c_str(), &info ) != 0 ){
+                //printf( "cannot access %s\n", pathname );
+            }else if( info.st_mode & S_IFDIR ){
+                //folder exists
+                this->m_FolderPath = FolderPath;
+                this->m_FolderPathSet = true;
+                return true;
+            }else{
+                //printf( "%s is no directory\n", pathname );
             }
+
+
+
+
+//            boost::filesystem::path p(FolderPath);
+//            if(boost::filesystem::exists(p)){ //valid folder?
+//                if(boost::filesystem::is_directory(p)){ //valid directory?
+//                    this->m_FolderPath = FolderPath;
+//                    this->m_FolderPathSet = true;
+//                    return true;
+//                }
+//            }
 
             m_FolderPathSet = false;
             return false;
@@ -70,18 +91,18 @@ namespace OSIP {
         void work() override{
             if(this->m_FolderPathSet){
                 //not found, create stream and add to map
-                boost::filesystem::path folderPath(this->m_FolderPath);
+                //std::filesystem::path folderPath(this->m_FolderPath);
 
-                boost::filesystem::path name;
+                string name;
                 if(m_Filename == ""){
-                    name = boost::filesystem::path("dataset.h5");
+                    name = "dataset.h5";
                 }else{
-                    name = boost::filesystem::path(m_Filename);
+                    name = m_Filename;
                 }
 
-                boost::filesystem::path fullpath = folderPath / name;
+                string fullpath = this->m_FolderPath + name;
 
-                m_H5File = new H5::H5File(fullpath.string(), H5F_ACC_TRUNC);
+                m_H5File = new H5::H5File(fullpath, H5F_ACC_TRUNC);
 
                 map<string, unsigned long long> frameCount;
 
