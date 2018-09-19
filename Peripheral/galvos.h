@@ -1,17 +1,13 @@
 #ifndef GALVOS_H
 #define GALVOS_H
 
-<<<<<<< Updated upstream
 #include "peripheral.hpp"
-=======
-#include "peripheral_global.h"
->>>>>>> Stashed changes
 
 using namespace std;
 
 namespace OSIP{
     namespace Peripherals{
-        class Galvos
+        class EXPORTED Galvos : public Peripheral
         {
         private:
             vector<double> m_FastAxisVoltages;
@@ -21,12 +17,18 @@ namespace OSIP{
         public:
             Galvos();
 
+            ~Galvos() override;
+
             void generateRaster(double SlowAxisAmplitude,
                                 double SlowAxisOffset,
-                                int SlowAxisPoints,
+                                unsigned long SlowAxisPoints,
                                 double FastAxisAmplitude,
                                 double FastAxisOffset,
-                                int FastAxisPoints);
+                                unsigned long FastAxisPoints,
+                                unsigned long SlowAxisRepitions,
+                                unsigned long StartTrim,
+                                unsigned long StopTrim);
+
         };
     }
 }

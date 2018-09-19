@@ -1,24 +1,20 @@
 #ifndef NIDAQMXGALVOS_H
 #define NIDAQMXGALVOS_H
 
-<<<<<<< Updated upstream
-#include "peripheral.hpp"
-#include <NIDAQmx.h>
-=======
-#include <peripheral.hpp>
 #include <NIDAQmxBase.h>
->>>>>>> Stashed changes
 #include "galvos.h"
 
 using namespace std;
 
 namespace OSIP{
     namespace Peripherals{
-        class niDAQMXGalvos : public Peripheral, public Galvos
+        class EXPORTED niDAQMXGalvos : public Galvos
         {
 
         public:
             niDAQMXGalvos(string channel, unsigned long long SamplesPerChannel);
+
+            ~niDAQMXGalvos() override;
 
             void init() override;
 

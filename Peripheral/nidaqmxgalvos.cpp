@@ -9,13 +9,17 @@ niDAQMXGalvos::niDAQMXGalvos(std::string device, unsigned long long SamplesPerCh
     m_SamplesPerChannel = SamplesPerChannel;
 }
 
+niDAQMXGalvos::~niDAQMXGalvos(){
+    DAQmxBaseClearTask(m_Handle);
+}
+
 void niDAQMXGalvos::setSampClkTiming(string channel){
     m_ExternalSamplClk = channel;
 }
 
 void niDAQMXGalvos::init(){
-    DAQmxCreateTask("Galvo", &m_Handle);
-    DAQmxCfgSampClkTiming(m_Handle,
+    DAQmxBaseCreateTask("Galvo", &m_Handle);
+    DAQmxBaseCfgSampClkTiming(m_Handle,
                               (m_Device + "/" + m_ExternalSamplClk).c_str(),
                               200000.0,
                               DAQmx_Val_Falling,
@@ -24,17 +28,17 @@ void niDAQMXGalvos::init(){
 }
 
 void niDAQMXGalvos::pause(){
-
+    sig_Paused();
 }
 
 void niDAQMXGalvos::run(){
-
+    sig_Run();
 }
 
 void niDAQMXGalvos::stop(){
-
+    sig_Stop();
 }
 
 void niDAQMXGalvos::reset(){
-
+    sig_Reset();
 }
