@@ -1,7 +1,25 @@
+
+label {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14;
+    margin: 2px;
+}
+
+.textInput{
+    border-radius: 10px;
+    margin: 2px;
+    float: right;
+}
+
 .buttonGraphic {
-    height: 48px;
-    widows: 48px;
+    min-height: 32px;
+    max-height: 48px;
+    min-width: 48px;
+    max-width: 128;
+    border-radius: 10px;
     display: inline-block;
+    align-self: center;
+    margin: 5px;
 }
 
 .helper {
@@ -42,8 +60,13 @@
     vertical-align: middle;
 }
 
-#display {
+#Display {
     display: flex;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: flex-start;
     border-color: rgb(255, 255, 255);
     border-radius: 10px;
     border-style: solid;
@@ -56,14 +79,17 @@
 #BScanCanvas{
     width: 600px;
     height: 600px;
-    display: inline-block;
+    display: flex;
     border-radius: 10px;
+    flex: 1;
 }
 
 #sliderMinMax{
-    display: inline-block;
+    display: flex;
     height: 512;
+    max-width: 16px;
     margin: 10px;
+    flex: 2;
 }
 
 #sliderBScanSelect {
@@ -74,15 +100,54 @@
 #EnFaceCanvas{
     width: 600px;
     height: 600px;
-    background-color: blue;
-    display: inline-block;
     border-radius: 10px;
+    flex: 3;
 }
 
 #divSettings{
+    display: flex;
+    flex-flow: column;
     border-radius: 10px;
     height: 600px;
-    flex: 1;
-    background-color: blueviolet;
-    display: inline-block;
+    min-width: 384px;
+    max-width: 384px;
+    margin: 5;
+    background-color: rgb(191, 87, 0);
+    flex: 4;
+    align-items: center;
+    justify-content: center;
+}
+
+.flexboxContainerSettings{
+    max-height: 32;
+    min-width: 128;
+    border: 2px;
+    border-style: solid;
+    border-color: rgb(51, 63, 72);
+    border-radius: 10px;
+    margin: 1px;
+    opacity: .85;
+}
+
+#canvasRawAScan{
+    display: flex;
+    background-color: white;
+    opacity: .75;
+    height: 600;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+#canvasIntensityAScan{
+    display: flex;
+    background-color: white;
+    opacity: .75;
+    height: 600;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+#fieldsetGalvoOptions{
+    margin: 10px;
+    border-radius: 10px;
 }
