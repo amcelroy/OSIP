@@ -2,14 +2,12 @@
 #define OCTDISPLAYSTAGE_H
 
 #include "pipeline.hpp"
-#include <QObject>
-#include <QVector>
 #include <boost/signals2.hpp>
-#include "octlibrary_global.h"
+#include <octconfigfile.h>
 
 namespace OSIP {
 
-    class OCTLIBRARYSHARED_EXPORT OCTDisplayStage : public DisplayPipelineStage<float>
+    class OCTDisplayStage : public DisplayPipelineStage<float>
     {
     private:
         vector<unsigned char> m_bscan_8bit;
@@ -21,13 +19,26 @@ namespace OSIP {
         mutex m_EnFaceAccessMutex;
 
     public:
-        OCTDisplayStage() { }
+        OCTDisplayStage() {
 
-        vector<unsigned char>* getLastBScan8Bit(){
-            lock_guard<mutex> lock(m_BScanAccessMutex);
-            return &m_bscan_8bit;
         }
 
+        void configure(const OCTConfig *config){
+            int width = config->AScansPerBScan - config->StartTrim - config->StopTrim;
+            int height = config->TotalBScans;
+
+            m_enface_8bit.resize(static_cast<unsigned long>(width*height));
+        }
+
+        vector<unsigned char> getLastBScan8Bit(){
+            lock_guard<mutex> lock(m_BScanAccessMutex);
+            return m_bscan_8bit;
+        }
+
+        vector <unsigned char> getLastEnFace8Bit(){
+            lock_guard<mutex> lock(m_EnFaceAccessMutex);
+            return m_enface_8bit;
+        }
     protected:
         void work() override;
 

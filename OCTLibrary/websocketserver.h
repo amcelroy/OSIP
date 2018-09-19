@@ -38,10 +38,18 @@ class WebsocketServer
     OCTConfig m_octc;
 
     string m_CurrentPath;
+
+    websocketpp::connection_hdl m_ConnectionHandle;
+
+    bool m_NoConnection = true;
 public:
     WebsocketServer();
 
     void run();
+
+    void frameFinished();
+
+    void datasetFinished();
 };
 
 #endif // WEBSOCKETSERVER_H

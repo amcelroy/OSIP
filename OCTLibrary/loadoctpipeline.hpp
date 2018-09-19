@@ -4,7 +4,6 @@
 #include "daqstage.hpp"
 #include <fstream>
 #include <boost/signals2.hpp>
-#include "octlibrary_global.h"
 #include <chrono>
 
 using namespace std;
@@ -22,35 +21,42 @@ namespace OSIP {
         int StartTrim;
     };
 
-    class OCTLIBRARYSHARED_EXPORT LoadOCTPipeline : public DAQStage<unsigned short>
+    class LoadOCTPipeline : public DAQStage<unsigned short>
     {
     public:
         enum LOAD_STATE { INITIAL, RELOAD, SINGLE_FRAME, STOP, PAUSE };
+
+        ~LoadOCTPipeline() override {
+
+        }
 
     private:
         bool m_BufferData = false;
 
         vector<Payload<unsigned short>> m_BufferedData;
 
-        int m_StartAScan = -1;
+        unsigned long m_StartAScan = 0;
 
-        int m_StartBScan = -1;
+        unsigned long m_StartBScan = 0;
 
-        int m_StopAScan = -1;
+        unsigned long m_StopAScan = 0;
 
-        int m_StopBScan = -1;
+        unsigned long m_StopBScan = 0;
 
-        int m_ReadFrame = 0;
+        unsigned long m_ReadFrame = 0;
 
         LOAD_STATE m_State = LOAD_STATE::INITIAL;
 
         vector<unsigned long long> _dim;
 
-        int _N;
+        unsigned long _N;
 
         string _Filepath;
 
         void _initial(){
+
+            this->sig_DAQStarted();
+
             ifstream in;
             in.open(_Filepath, ios::in | ios::binary);
             if(in.fail()){
@@ -62,23 +68,25 @@ namespace OSIP {
             arraySize *= _dim[0];
             arraySize *= _dim[1];
 
-            int I_size = sizeof(unsigned short) / sizeof(unsigned char);
+            unsigned long long I_size = sizeof(unsigned short) / sizeof(unsigned char);
             unsigned long long bufferSize = arraySize*I_size;
 
-            for(int i = 0; i < _N; i++){
+            for(unsigned long i = 0; i < _N; i++){
                 auto start = chrono::high_resolution_clock::now();
 
-                char* buffer = new char[bufferSize];
+                //char* buffer = new char[bufferSize];
+                vector<char> buffer(bufferSize);
                 auto recastData = make_shared<vector<unsigned short>>(arraySize);
 
                 try{
                     //Loop through data and wrap it as payloads
-                    in.seekg(i*bufferSize, in.beg);
-                    in.read(buffer, bufferSize);
+                    in.seekg(static_cast<long long>(i*bufferSize), in.beg);
+                    in.read(buffer.data(), static_cast<long long>(bufferSize));
                     //Recast data to make it easier to wrap
 
                     for(unsigned long j = 0; j < bufferSize; j+=2){
-                        recastData->data()[j/2] = (unsigned char)buffer[j] << 8 | (unsigned char)buffer[j + 1];
+                        recastData->data()[j/2] = static_cast<unsigned char>(buffer[j]) << 8 |
+                                                        static_cast<unsigned char>(buffer[j + 1]);
                     }
 
                     _dim[2] = i;
@@ -94,16 +102,17 @@ namespace OSIP {
                     auto stop = chrono::high_resolution_clock::now();
                     std::chrono::duration<double, std::micro> elapsed = stop - start;
                     d_ThreadWorkTime = elapsed.count();
-                    this->sig_StageTimer(elapsed.count());
+                    this->sig_StageTimer(static_cast<float>(elapsed.count()));
                 }catch(...){
                     this->log("Error reading from file " + _Filepath);
                 }
 
-                delete[] buffer;
+                //delete[] buffer;
 
                 this->sig_CurrentFrame(i);
             }
 
+            this->sig_DAQFinished();
             m_State = LOAD_STATE::SINGLE_FRAME;
         }
 
@@ -112,11 +121,13 @@ namespace OSIP {
          * @param frameNumber
          */
         void _readFrame(){
+            //this->sig_DAQStarted();
+
             if(m_BufferData){
                 if(m_BufferedData.size() == 0){
                     this->sig_MessageLogged("No data is buffered");
                 }else{
-                    if(m_ReadFrame < m_BufferedData.size() && m_ReadFrame >= 0){
+                    if(m_ReadFrame < m_BufferedData.size()){
                         this->sendPayload(m_BufferedData.at(m_ReadFrame));
                     }else{
                         this->sig_MessageLogged("Requested frame is not buffered");
@@ -137,7 +148,7 @@ namespace OSIP {
             arraySize *= _dim[0];
             arraySize *= _dim[1];
 
-            int I_size = sizeof(unsigned short) / sizeof(unsigned char);
+            unsigned long I_size = sizeof(unsigned short) / sizeof(unsigned char);
             unsigned long bufferSize = arraySize*I_size;
 
             char* buffer = new char[bufferSize];
@@ -145,8 +156,8 @@ namespace OSIP {
 
             try{
                 //Loop through data and wrap it as payloads
-                in.seekg(m_ReadFrame*bufferSize, in.beg);
-                in.read(buffer, bufferSize);
+                in.seekg(static_cast<long>(m_ReadFrame*bufferSize), in.beg);
+                in.read(buffer, static_cast<long>(bufferSize));
                 //Recast data to make it easier to wrap
 
                 for(unsigned long j = 0; j < bufferSize; j+=2){
@@ -156,7 +167,7 @@ namespace OSIP {
                 _dim[2] = m_ReadFrame;
                 Payload<unsigned short> p(_dim, recastData, "Loaded BScan");
                 this->sendPayload(p);
-                p.finished();
+                //p.finished();
             }catch(...){
                 this->log("Error reading from file " + _Filepath);
             }
@@ -166,21 +177,25 @@ namespace OSIP {
             this->sig_CurrentFrame(m_ReadFrame);
         }
 
-        void _reload(){
-            int start = 0;
-            if(m_StartBScan != -1 && m_StartBScan < _N){
+        void _reload(){            
+            //this->sig_DAQStarted();
+
+            unsigned long start = 0;
+            if(m_StartBScan < _N){
                 start = m_StartBScan;
             }
 
-            int stop = _N;
+            unsigned long stop = _N;
             if(m_StopBScan > start && m_StartBScan < _N){
                 stop = m_StopBScan;
             }
 
-            for(int i = start; i < stop; i++){
+            for(unsigned long i = start; i < stop; i++){
                 m_ReadFrame = i;
                 _readFrame();
             }
+
+            this->sig_DAQFinished();
         }
     protected:
         void configureDAQ(DAQParameters daqp) override { }
@@ -213,7 +228,11 @@ namespace OSIP {
 
         void setBufferData(bool YesNo) { m_BufferData = YesNo; }
 
-        void readFrame(int frameNumber){
+        unsigned long getCurrentFrame(){
+            return m_ReadFrame;
+        }
+
+        void readFrame(unsigned long frameNumber){
             m_State = LOAD_STATE::SINGLE_FRAME;
             m_ReadFrame = frameNumber;
         }
@@ -222,11 +241,14 @@ namespace OSIP {
             m_State = LOAD_STATE::RELOAD;
         }
 
-        int getNumberOfFrames(){
+        unsigned long getNumberOfFrames(){
             return _N;
         }
 
-        void setBounds(int startAScan, int stopAScan, int startBScan, int stopBScan) {
+        void setBounds(unsigned long startAScan,
+                       unsigned long stopAScan,
+                       unsigned long startBScan,
+                       unsigned long stopBScan) {
             m_StartAScan = startAScan;
             m_StartBScan = startBScan;
             m_StopBScan = stopBScan;
@@ -255,6 +277,9 @@ namespace OSIP {
 
                 case LOAD_STATE::PAUSE:
                     this->pipelineSleep(5);
+                    break;
+
+                case LOAD_STATE::STOP:
                     break;
                 }
             }

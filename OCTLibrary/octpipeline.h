@@ -6,12 +6,10 @@
 #include "octdisplaystage.h"
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
-#include <QObject>
-#include "octlibrary_global.h"
 
 using namespace OSIP;
 
-class OCTLIBRARYSHARED_EXPORT OCTPipeline
+class OCTPipeline
 {
 
 private:
@@ -44,13 +42,14 @@ public:
         _Loader->subscribeDAQFinished(std::bind(&OCTPipelineStageCPU::slotDAQFinished, _Processor));
         _Loader->subscribeDAQFinished(std::bind(&OCTPipeline::slotDAQFinished, this));
 
+        _Loader->subscribeDAQStarted(std::bind(&OCTPipelineStageCPU::slotDAQStarted, _Processor));
+
         //Signal that current frame from the loader
         //_Loader->subscribeCurrentFrame(std::bind(&OCTPipeline::slotBScanChanged, this, std::placeholders::_1));
 
         //Signal that the processing is done
         _Processor->subscribeProcessingFinished(std::bind(&OCTDisplayStage::slotProcessingFinished, _Display));
         _Processor->subscribeProcessingFinished(std::bind(&OCTPipeline::slotProcessingFinished, this));
-        //_Processor->subscribeFrameProcessed(std::bind(&OCTPipeline::slotFrameProcessed, this));
     }
 
     OSIP::LoadOCTPipeline* getLoader() { return _Loader.get(); }
@@ -61,6 +60,8 @@ public:
 
     void start(OCTConfig config){
         _Processor->configure(config);
+        _Display->configure(&config);
+
         _Display->start();
         _Processor->start();
         _Loader->start();

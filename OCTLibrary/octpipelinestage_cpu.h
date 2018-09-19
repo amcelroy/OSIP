@@ -1,8 +1,7 @@
 #ifndef OCTPIPELINESTAGE_H
 #define OCTPIPELINESTAGE_H
 
-#include "octlibrary_global.h"
-#include "pipeline.hpp"
+#include <pipeline.hpp>
 #include "fftw3.h"
 #include "windowmaker.h"
 #include "boost/signals2.hpp"
@@ -11,7 +10,7 @@
 //#include <omp.h>
 
 namespace OSIP {
-    class OCTLIBRARYSHARED_EXPORT OCTPipelineStageCPU : public PipelineStage<unsigned short, float>
+    class OCTPipelineStageCPU : public PipelineStage<unsigned short, float>
     {
 
     public:
@@ -31,7 +30,7 @@ namespace OSIP {
          * @param EnFace1 Enface range 1
          * @param EnFace2 Enface range 2
          */
-        void setEnfaceRange(int EnFace1, int EnFace2);
+        void setEnfaceRange(unsigned int EnFace1, unsigned int EnFace2);
 
         /**
          * @brief notifyStarted Add a subscriber to get notified when the PipelineStage has started
@@ -50,14 +49,36 @@ namespace OSIP {
          * this will be package in the payload
          * @param ascanNumber
          */
-        void setAScanToDisplay(int ascanNumber) { m_AScanToDisplay = ascanNumber; }
+        void setAScanToDisplay(unsigned int ascanNumber) { m_AScanToDisplay = ascanNumber; }
 
-        int getWidth(){
+        unsigned int getWidth(){
             return _AScansPerBScan;
         }
 
-        int getHeight(){
+        unsigned int getHeight(){
             return _fft_out_size;
+        }
+
+        unsigned int getFFTLength(){
+            return _fft_out_size;
+        }
+
+        unsigned int getRawLength(){
+            return _PointsPerAScan;
+        }
+
+        vector<double> getRawAScan(){
+            lock_guard<mutex> l(m_RawAScanMutex);
+            return m_RawAScan;
+        }
+
+        vector<double> getIntAScan(){
+            lock_guard<mutex> l(m_IntAScanMutex);
+            return m_IntAScan;
+        }
+
+        unsigned int getCurrentFrame(){
+            return m_CurrentFrame;
         }
 
     protected:
@@ -66,7 +87,21 @@ namespace OSIP {
 
         boost::signals2::signal<void ()> sig_FrameProcessed;
 
-    private:        
+    private:
+        mutex m_RawAScanMutex;
+
+        mutex m_IntAScanMutex;
+
+        /**
+         * @brief m_RawAScan Buffer to hold the Raw A-Scan used for system setup
+         */
+        vector<double> m_RawAScan;
+
+        /**
+         * @brief m_IntAScan Buffer used for Intensity Processed A-Scan used for system setup
+         */
+        vector<double> m_IntAScan;
+
         //void _computeIntensity(float *mag, float *intensity);
 
         void _computeBscan(fftwf_complex *f, float *intensity, float *atten);
@@ -80,7 +115,7 @@ namespace OSIP {
         /**
          * @brief _fft_out_size Size of the output 1d-fft, usually _PointsPerAScan/2 + 1
          */
-        int _fft_out_size;
+        unsigned int _fft_out_size;
 
         /**
          * @brief fft_in Array used to store pre-fft data
@@ -110,17 +145,17 @@ namespace OSIP {
         /**
          * @brief _PointsPerAScan Number of points in an A-Scan
          */
-        int _PointsPerAScan;
+        unsigned int _PointsPerAScan;
 
         /**
          * @brief _AScansPerBScan Number of A-Scans in a B-Scan
          */
-        int _AScansPerBScan;
+        unsigned int _AScansPerBScan;
 
         /**
          * @brief _NumberOfBScans Number of B-Scans in the volume
          */
-        int _NumberOfBScans;
+        unsigned int _NumberOfBScans;
 
         /**
          * @brief _fftplan FFTW plan used to to compute FFT
@@ -132,9 +167,11 @@ namespace OSIP {
          */
         bool fftwInit = false;
 
-        int _EnFaceLower = 0;
+        unsigned int _EnFaceLower = 0;
 
-        int _EnFaceUpper = 0;
+        unsigned int _EnFaceUpper = 0;
+
+        unsigned int m_CurrentFrame = 0;
     };
 }
 

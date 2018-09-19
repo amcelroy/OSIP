@@ -10,9 +10,9 @@ OCTPipelineStageCPU::OCTPipelineStageCPU()
 void OCTPipelineStageCPU::configure(OCTConfig config){
     _Bias = config.Bias;
     _Gain = config.Gain;
-    _PointsPerAScan = config.PointsPerAScan;
-    _AScansPerBScan = config.AScansPerBScan - config.StartTrim - config.StopTrim;
-    _NumberOfBScans = config.TotalBScans;
+    _PointsPerAScan = static_cast<unsigned int>(config.PointsPerAScan);
+    _AScansPerBScan = static_cast<unsigned int>(config.AScansPerBScan - config.StartTrim - config.StopTrim);
+    _NumberOfBScans = static_cast<unsigned int>(config.TotalBScans);
     //omp_set_num_threads(2);
 }
 
@@ -34,10 +34,10 @@ void OCTPipelineStageCPU::preStage(){
     setEnfaceRange(1, _fft_out_size - 1);
 
     int rank = 1;
-    int n[] = {_PointsPerAScan};
-    int howmany = _AScansPerBScan;
-    int idist = _PointsPerAScan;
-    int odist = _fft_out_size;
+    int n[] = { static_cast<int>(_PointsPerAScan) };
+    int howmany = static_cast<int>(_AScansPerBScan);
+    int idist = static_cast<int>(_PointsPerAScan);
+    int odist = static_cast<int>(_fft_out_size);
     int istride = 1;
     int ostride = 1;
     _fftplan = fftwf_plan_many_dft_r2c(rank,
@@ -66,104 +66,107 @@ void OCTPipelineStageCPU::work(){
         if(pauseThread){
             pipelineSleep(5);
         }else{
+            try{
             //dequeue data
             Payload<unsigned short> p = fetchPayload();
 
             if(this->m_DAQFinished && _Inlet->getItemsInInlet() == 0){
                 this->sig_ProcessingFinished();
+                this->m_DAQFinished = false;
             }
 
             if(!p.isValid()){
                 pipelineSleep(5);
             }else{
-                auto start = chrono::high_resolution_clock::now();
+                    auto start = chrono::high_resolution_clock::now();
 
-                //operate on p
-                vector<unsigned long long> dim = p.getFirstDimension();
-                int totalDim = 1;
-                totalDim *= dim[0];
-                totalDim *= dim[1];
-                int currentFrame = dim[2];
+                    //operate on p
+                    vector<unsigned long long> dim = p.getFirstDimension();
+                    int totalDim = 1;
+                    totalDim *= dim[0];
+                    totalDim *= dim[1];
+                    unsigned long currentFrame = dim[2];
+                    m_CurrentFrame = static_cast<unsigned int>(dim[2]);
 
-                shared_ptr<vector<unsigned short>> tmp = p.getFirstData();
+                    shared_ptr<vector<unsigned short>> tmp = p.getFirstData();
 
-                auto dequeue_time = chrono::high_resolution_clock::now();
-                std::chrono::duration<double, std::milli> dequeue_elapsed = dequeue_time - start;
-                double time = dequeue_elapsed.count();
+                    auto dequeue_time = chrono::high_resolution_clock::now();
+                    std::chrono::duration<double, std::milli> dequeue_elapsed = dequeue_time - start;
+                    double time = dequeue_elapsed.count();
 
-                //Apply hanning
-                auto hann_start = chrono::high_resolution_clock::now();
-                auto tmp_ptr = tmp->data();
-//#pragma omp parallel for
-                for(int i = 0; i < totalDim; i++){
-                    fft_in->data()[i] = tmp_ptr[i]*_Gain - _Bias;
+                    //Apply hanning
+                    auto hann_start = chrono::high_resolution_clock::now();
+
+                    for(int i = 0; i < totalDim; i++){
+                        fft_in->data()[i] = tmp->data()[i]*_Gain - _Bias;
+                    }
+                    auto hann_time = chrono::high_resolution_clock::now();
+                    std::chrono::duration<double, std::milli> hann_elapsed = hann_time - hann_start;
+                    time = hann_elapsed.count();
+
+                    frame += 1;
+
+                    //FFT
+                    auto fft_start = chrono::high_resolution_clock::now();
+                    fftwf_execute_dft_r2c(_fftplan, fft_in->data(), fft_out);
+                    auto fft_time = chrono::high_resolution_clock::now();
+                    std::chrono::duration<double, std::milli> fft_elapsed = fft_time - fft_start;
+                    time = fft_elapsed.count();
+
+                    auto alloc_start = chrono::high_resolution_clock::now();
+                    auto intensity = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
+                    //auto phase = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
+                    auto atten = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
+                    auto enFace = make_shared<vector<float>>(_AScansPerBScan);
+                    auto alloc_time = chrono::high_resolution_clock::now();
+                    std::chrono::duration<double, std::milli> alloc_elapsed = alloc_time - alloc_start;
+                    time = alloc_elapsed.count();
+
+                    auto mag_start = chrono::high_resolution_clock::now();
+                    _computeBscan(fft_out, intensity.get()->data(), atten.get()->data());
+                    auto mag_time = chrono::high_resolution_clock::now();
+                    std::chrono::duration<double, std::milli> mag_elapsed = mag_time - mag_start;
+                    time = mag_elapsed.count();
+
+                    _computeEnFace(intensity->data(), enFace->data());
+
+                    m_RawAScanMutex.lock();
+                    auto rawStartIt = fft_in->begin() + _PointsPerAScan*m_AScanToDisplay;
+                    auto rawEndIt = fft_in->begin() + _PointsPerAScan*(m_AScanToDisplay + 1);
+                    m_RawAScan = vector<double>(rawStartIt, rawEndIt);
+                    m_RawAScanMutex.unlock();
+
+                    m_IntAScanMutex.lock();
+                    auto startIt = intensity->begin() + _fft_out_size*m_AScanToDisplay;
+                    auto endIt = intensity->begin() + _fft_out_size*(m_AScanToDisplay + 1);
+                    m_IntAScan = vector<double>(startIt, endIt);
+                    m_IntAScanMutex.unlock();
+
+//                    //package
+                    Payload<float> p_out;
+                    vector<unsigned long long> dims;
+                    dims.push_back(_fft_out_size);
+                    dims.push_back(_AScansPerBScan);
+                    dims.push_back(currentFrame);
+                    p_out.addData(dims, intensity, "Intensity");
+                    p_out.addData(dims, atten, "Attenuation");
+                    p_out.addData(vector<unsigned long long>{ static_cast<unsigned long long>(enFace->size()),
+                                                              static_cast<unsigned long long>(_NumberOfBScans) },
+                                                              enFace, "EnFace_Slice");
+
+                    //send
+                    sendPayload(p_out);
+
+                    auto stop = chrono::high_resolution_clock::now();
+
+                    std::chrono::duration<double, std::micro> elapsed = stop - start;
+                    d_ThreadWorkTime = elapsed.count();
+                    this->sig_StageTimer(static_cast<float>(elapsed.count()));
+
+                    sig_FrameProcessed();
                 }
-                tmp_ptr = NULL;
-                auto hann_time = chrono::high_resolution_clock::now();
-                std::chrono::duration<double, std::milli> hann_elapsed = hann_time - hann_start;
-                time = hann_elapsed.count();
-
-                frame += 1;
-
-                //All done with the input data
-                p.finished();
-
-                //FFT
-                auto fft_start = chrono::high_resolution_clock::now();
-                fftwf_execute_dft_r2c(_fftplan, fft_in->data(), fft_out);
-                auto fft_time = chrono::high_resolution_clock::now();
-                std::chrono::duration<double, std::milli> fft_elapsed = fft_time - fft_start;
-                time = fft_elapsed.count();
-
-                auto alloc_start = chrono::high_resolution_clock::now();
-                auto intensity = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
-                //auto phase = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
-                auto atten = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
-                auto enFace = make_shared<vector<float>>(_AScansPerBScan);
-                auto alloc_time = chrono::high_resolution_clock::now();
-                std::chrono::duration<double, std::milli> alloc_elapsed = alloc_time - alloc_start;
-                time = alloc_elapsed.count();
-
-                auto mag_start = chrono::high_resolution_clock::now();
-                _computeBscan(fft_out, intensity.get()->data(), atten.get()->data());
-                auto mag_time = chrono::high_resolution_clock::now();
-                std::chrono::duration<double, std::milli> mag_elapsed = mag_time - mag_start;
-                time = mag_elapsed.count();
-
-                _computeEnFace(intensity->data(), enFace->data());
-
-                auto rawStartIt = fft_in->begin() + _PointsPerAScan*m_AScanToDisplay;
-                auto rawEndIt = fft_in->begin() + _PointsPerAScan*(m_AScanToDisplay + 1);
-                auto _RawAScan = make_shared<vector<float>>(vector<float>(rawStartIt, rawEndIt));
-
-                auto startIt = intensity->begin() + _fft_out_size*m_AScanToDisplay;
-                auto endIt = intensity->begin() + _fft_out_size*(m_AScanToDisplay + 1);
-                auto _IntAScan = make_shared<vector<float>>(vector<float>(startIt, endIt));
-
-                //package
-                Payload<float> p_out;
-                vector<unsigned long long> dims;
-                dims.push_back(_fft_out_size);
-                dims.push_back(_AScansPerBScan);
-                p_out.addData(dims, intensity, "Intensity");
-                p_out.addData(dims, atten, "Attenuation");
-                p_out.addData(vector<unsigned long long>{ (unsigned long long)_PointsPerAScan }, _RawAScan, "Raw_Ascan");
-                p_out.addData(vector<unsigned long long>{ (unsigned long long)_fft_out_size }, _IntAScan, "Intensity_Ascan");
-                p_out.addData(vector<unsigned long long>{ (unsigned long long)enFace->size(), (unsigned long long)_NumberOfBScans, (unsigned long)currentFrame }, enFace, "EnFace_Slice");
-
-                //send
-                sendPayload(p_out);
-
-                //Release the payload on our end
-                p_out.finished();
-
-                auto stop = chrono::high_resolution_clock::now();
-
-                std::chrono::duration<double, std::micro> elapsed = stop - start;
-                d_ThreadWorkTime = elapsed.count();
-                this->sig_StageTimer(elapsed.count());
-
-                sig_FrameProcessed();
+            }catch(...){
+                log("Generic Error in OCT Pipeline CPU Stage");
             }
         }
     }
@@ -183,9 +186,9 @@ void OCTPipelineStageCPU::postStage(){
 
 void OCTPipelineStageCPU::_computeEnFace(float *intensity, float *enface){
     float range = _EnFaceUpper - _EnFaceLower;
-    for(int i = 0; i < _AScansPerBScan; i++){
+    for(unsigned int i = 0; i < _AScansPerBScan; i++){
         float avg = 0;
-        for(int j = _EnFaceLower; j < _EnFaceUpper; j++){
+        for(unsigned int j = _EnFaceLower; j < _EnFaceUpper; j++){
             avg += intensity[i*_fft_out_size + j];
         }
         enface[i] = avg / range;
@@ -194,23 +197,24 @@ void OCTPipelineStageCPU::_computeEnFace(float *intensity, float *enface){
 
 void OCTPipelineStageCPU::_computeBscan(fftwf_complex *f, float *intensity, float *atten){
 //#pragma omp parallel for
-    for(int i = 0; i < _AScansPerBScan; i++){
+    for(unsigned int i = 0; i < _AScansPerBScan; i++){
         float runningSum = 0;
-        for(int j = _fft_out_size - 1; j >= 0; j--){
+
+        unsigned int j = _fft_out_size - 1;
+        while(j != 0){
             unsigned long lin_coord = i*_fft_out_size + j;
             float mag = f[lin_coord][0]*f[lin_coord][0] + f[lin_coord][1]*f[lin_coord][1];
             intensity[lin_coord] = 10*log10f(mag);
             float tmp_mag = sqrtf(mag); //Didn't sqrt in the original mgnitude calc.
             runningSum += tmp_mag;
             atten[lin_coord] = tmp_mag / runningSum;
+            j--;
         }
     }
 }
 
-void OCTPipelineStageCPU::setEnfaceRange(int EnFace1, int EnFace2){
+void OCTPipelineStageCPU::setEnfaceRange(unsigned int EnFace1, unsigned int EnFace2){
     _EnFaceLower = min(EnFace1, EnFace2);
     _EnFaceUpper = max(EnFace1, EnFace2);
-
-    _EnFaceLower = max(0, _EnFaceLower);
     _EnFaceUpper = min(_fft_out_size, _EnFaceUpper);
 }

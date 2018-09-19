@@ -1,10 +1,6 @@
 #include "websocketserver.h"
 
 void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr msg){
-    std::cout << "on_message called with hdl: " << hdl.lock().get()
-              << " and message: " << msg->get_payload()
-              << std::endl;
-
     json response = { "response", "Unknown command " + msg->get_payload() };
 
     try{
@@ -12,34 +8,46 @@ void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr ms
         std::string request = jmsg["request"];
 
         if(!request.compare("frame")){
-            //Send frame
+            //Send frame, see frameProcessed()
             double frameNumber = jmsg["frame"];
             m_OCT.getLoader()->readFrame(static_cast<int>(frameNumber));
-            vector<unsigned char>* ptr = m_OCT.getDisplay()->getLastBScan8Bit();
-            response = { { "response" , "frame"},
-                         { "frame" , frameNumber },
-                         { "width" , m_OCT.getProcessor()->getWidth() },
-                         { "height" , m_OCT.getProcessor()->getHeight()} };
-            m_WebsocketServer.send(hdl, ptr->data(), ptr->size()*sizeof(unsigned char), websocketpp::frame::opcode::binary);
+            return;
         }else if(!request.compare("save")){
 
-        }else if(!request.compare("run")){
+        }else if(!request.compare("list")){
 
+        }else if(!request.compare("run")){
+            //Re-run the processing with the new values and wait for processing to finish
+            //see datasetFinished()
+            m_OCT.getLoader()->reload();
+            response = { { "response" , "load" } ,
+                         { "name" , m_CurrentPath } ,
+                         { "frames" , m_OCT.getLoader()->getNumberOfFrames() }};
+            m_WebsocketServer.send(hdl, response.dump(), websocketpp::frame::opcode::TEXT);
+            return;
         }else if(!request.compare("stop")){
 
         }else if(!request.compare("load")){
             //request["path"];
-            m_octcf.readOCTConfig(m_CurrentPath + "parameters.oct_scan", &m_octc);
-            m_OCT.getLoader()->configureOCTData(m_CurrentPath + "data.bin", &m_octc);
-            m_OCT.getProcessor()->setEnfaceRange(1, 10);
-            m_OCT.start(m_octc);
             response = { { "response" , "load" } ,
                          { "name" , m_CurrentPath } ,
                          { "frames" , m_OCT.getLoader()->getNumberOfFrames() }};
-        }else if(!request.compare("galvos")){
+            m_WebsocketServer.send(hdl, response.dump(), websocketpp::frame::opcode::TEXT);
+            return;
+        }else if(!request.compare("set_galvos")){
+            double faa = jmsg["fast_axis_amp"];
+            double fao = jmsg["fast_axis_offset"];
+            double saa = jmsg["slow_axis_amp"];
+            double sao = jmsg["slow_axis_offset"];
 
         }else if(!request.compare("scan_parameters")){
-
+            response = { { "response" , "scan_parameters" },
+                       { "frames" , m_OCT.getLoader()->getNumberOfFrames() },
+                       { "width" , m_OCT.getProcessor()->getWidth() } ,
+                       { "height" , m_OCT.getProcessor()->getHeight() } ,
+                       { "ascan_length", m_OCT.getProcessor()->getRawLength() },
+                       { "fft_length" , m_OCT.getProcessor()->getFFTLength() } };
+            m_WebsocketServer.send(hdl, response.dump(), websocketpp::frame::opcode::TEXT);
         }else if(!request.compare("system_status")){
 
         }else if(!request.compare("benchmarks")){
@@ -48,14 +56,21 @@ void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr ms
 
         }else if(!request.compare("options")){
 
+        }else if(!request.compare("update_ascan")){
+            unsigned int ascan = static_cast<unsigned int>(jmsg["ascan"]);
+            m_OCT.getProcessor()->setAScanToDisplay(ascan);
         }else if(!request.compare("enface")){
-
+            unsigned int start = static_cast<unsigned int>(jmsg["start"]);
+            unsigned int stop = static_cast<unsigned int>(jmsg["stop"]);
+            m_OCT.getProcessor()->setEnfaceRange(start, stop);
         }else if(!request.compare("scaling")){
             double max = jmsg["max"];
             double min = jmsg["min"];
             m_OCT.getDisplay()->setMax(static_cast<float>(max));
             m_OCT.getDisplay()->setMin(static_cast<float>(min));
             response = { "response", "Updated min / max to " + to_string(min) + " / " + to_string(max) };
+            m_WebsocketServer.send(hdl, response.dump(), websocketpp::frame::opcode::TEXT);
+            return;
         }else if(!request.compare("filter")){
 
         }else{
@@ -70,12 +85,53 @@ void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr ms
 }
 
 void WebsocketServer::on_open(websocketpp::connection_hdl hdl){
-    int x = 0;
-    x += 1;
+    m_ConnectionHandle = hdl;
+    m_NoConnection = false;
 }
 
 void WebsocketServer::on_close(websocketpp::connection_hdl hdl){
-    int y = 0;
+    m_NoConnection = true;
+}
+
+void WebsocketServer::frameFinished(){
+    if(!m_NoConnection){
+        json response = { { "response" , "ascans" } };
+        m_WebsocketServer.send(m_ConnectionHandle, response.dump(), websocketpp::frame::opcode::TEXT);
+        vector<double> raw = m_OCT.getProcessor()->getRawAScan();
+        vector<double> inten = m_OCT.getProcessor()->getIntAScan();
+        raw.insert(raw.end(),
+                      inten.begin(),
+                      inten.end());
+        m_WebsocketServer.send(m_ConnectionHandle, raw.data(), raw.size()*sizeof(double), websocketpp::frame::opcode::binary);
+
+        vector<unsigned char> ptr = m_OCT.getDisplay()->getLastBScan8Bit();
+        response = { { "response" , "frame"},
+                     { "frame" , m_OCT.getProcessor()->getCurrentFrame() },
+                     { "width" , m_OCT.getProcessor()->getWidth() },
+                     { "height" , m_OCT.getProcessor()->getHeight()} };
+        m_WebsocketServer.send(m_ConnectionHandle, response.dump(), websocketpp::frame::opcode::TEXT);
+        m_WebsocketServer.send(m_ConnectionHandle, ptr.data(), ptr.size()*sizeof(unsigned char), websocketpp::frame::opcode::binary);
+
+        ptr = m_OCT.getDisplay()->getLastEnFace8Bit();
+        response = { { "response" , "enface"},
+                     { "width" , m_OCT.getProcessor()->getWidth() },
+                     { "height" , m_OCT.getLoader()->getNumberOfFrames() } };
+        m_WebsocketServer.send(m_ConnectionHandle, response.dump(), websocketpp::frame::opcode::TEXT);
+        m_WebsocketServer.send(m_ConnectionHandle, ptr.data(), ptr.size()*sizeof(unsigned char), websocketpp::frame::opcode::binary);
+    }
+    return;
+}
+
+void WebsocketServer::datasetFinished(){
+//    if(!m_NoConnection){
+//        vector<unsigned char> ptr = m_OCT.getDisplay()->getLastEnFace8Bit();
+//        json response = { { "response" , "enface"},
+//                     { "width" , m_OCT.getProcessor()->getWidth() },
+//                     { "height" , m_OCT.getLoader()->getNumberOfFrames() } };
+//        m_WebsocketServer.send(m_ConnectionHandle, response.dump(), websocketpp::frame::opcode::TEXT);
+//        m_WebsocketServer.send(m_ConnectionHandle, ptr->data(), ptr->size()*sizeof(unsigned char), websocketpp::frame::opcode::binary);
+//    }
+    return;
 }
 
 WebsocketServer::WebsocketServer()
@@ -96,6 +152,15 @@ WebsocketServer::WebsocketServer()
         m_OCT.getDisplay()->setMin(-20);
         m_OCT.getDisplay()->setMax(40);
         m_OCT.getLoader()->setLoop(false);
+        m_OCT.getProcessor()->subscribeFrameProcessed(std::bind(&WebsocketServer::frameFinished, this));
+        m_OCT.getProcessor()->subscribeProcessingFinished(std::bind(&WebsocketServer::datasetFinished, this));
+
+        m_octcf.readOCTConfig(m_CurrentPath + "parameters.oct_scan", &m_octc);
+        m_OCT.getLoader()->configureOCTData(m_CurrentPath + "data.bin", &m_octc);
+        m_OCT.getProcessor()->setEnfaceRange(1, 10);
+        m_OCT.start(m_octc);
+
+        m_NoConnection = true;
     } catch (websocketpp::exception const & e) {
         std::cout << e.what() << std::endl;
     } catch (...) {

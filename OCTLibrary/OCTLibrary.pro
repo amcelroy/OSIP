@@ -5,11 +5,11 @@
 #-------------------------------------------------
 
 QT       -= gui
-QT += quick widgets
-QT += quickcontrols2
 
 TARGET = OCTLibrary
 TEMPLATE = app
+
+CONFIG += c++17
 
 DEFINES += OCTLIBRARY_LIBRARY
 
@@ -27,7 +27,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DESTDIR = $$PWD/../
 
 SOURCES += \
-        octlibrary.cpp \
     octdisplaystage.cpp \
     octpipelinestage_cpu.cpp \
     windowmaker.cpp \
@@ -36,8 +35,6 @@ SOURCES += \
     websocketserver.cpp
 
 HEADERS += \
-        octlibrary.h \
-        octlibrary_global.h \ 
     octdisplaystage.h \
     octpipeline.h \
     octpipelinestage_cpu.h \
@@ -77,8 +74,6 @@ win32 {
     INCLUDEPATH += "C:\Intel\OpenCL\sdk\include"
 
     Release {
-        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_filesystem-vc141-mt-1_65_1
-        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_system-vc141-mt-1_65_1
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_tools
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl
@@ -87,8 +82,6 @@ win32 {
     }
 
     Debug {
-        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_filesystem-vc141-mt-gd-1_65_1
-        LIBS += -L$$PWD/../dependancies/boost_1_65/lib/win-vs17_x64 -llibboost_system-vc141-mt-gd-1_65_1
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_D
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_tools_D
         LIBS += -L$$PWD/../dependancies/HDF5/1.10.1/lib/win10-vs17_x64 -llibhdf5_hl_D

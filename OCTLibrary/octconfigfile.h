@@ -3,11 +3,10 @@
 
 #include <loadoctpipeline.hpp>
 #include "boost/algorithm/string.hpp"
-#include "octlibrary_global.h"
 
 using namespace OSIP;
 
-class OCTLIBRARYSHARED_EXPORT OCTConfigFile
+class OCTConfigFile
 {
 public:
     OCTConfigFile() { }
