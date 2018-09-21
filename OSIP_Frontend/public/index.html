@@ -58,32 +58,29 @@
                         <label>Bias</label>
                         <input class="textInput" type="number" id="textBias">
                     </div>
+                    <fieldset id="fieldsetGalvoOptions">
+                            <legend>Galvo Options</legend>
+                            <div style="display: flex; flex-direction: column;">
+                                <div class="flexboxContainerSettings">
+                                    <label>Fast Axis Amplitude</label>
+                                    <input class="textInput" type="number" id="textFastAxisAmplitude">
+                                </div>
+                                <div class="flexboxContainerSettings">
+                                    <label>Fast Axis Offset</label>
+                                    <input class="textInput" type="number" id="textFastAxisOffset">
+                                </div>
+                                <div class="flexboxContainerSettings">
+                                    <label>Slow Axis Amplitude</label>
+                                    <input class="textInput" type="number" id="textSlowAxisAmplitude">
+                                </div>
+                                <div class="flexboxContainerSettings">
+                                    <label>Slow Axis Offset</label>
+                                    <input class="textInput" type="number" id="textSlowAxisOffset">
+                                </div>
+                            </div>
+                        </fieldset>
                     <button class="buttonGraphic" onclick="buttonScanSubmit()">
                         <label>Submit Scan Options</label>
-                    </button>
-                </div>
-            </fieldset>
-            <fieldset id="fieldsetGalvoOptions">
-                <legend>Galvo Options</legend>
-                <div style="display: flex; flex-direction: column;">
-                    <div class="flexboxContainerSettings">
-                        <label>Fast Axis Amplitude</label>
-                        <input class="textInput" type="number" id="textFastAxisAmplitude">
-                    </div>
-                    <div class="flexboxContainerSettings">
-                        <label>Fast Axis Offset</label>
-                        <input class="textInput" type="number" id="textFastAxisOffset">
-                    </div>
-                    <div class="flexboxContainerSettings">
-                        <label>Slow Axis Amplitude</label>
-                        <input class="textInput" type="number" id="textSlowAxisAmplitude">
-                    </div>
-                    <div class="flexboxContainerSettings">
-                        <label>Slow Axis Offset</label>
-                        <input class="textInput" type="number" id="textSlowAxisOffset">
-                    </div>
-                    <button class="buttonGraphic" onclick="buttonGalvoSubmit()">
-                        <label>Submit</label>
                     </button>
                 </div>
             </fieldset>
@@ -267,7 +264,7 @@
             }
         }
 
-        function buttonGalvoSubmit(){
+        function buttonScanSubmit(){
             var faa = document.getElementById("textFastAxisAmplitude").getAttribute("value");
             var fao = document.getElementById("textFastAxisOffset").getAttribute("value");
             var saa = document.getElementById("textSlowAxisAmplitude").getAttribute("value");
@@ -296,10 +293,6 @@
                         "slow_axis_amp" : saa,
                         "slow_axis_offset" : sao };
             socket.send(JSON.stringify(json));
-        }
-
-        function buttonScanSubmit(){
-
         }
 
         function playButtonClick(){
