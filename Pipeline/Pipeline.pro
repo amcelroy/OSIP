@@ -36,6 +36,10 @@ HEADERS += \
     payload.hpp \
     inlet.hpp \
     displaypipelinestage.hpp \
+    galvos.hpp \
+    Peripherals/galvos.hpp \
+    Peripherals/peripheral.hpp \
+    Peripherals/laser.hpp
 
 macx {
     QMAKE_MAC_SDK = macosx10.13
