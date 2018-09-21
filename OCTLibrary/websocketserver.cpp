@@ -40,6 +40,7 @@ void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr ms
             double saa = jmsg["slow_axis_amp"];
             double sao = jmsg["slow_axis_offset"];
 
+
         }else if(!request.compare("scan_parameters")){
             response = { { "response" , "scan_parameters" },
                        { "frames" , m_OCT.getLoader()->getNumberOfFrames() },

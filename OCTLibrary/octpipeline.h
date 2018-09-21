@@ -6,6 +6,8 @@
 #include "octdisplaystage.h"
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
+#include <Peripherals/galvos.hpp>
+#include <Peripherals/laser.hpp>
 
 using namespace OSIP;
 
@@ -18,6 +20,10 @@ private:
     shared_ptr<OSIP::OCTPipelineStageCPU> _Processor;
 
     shared_ptr<OSIP::OCTDisplayStage> _Display;
+
+    shared_ptr<OSIP::Peripherals::Galvos> _Galvo;
+
+    shared_ptr<OSIP::Peripherals::Laser> _Laser;
 
     bool m_LoadingFinished = false;
 
@@ -41,8 +47,8 @@ public:
         _Loader->subscribeDAQFinished(std::bind(&OCTDisplayStage::slotDAQFinished, _Display));
         _Loader->subscribeDAQFinished(std::bind(&OCTPipelineStageCPU::slotDAQFinished, _Processor));
         _Loader->subscribeDAQFinished(std::bind(&OCTPipeline::slotDAQFinished, this));
-
         _Loader->subscribeDAQStarted(std::bind(&OCTPipelineStageCPU::slotDAQStarted, _Processor));
+        _Loader->unsubscribeAll();
 
         //Signal that current frame from the loader
         //_Loader->subscribeCurrentFrame(std::bind(&OCTPipeline::slotBScanChanged, this, std::placeholders::_1));
@@ -57,6 +63,10 @@ public:
     OSIP::OCTPipelineStageCPU* getProcessor() { return _Processor.get(); }
 
     OSIP::OCTDisplayStage* getDisplay() { return _Display.get(); }
+
+    OSIP::Peripherals::Laser* getLaser() { return _Laser.get(); }
+
+    OSIP::Peripherals::Galvos* getGalvos() { return _Galvo.get(); }
 
     void start(OCTConfig config){
         _Processor->configure(config);
