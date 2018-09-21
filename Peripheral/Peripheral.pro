@@ -22,11 +22,9 @@ DEFINES += PERIPHERAL_LIBRARY
 DESTDIR = ../
 
 SOURCES += \
-    galvos.cpp \
     nidaqmxgalvos.cpp
 
 HEADERS += \
-    galvos.h \
     nidaqmxgalvos.h
 
 

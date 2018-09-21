@@ -2,7 +2,7 @@
 #define NIDAQMXGALVOS_H
 
 #include <NIDAQmxBase.h>
-#include "galvos.h"
+#include <galvos.hpp>
 
 using namespace std;
 
