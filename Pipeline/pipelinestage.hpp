@@ -35,6 +35,16 @@ namespace OSIP {
 
         }
 
+        /**
+         * @brief unsubscribeAll Unsubscribe all slots
+         */
+        virtual void unsubscribeAll(){
+            sig_StageFinished.disconnect_all_slots();
+            sig_StageStarted.disconnect_all_slots();
+            sig_StageTimer.disconnect_all_slots();
+            sig_MessageLogged.disconnect_all_slots();
+        }
+
         double getThreadWorkTimeMicroSeconds(){
             return d_ThreadWorkTime;
         }
@@ -84,6 +94,27 @@ namespace OSIP {
             int itemsDeleted = _Log.size();
             _Log.clear();
             return itemsDeleted;
+        }
+
+        /**
+         * @brief unsubscribeFinished Disconnect all slots to the Finished event
+         */
+        void unsubscribeFinished(){
+            sig_StageFinished.disconnect_all_slots();
+        }
+
+        /**
+         * @brief unsubscribeStarted Disconnect all slots to the Started event
+         */
+        void unsubscribeStarted(){
+            sig_StageStarted.disconnect_all_slots();
+        }
+
+        /**
+         * @brief unsubscribeTiming Disconnects all slots from the Timing event
+         */
+        void unsubscribeTiming(){
+            sig_StageTimer.disconnect_all_slots();
         }
 
         /**

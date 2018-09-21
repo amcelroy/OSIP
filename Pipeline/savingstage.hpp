@@ -86,6 +86,18 @@ namespace OSIP {
          */
         void subscribeSavingFinished(const boost::signals2::signal<void (bool, string)>::slot_type &subscriber) { sig_SavingFinished.connect(subscriber); }
 
+        /**
+         * @brief unsubscribeSavingFinished Disconnect all slots from the Saving Finished event
+         */
+        void unsubscribeSavingFinished(){
+            sig_SavingFinished.disconnect_all_slots();
+        }
+
+        void unsubscribeAll(){
+            PipelineStage<I,I>::unsubscribeAll();
+            sig_SavingFinished.disconnect_all_slots();
+        }
+
     protected:
 
         void work() override{

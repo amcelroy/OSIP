@@ -109,11 +109,25 @@ namespace OSIP {
         void subscribeCurrentFrame(const boost::signals2::signal<void(unsigned long)>::slot_type &subscriber) { sig_CurrentFrame.connect(subscriber); }
 
         /**
+         * @brief unsubscribeCurrentFrame Disconnect all slots from the Current Frame event
+         */
+        void unsubscribeCurrentFrame(){
+            sig_CurrentFrame.disconnect_all_slots();
+        }
+
+        /**
          * @brief notifyTiming Add a subscriber to get notified when the DAQStage task is finished
          * virtual function
          * @param subscriber
          */
         void subscribeDAQFinished(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_DAQFinished.connect(subscriber); }
+
+        /**
+         * @brief unsubscribeDAQFinished Disconnect all slots from the DAQ finished event
+         */
+        void unsubscribeDAQFinished(){
+            sig_DAQFinished.disconnect_all_slots();
+        }
 
         /**
          * @brief subscribeDAQChanged Add subscriber when the DAQ is changed
@@ -122,10 +136,32 @@ namespace OSIP {
         void subscribeDAQChanged(const boost::signals2::signal<DAQParameters()>::slot_type &subscriber) { sig_DAQChanged.connect(subscriber); }
 
         /**
+         * @brief unsubscribeDAQChanged Disconnect all slots from the DAQ Changed event
+         */
+        void unsubscribeDAQChanged(){
+            sig_DAQChanged.disconnect_all_slots();
+        }
+
+        /**
          * @brief subscribeDAQStarted Add subscriber when the DAQ is started
          * @param subscriber
          */
         void subscribeDAQStarted(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_DAQStarted.connect(subscriber); }
+
+        /**
+         * @brief unsubscribeDAQStarted Disconnect all slots from DAQ Started event
+         */
+        void unsubscribeDAQStarted(){
+            sig_DAQStarted.disconnect_all_slots();
+        }
+
+        void unsubscribeAll() override {
+            PipelineStage<O, O>::unsubscribeAll();
+            sig_CurrentFrame.disconnect_all_slots();
+            sig_DAQChanged.disconnect_all_slots();
+            sig_DAQFinished.disconnect_all_slots();
+            sig_DAQStarted.disconnect_all_slots();
+        }
     };
 }
 #endif // DAQSTAGE_H
