@@ -23,9 +23,9 @@ namespace OSIP {
 
         }
 
-        void configure(const OCTConfig *config){
-            int width = config->AScansPerBScan - config->StartTrim - config->StopTrim;
-            int height = config->TotalBScans;
+        void configure(const OCTConfig& config){
+            int width = config.AScansPerBScan - config.StartTrim - config.StopTrim;
+            int height = config.TotalBScans;
 
             m_enface_8bit.resize(static_cast<unsigned long>(width*height));
         }

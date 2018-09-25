@@ -34,15 +34,31 @@ void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr ms
                          { "frames" , m_OCT.getLoader()->getNumberOfFrames() }};
             m_WebsocketServer.send(hdl, response.dump(), websocketpp::frame::opcode::TEXT);
             return;
-        }else if(!request.compare("set_galvos")){
+        }else if(!request.compare("set_daq")){
+            double points_per_a = jmsg["points_per_ascan"];
+            double a_per_b = jmsg["a_per_b"];
+            double bscans = jmsg["bscans"];
+            double start_trim = jmsg["start_trim"];
+            double stop_trim = jmsg["stop_trim"];
+            double voltage = jmsg["voltage"];
+            double bits = jmsg["bits"];
             double faa = jmsg["fast_axis_amp"];
             double fao = jmsg["fast_axis_offset"];
             double saa = jmsg["slow_axis_amp"];
             double sao = jmsg["slow_axis_offset"];
 
+            OCTConfig o;
+            o.PointsPerAScan = static_cast<unsigned long>(points_per_a);
+            o.AScansPerBScan = static_cast<unsigned long>(a_per_b);
+            o.TotalBScans = static_cast<unsigned long>(bscans);
+            o.StartTrim = static_cast<unsigned long>(start_trim);
+            o.StopTrim = static_cast<unsigned long>(stop_trim);
+            o.Range = static_cast<float>(voltage);
+            o.Bits = static_cast<unsigned long>(bits);
 
-        }else if(!request.compare("scan_parameters")){
-            response = { { "response" , "scan_parameters" },
+            m_OCT.stop();
+        }else if(!request.compare("get_daq")){
+            response = { { "response" , "get_daq" },
                        { "frames" , m_OCT.getLoader()->getNumberOfFrames() },
                        { "width" , m_OCT.getProcessor()->getWidth() } ,
                        { "height" , m_OCT.getProcessor()->getHeight() } ,
@@ -155,9 +171,10 @@ WebsocketServer::WebsocketServer()
         m_OCT.getLoader()->setLoop(false);
         m_OCT.getProcessor()->subscribeFrameProcessed(std::bind(&WebsocketServer::frameFinished, this));
         m_OCT.getProcessor()->subscribeProcessingFinished(std::bind(&WebsocketServer::datasetFinished, this));
+        m_OCT.getProcessor()->setAScanSplits(1);
 
         m_octcf.readOCTConfig(m_CurrentPath + "parameters.oct_scan", &m_octc);
-        m_OCT.getLoader()->configureOCTData(m_CurrentPath + "data.bin", &m_octc);
+        m_OCT.getLoader()->configureOCTData(m_CurrentPath + "data.bin", m_octc);
         m_OCT.getProcessor()->setEnfaceRange(1, 10);
         m_OCT.start(m_octc);
 

@@ -4,10 +4,10 @@ using namespace OSIP;
 
 OCTPipelineStageCPU::OCTPipelineStageCPU()
 {
-
+    m_AScanSplits = 1;
 }
 
-void OCTPipelineStageCPU::configure(OCTConfig config){
+void OCTPipelineStageCPU::configure(const OCTConfig& config){
     _Bias = config.Bias;
     _Gain = config.Gain;
     _PointsPerAScan = static_cast<unsigned int>(config.PointsPerAScan);
@@ -19,23 +19,30 @@ void OCTPipelineStageCPU::configure(OCTConfig config){
 void OCTPipelineStageCPU::preStage(){
 
     if(fftwf_init_threads() == 0){
-        _Log.push_back("Error initializing multi-threaded FFTW");
+        this->log("Error initializing multi-threaded FFTW");
         fftwInit = false;
         return;
     }
 
     fftwf_plan_with_nthreads(2);
 
+    if(_PointsPerAScan % m_AScanSplits != 0){
+        log("Error, A-Scan Splits does not divide evenly");
+        return;
+    }else{
+        _PointsPerAScan = _PointsPerAScan / m_AScanSplits;
+    }
+
     _fft_out_size = _PointsPerAScan/2 + 1;
 
-    fft_in = new vector<float>(_PointsPerAScan*_AScansPerBScan);
-    fft_out = fftwf_alloc_complex(_fft_out_size*_AScansPerBScan);
+    fft_in = new vector<float>(_PointsPerAScan*_AScansPerBScan*m_AScanSplits);
+    fft_out = fftwf_alloc_complex(_fft_out_size*_AScansPerBScan*m_AScanSplits);
 
     setEnfaceRange(1, _fft_out_size - 1);
 
     int rank = 1;
     int n[] = { static_cast<int>(_PointsPerAScan) };
-    int howmany = static_cast<int>(_AScansPerBScan);
+    int howmany = static_cast<int>(_AScansPerBScan*m_AScanSplits);
     int idist = static_cast<int>(_PointsPerAScan);
     int odist = static_cast<int>(_fft_out_size);
     int istride = 1;
@@ -44,11 +51,11 @@ void OCTPipelineStageCPU::preStage(){
                                        n,
                                        howmany,
                                        fft_in->data(),
-                                       NULL,
+                                       nullptr,
                                        istride,
                                        idist,
                                        fft_out,
-                                       NULL,
+                                       nullptr,
                                        ostride,
                                        odist,
                                        FFTW_ESTIMATE);
@@ -85,7 +92,6 @@ void OCTPipelineStageCPU::work(){
                     int totalDim = 1;
                     totalDim *= dim[0];
                     totalDim *= dim[1];
-                    unsigned long currentFrame = dim[2];
                     m_CurrentFrame = static_cast<unsigned int>(dim[2]);
 
                     shared_ptr<vector<unsigned short>> tmp = p.getFirstData();
@@ -100,11 +106,20 @@ void OCTPipelineStageCPU::work(){
                     for(int i = 0; i < totalDim; i++){
                         fft_in->data()[i] = tmp->data()[i]*_Gain - _Bias;
                     }
+
+                    //Merge the a-scans
+                    if(m_AScanSplits > 1){
+                        unsigned long counter = 0;
+                        for(unsigned long i = 0; i < _PointsPerAScan*_NumberOfBScans*m_AScanSplits; i += m_AScanSplits){
+                            float tmp = accumulate(fft_in->begin() + i, fft_in->begin() + i + m_AScanSplits, 0.0f);
+                            (*fft_in)[counter] = tmp;
+                            counter += 1;
+                        }
+                    }
+
                     auto hann_time = chrono::high_resolution_clock::now();
                     std::chrono::duration<double, std::milli> hann_elapsed = hann_time - hann_start;
                     time = hann_elapsed.count();
-
-                    frame += 1;
 
                     //FFT
                     auto fft_start = chrono::high_resolution_clock::now();
@@ -147,7 +162,7 @@ void OCTPipelineStageCPU::work(){
                     vector<unsigned long long> dims;
                     dims.push_back(_fft_out_size);
                     dims.push_back(_AScansPerBScan);
-                    dims.push_back(currentFrame);
+                    dims.push_back(m_CurrentFrame);
                     p_out.addData(dims, intensity, "Intensity");
                     p_out.addData(dims, atten, "Attenuation");
                     p_out.addData(vector<unsigned long long>{ static_cast<unsigned long long>(enFace->size()),
@@ -203,11 +218,10 @@ void OCTPipelineStageCPU::_computeBscan(fftwf_complex *f, float *intensity, floa
         unsigned int j = _fft_out_size - 1;
         while(j != 0){
             unsigned long lin_coord = i*_fft_out_size + j;
-            float mag = f[lin_coord][0]*f[lin_coord][0] + f[lin_coord][1]*f[lin_coord][1];
-            intensity[lin_coord] = 10*log10f(mag);
-            float tmp_mag = sqrtf(mag); //Didn't sqrt in the original mgnitude calc.
-            runningSum += tmp_mag;
-            atten[lin_coord] = tmp_mag / runningSum;
+            float mag = sqrtf(f[lin_coord][0]*f[lin_coord][0] + f[lin_coord][1]*f[lin_coord][1]);
+            intensity[lin_coord] = 20*log10f(mag);
+            runningSum += mag;
+            atten[lin_coord] = mag / runningSum;
             j--;
         }
     }

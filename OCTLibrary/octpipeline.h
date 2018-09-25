@@ -48,7 +48,6 @@ public:
         _Loader->subscribeDAQFinished(std::bind(&OCTPipelineStageCPU::slotDAQFinished, _Processor));
         _Loader->subscribeDAQFinished(std::bind(&OCTPipeline::slotDAQFinished, this));
         _Loader->subscribeDAQStarted(std::bind(&OCTPipelineStageCPU::slotDAQStarted, _Processor));
-        _Loader->unsubscribeAll();
 
         //Signal that current frame from the loader
         //_Loader->subscribeCurrentFrame(std::bind(&OCTPipeline::slotBScanChanged, this, std::placeholders::_1));
@@ -68,13 +67,23 @@ public:
 
     OSIP::Peripherals::Galvos* getGalvos() { return _Galvo.get(); }
 
-    void start(OCTConfig config){
+    void start(const OCTConfig& config){
         _Processor->configure(config);
-        _Display->configure(&config);
+        _Display->configure(config);
 
         _Display->start();
         _Processor->start();
         _Loader->start();
+    }
+
+    void stop(){
+        _Display->stop();
+        _Processor->stop();
+        _Loader->stop();
+
+        _Display.reset();
+        _Loader.reset();
+        _Processor.reset();
     }
 
     void slotDAQFinished() { m_LoadingFinished = true; }

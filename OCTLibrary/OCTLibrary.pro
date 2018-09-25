@@ -29,7 +29,6 @@ DESTDIR = $$PWD/../
 SOURCES += \
     octdisplaystage.cpp \
     octpipelinestage_cpu.cpp \
-    windowmaker.cpp \
     octconfigfile.cpp \
     main.cpp \
     websocketserver.cpp
@@ -38,7 +37,6 @@ HEADERS += \
     octdisplaystage.h \
     octpipeline.h \
     octpipelinestage_cpu.h \
-    windowmaker.h \
     nodaqstage.h \
     loadoctpipeline.hpp \
     octconfigfile.h \

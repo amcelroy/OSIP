@@ -2,8 +2,8 @@
 #define OCTPIPELINESTAGE_H
 
 #include <pipeline.hpp>
+#include <complex>
 #include "fftw3.h"
-#include "windowmaker.h"
 #include "boost/signals2.hpp"
 #include <loadoctpipeline.hpp>
 #include <boost/signals2.hpp>
@@ -22,7 +22,7 @@ namespace OSIP {
 
         void postStage() override;
 
-        void configure(OCTConfig config);
+        void configure(const OCTConfig& config);
 
         /**
          * @brief setEnfaceRange Sets the range over which to compute the enface, order doesn't matter,
@@ -81,6 +81,10 @@ namespace OSIP {
             return m_CurrentFrame;
         }
 
+        void setAScanSplits(unsigned long s){
+            m_AScanSplits = s;
+        }
+
     protected:
 
         boost::signals2::signal<void ()> sig_ProcessingFinished;
@@ -91,6 +95,10 @@ namespace OSIP {
         mutex m_RawAScanMutex;
 
         mutex m_IntAScanMutex;
+
+        vector<float> m_HanningWindow;
+
+        unsigned long m_AScanSplits = 1;
 
         /**
          * @brief m_RawAScan Buffer to hold the Raw A-Scan used for system setup
@@ -107,8 +115,6 @@ namespace OSIP {
         void _computeBscan(fftwf_complex *f, float *intensity, float *atten);
 
         void _computeEnFace(float *intensity, float *enface);
-
-        WindowMaker _windowMaker;
 
         unsigned int m_AScanToDisplay = 0;
 

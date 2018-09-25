@@ -1,11 +1,10 @@
 #ifndef NODAQSTAGE_H
 #define NODAQSTAGE_H
 
-#include "octlibrary_global.h"
 #include "pipeline.hpp"
 
 namespace OSIP {
-    class OCTLIBRARYSHARED_EXPORT NoDAQStage : public OSIP::DAQStage<unsigned short>
+    class NoDAQStage : public OSIP::DAQStage<unsigned short>
     {
     public:
         NoDAQStage();

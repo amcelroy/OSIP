@@ -1,6 +1,7 @@
 #ifndef LOADDATA_H
 #define LOADDATA_H
 
+#include "octconfigfile.h"
 #include "daqstage.hpp"
 #include <fstream>
 #include <boost/signals2.hpp>
@@ -9,18 +10,6 @@
 using namespace std;
 
 namespace OSIP {
-    struct OCTConfig {
-        int PointsPerAScan;
-        int AScansPerBScan;
-        int TotalBScans;
-        float Gain;
-        float Bias;
-        float Range;
-        int Bits;
-        int StopTrim;
-        int StartTrim;
-    };
-
     class LoadOCTPipeline : public DAQStage<unsigned short>
     {
     public:
@@ -198,13 +187,13 @@ namespace OSIP {
             this->sig_DAQFinished();
         }
     protected:
-        void configureDAQ(DAQParameters daqp) override { }
+        void configureDAQ(const DAQParameters& daqp) override { }
 
     public:
         LoadOCTPipeline() { }
 
         void stop() override {
-
+            m_State = LOAD_STATE::STOP;
         }
 
         void acquire() override {
@@ -215,11 +204,11 @@ namespace OSIP {
 
         }
 
-        void configureOCTData(string path, OCTConfig *conf){
+        void configureOCTData(string path, const OCTConfig& conf){
             _Filepath = path;
-            _N = conf->TotalBScans;
-            unsigned long dim1 = conf->PointsPerAScan;
-            unsigned long dim2 = conf->AScansPerBScan - conf->StartTrim - conf->StopTrim;
+            _N = conf.TotalBScans;
+            unsigned long dim1 = conf.PointsPerAScan;
+            unsigned long dim2 = conf.AScansPerBScan - conf.StartTrim - conf.StopTrim;
             _dim = vector<unsigned long long>();
             _dim.push_back(dim1); //Points in A-Scan
             _dim.push_back(dim2); //A-Scans per B-Scan
@@ -295,7 +284,9 @@ namespace OSIP {
 //            }
         }
 
-        void postStage() override { }
+        void postStage() override {
+            this->log("DAQ Post stage complete");
+        }
 
         bool init() override { return true; }
     };
