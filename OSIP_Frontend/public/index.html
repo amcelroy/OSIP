@@ -32,50 +32,54 @@
                 <div style="display: flex; flex-direction: column;">
                     <div class="flexboxContainerSettings">
                         <label>Points per A-Scan</label>
-                        <input class="textInput" type="number" id="textPointsPerAScan">
+                        <input class="textInput" type="number" id="textPointsPerAScan" min="64" max="8192" value="2048">
+                    </div>
+                    <div class="flexboxContainerSettings">
+                        <label>A-Scan Splits</label>
+                        <input class="textInput" type="number" id="textSlowAxisOffset" min="1" max="4" value="1">
                     </div>
                     <div class="flexboxContainerSettings">
                         <label>A-Scans</label>
-                        <input class="textInput" type="number" id="textAPerB">
+                        <input class="textInput" type="number" id="textAPerB" min="64" max="2048" value="256">
                     </div>
                     <div class="flexboxContainerSettings">
                         <label>B-Scans</label>
-                        <input class="textInput" type="number" id="textBScans">
+                        <input class="textInput" type="number" id="textBScans" min="1" max="2048" value="1">
                     </div>
                     <div class="flexboxContainerSettings">
                         <label>Start Trim</label> 
-                        <input class="textInput" type="number" id="textStartTrim">
+                        <input class="textInput" type="number" id="textStartTrim" min="0" max="512" value="0">
                     </div>
                     <div class="flexboxContainerSettings">
                         <label>Stop Trim</label>
-                        <input class="textInput" type="number" id="textStopTrim">
+                        <input class="textInput" type="number" id="textStopTrim" min="0" max="512" value="0">
                     </div>
                     <div class="flexboxContainerSettings">
                         <label>Voltage</label>
-                        <input class="textInput" type="number" id="textVoltage">
+                        <input class="textInput" type="number" id="textVoltage" min=".01" max="8" value="2">
                     </div>
                     <div class="flexboxContainerSettings">
-                        <label>Bias</label>
-                        <input class="textInput" type="number" id="textBias">
+                        <label>Bits</label>
+                        <input class="textInput" type="number" id="textBits" min="8" max="32" value="16">
                     </div>
                     <fieldset id="fieldsetGalvoOptions">
                             <legend>Galvo Options</legend>
                             <div style="display: flex; flex-direction: column;">
                                 <div class="flexboxContainerSettings">
                                     <label>Fast Axis Amplitude</label>
-                                    <input class="textInput" type="number" id="textFastAxisAmplitude">
+                                    <input class="textInput" type="number" id="textFastAxisAmplitude" min="0" max="10" value="5">
                                 </div>
                                 <div class="flexboxContainerSettings">
                                     <label>Fast Axis Offset</label>
-                                    <input class="textInput" type="number" id="textFastAxisOffset">
+                                    <input class="textInput" type="number" id="textFastAxisOffset" min="-5" max="5" value="0">
                                 </div>
                                 <div class="flexboxContainerSettings">
                                     <label>Slow Axis Amplitude</label>
-                                    <input class="textInput" type="number" id="textSlowAxisAmplitude">
+                                    <input class="textInput" type="number" id="textSlowAxisAmplitude" min="0" max="10" value="5">
                                 </div>
                                 <div class="flexboxContainerSettings">
                                     <label>Slow Axis Offset</label>
-                                    <input class="textInput" type="number" id="textSlowAxisOffset">
+                                    <input class="textInput" type="number" id="textSlowAxisOffset" min="-5" max="5" value="0">
                                 </div>
                             </div>
                         </fieldset>
@@ -135,7 +139,7 @@
 
         socket.onopen = () => {
             socketOpen = 1;
-            var j = { "request" : "scan_parameters" };
+            var j = { "request" : "get_daq" };
             socket.send(JSON.stringify(j));
         }
 
@@ -265,33 +269,18 @@
         }
 
         function buttonScanSubmit(){
-            var faa = document.getElementById("textFastAxisAmplitude").getAttribute("value");
-            var fao = document.getElementById("textFastAxisOffset").getAttribute("value");
-            var saa = document.getElementById("textSlowAxisAmplitude").getAttribute("value");
-            var sao = document.getElementById("textSlowAxisOffset").getAttribute("value");
-
-            faa = Math.min(10, faa);
-            faa = Math.max(faa, 0);
-
-            saa = Math.min(10, saa);
-            saa = Math.max(saa, 0);
-
-            fao = Math.min(fao, 5);
-            fao = Math.max(fao, -5);
-
-            sao = Math.min(sao, 5);
-            sao = Math.max(sao, -5);
-
-            document.getElementById("textFastAxisAmplitude").setAttribute("value", faa);
-            document.getElementById("textFastAxisOffset").setAttribute("value", fao)
-            document.getElementById("textSlowAxisAmplitude").setAttribute("value", saa);
-            document.getElementById("textSlowAxisOffset").setAttribute("value", sao);
-
-            var json = { "request" : "set_galvos" ,  
-                        "fast_axis_amp" : faa ,
-                        "fast_axis_offset" : fao,
-                        "slow_axis_amp" : saa,
-                        "slow_axis_offset" : sao };
+            var json = { "request" : "set_daq" ,  
+                        "points_per_ascan" : parseFloat(document.getElementById("textPointsPerAScan").getAttribute("value")) ,
+                        "a_per_b" : parseFloat(document.getElementById("textPointsPerAScan").getAttribute("value")) ,
+                        "bscans" : parseFloat(document.getElementById("textBScans").getAttribute("value")) ,
+                        "start_trim" : parseFloat(document.getElementById("textStartTrim").getAttribute("value")) ,
+                        "stop_trim" : parseFloat(document.getElementById("textStopTrim").getAttribute("value")) ,
+                        "voltage" : parseFloat(document.getElementById("textVoltage").getAttribute("value")) ,
+                        "bits" : parseFloat(document.getElementById("textBits").getAttribute("value")) ,
+                        "fast_axis_amp" : parseFloat(document.getElementById("textFastAxisAmplitude").getAttribute("value")) ,
+                        "fast_axis_offset" : parseFloat(document.getElementById("textFastAxisOffset").getAttribute("value")) ,
+                        "slow_axis_amp" : parseFloat(document.getElementById("textSlowAxisAmplitude").getAttribute("value")) ,
+                        "slow_axis_offset" : parseFloat(document.getElementById("textSlowAxisOffset").getAttribute("value")) };
             socket.send(JSON.stringify(json));
         }
 
@@ -325,27 +314,35 @@
                             var height = g_PointsPerAScan;
                             var uint8 = new Uint8Array(g_LastBScan);
                             var imageDataArray = new Uint8ClampedArray(height*width*4);
-                            for(var i = 0; i < height*width; i++){
-                                var tmp = m_LUT[uint8[i]];
-                                imageDataArray[4*i + 2] = tmp & 0xFF;
-                                imageDataArray[4*i + 1] = (tmp >> 8) & 0xFF;
-                                imageDataArray[4*i] = (tmp >> 16) & 0xFF;
-                                imageDataArray[4*i + 3] = 255;                                
+                            for(var i = 0; i < height; i++){
+                                for(var j = 0; j < width; j++){
+                                    var tmp = m_LUT[uint8[j*height + i]];
+                                    var out = 4*i*width + 4*j;
+                                    imageDataArray[out + 2] = tmp & 0xFF;
+                                    imageDataArray[out + 1] = (tmp >> 8) & 0xFF;
+                                    imageDataArray[out] = (tmp >> 16) & 0xFF;
+                                    imageDataArray[out+ 3] = 255;       
+                                }                         
                             }
-                            var image = new ImageData(imageDataArray, height, width);
+                            var image = new ImageData(imageDataArray, width, height);
                             var ctx = c.getContext("2d");
+
+                            let cssCanvas = window.getComputedStyle(c);
+                            let w = parseInt(cssCanvas.getPropertyValue("width"), 10);
+                            let h = parseInt(cssCanvas.getPropertyValue("height"), 10);
 
                             //Render to offscreen canvas
                             var offScreenCanvas = document.createElement('canvas');
-                            offScreenCanvas.width = c.width;
-                            offScreenCanvas.height = c.height;
+                            offScreenCanvas.width = w;
+                            offScreenCanvas.height = h;
                             var offscreenContext = offScreenCanvas.getContext("2d");
                             offscreenContext.putImageData(image, 0, 0);
 
                             ctx.save();
-                            ctx.translate(c.width / 2, c.height / 2);
-                            ctx.rotate(90.0 * Math.PI / 180);
-                            ctx.drawImage(offScreenCanvas, 0, 0, width, width, -c.width/2, -c.height/2, c.width, c.height);
+                            ctx.scale(c.width / w, h / c.height);
+                            //ctx.translate(c.width / 2, c.height / 2);
+                            //ctx.rotate(90.0 * Math.PI / 180);
+                            ctx.drawImage(offScreenCanvas, 0, 0);
                             ctx.restore();
 
                             ctx.beginPath();
@@ -360,8 +357,6 @@
                             ctx.lineTo(bscanCanvas.width, g_EndEnFace);
                             ctx.stroke();
 
-                            let cssCanvas = window.getComputedStyle(bscanCanvas);
-                            let w = parseInt(cssCanvas.getPropertyValue("width"), 10);
                             var tmp_ascan = w*(g_AScanPerBScan - g_SelectedAScan)/g_AScanPerBScan;
                             ctx.beginPath();
                             ctx.moveTo(tmp_ascan, 0);
@@ -426,7 +421,7 @@
                         g_LastProcessedFrame = lastMessage["frame"];
                         break;
 
-                    case "scan_parameters":
+                    case "get_daq":
                         g_AScanPerBScan = lastMessage["width"];
                         g_PointsPerAScan = lastMessage["height"];
                         g_numberOfFrames = lastMessage["frames"];
