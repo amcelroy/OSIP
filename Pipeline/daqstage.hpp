@@ -71,11 +71,11 @@ namespace OSIP {
          */
         DAQParameters _DAQParameters;
 
-        virtual void configureDAQ(DAQParameters daqp) = 0;
+        virtual void configureDAQ(const DAQParameters& daqp) = 0;
     public:
         DAQStage() { }
 
-        void updateDAQ(DAQParameters daqp){
+        void updateDAQ(const DAQParameters& daqp){
             _DAQParameters = daqp;
             configureDAQ(_DAQParameters);
             sig_DAQChanged();
