@@ -25,6 +25,16 @@ void niDAQMXGalvos::init(){
                               DAQmx_Val_Falling,
                               DAQmx_Val_FiniteSamps,
                               m_SamplesPerChannel);
+
+    DAQmxBaseCreateAOVoltageChan(m_Handle,
+                                 (m_Device + "/" + "ao0:1").c_str(),
+                                 "Analog Output channel 0 and 1",
+                                 -10.0,
+                                 10.0,
+                                 DAQmx_Val_Volts,
+                                 nullptr);
+
+
 }
 
 void niDAQMXGalvos::pause(){

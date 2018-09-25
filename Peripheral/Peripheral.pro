@@ -22,10 +22,12 @@ DEFINES += PERIPHERAL_LIBRARY
 DESTDIR = ../
 
 SOURCES += \
-    nidaqmxgalvos.cpp
+    nidaqmxgalvos.cpp \
+    insitelaser.cpp
 
 HEADERS += \
-    nidaqmxgalvos.h
+    nidaqmxgalvos.h \
+    insitelaser.h
 
 
 win32 {
