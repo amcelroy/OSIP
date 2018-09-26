@@ -24,7 +24,7 @@ void OCTPipelineStageCPU::preStage(){
         return;
     }
 
-    fftwf_plan_with_nthreads(2);
+    fftwf_plan_with_nthreads(4);
 
     if(_PointsPerAScan % m_AScanSplits != 0){
         log("Error, A-Scan Splits does not divide evenly");

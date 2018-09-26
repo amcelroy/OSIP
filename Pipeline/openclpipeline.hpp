@@ -11,6 +11,8 @@
     #include <CL/opencl.h>
 #elif _WIN64
     #include <CL/opencl.h>
+#else
+    #include <CL/opencl.h>
 #endif
 
 #define clError( err ) if(err) { this->sig_MessageLogged("OpenCLPipeline Error - " + to_string(err)); }

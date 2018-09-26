@@ -8,8 +8,10 @@
 #include <boost/bind.hpp>
 #include <Peripherals/galvos.hpp>
 #include <Peripherals/laser.hpp>
+#include <DAQ/Alazar/daqstagealazar660.hpp>
 
 using namespace OSIP;
+using namespace OSIP::DAQ::Alazar;
 
 class OCTPipeline
 {
@@ -25,6 +27,8 @@ private:
 
     shared_ptr<OSIP::Peripherals::Laser> _Laser;
 
+    shared_ptr<DaqStageAlazar> _Alazar;
+
     bool m_LoadingFinished = false;
 
     bool m_ProcessingFinished = false;
@@ -36,6 +40,7 @@ public:
         _Loader = shared_ptr<LoadOCTPipeline>(new LoadOCTPipeline());
         _Processor = shared_ptr<OCTPipelineStageCPU>(new OCTPipelineStageCPU());
         _Display = shared_ptr<OCTDisplayStage>(new OCTDisplayStage());
+        _Alazar = shared_ptr<DaqStageAlazar>(new DaqStageAlazar660());
 
         //Connect all the Inlets
         _Loader->connect(_Processor->getInlet());

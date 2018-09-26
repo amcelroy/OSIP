@@ -3,18 +3,27 @@
 
 #include "pipelinestage.hpp"
 #include <boost/signals2.hpp>
+#include <string>
+
+
+using namespace std;
 
 namespace OSIP {
     enum OSIP_CLOCK_SOURCE { OSIP_INTERNAL_CLOCK, OSIP_EXTERNAL_CLOCK };
 
     enum OSIP_TRIGGER_SOURCE { OSIP_INTERNAL_TRIGGER, OSIP_EXTERNAL_TRIGGER };
 
+    enum OSIP_IMPEDANCE { OSIP_50, OSIP_1M };
+
+    enum OSIP_COUPLING { OSIP_AC, OSIP_DC };
+
     enum OSIP_CHANNELS { A, B, C, D, ALL };
+
+    enum OSIP_SLOPE { OSIP_RISING, OSIP_FALLING };
 
     struct DAQParameters{
         OSIP_CLOCK_SOURCE ClockSource;
-        float VoltageGain;
-        float VoltageBias;
+        float Voltage;
         unsigned long PointsPerTrigger;
         unsigned long TriggersPerBuffer;
         unsigned long TotalBuffers;
@@ -22,10 +31,13 @@ namespace OSIP {
         unsigned long Bits;
         OSIP_TRIGGER_SOURCE Trigger;
         OSIP_CHANNELS Channels;
-        double TriggerTimeoutMS;
+        OSIP_IMPEDANCE Impedance;
+        OSIP_COUPLING Coupling;
+        OSIP_SLOPE TriggerSlope;
+        float TriggerVoltage;
+        double TriggerTimeoutSec;
 
-        DAQParameters() : VoltageGain(4.0f/65535.0f),
-                            VoltageBias(2.0f),
+        DAQParameters() : Voltage(4.0f),
                             PointsPerTrigger(1024),
                             TriggersPerBuffer(256),
                             TotalBuffers(256),
@@ -33,7 +45,12 @@ namespace OSIP {
                             Bits(16),
                             Trigger(OSIP_INTERNAL_TRIGGER),
                             Channels(OSIP_CHANNELS::A),
-                            TriggerTimeoutMS(1.0){ }
+                            TriggerTimeoutSec(1.0),
+							Impedance(OSIP_50),
+							Coupling(OSIP_DC),
+							TriggerSlope(OSIP_RISING),
+							TriggerVoltage(0.0f),
+							ClockSource(OSIP_INTERNAL_CLOCK){ }
     };
 
     template<class O>

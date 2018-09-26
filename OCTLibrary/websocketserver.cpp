@@ -161,7 +161,7 @@ WebsocketServer::WebsocketServer()
         m_WebsocketServer.set_open_handler(bind(&WebsocketServer::on_open, this, ::_1));
         m_WebsocketServer.set_close_handler(bind(&WebsocketServer::on_close, this, ::_1));
 
-        m_CurrentPath = "/Users/amcelroy/code/OSIP/test_data/";
+        m_CurrentPath = "/home/amcelroy/OSIP/test_data/";
 
         m_OCT.init();
 

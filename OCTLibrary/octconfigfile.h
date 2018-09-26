@@ -3,6 +3,10 @@
 
 #include "boost/algorithm/string.hpp"
 #include <fstream>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <cmath>
 
 using namespace std;
 

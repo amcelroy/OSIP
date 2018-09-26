@@ -9,7 +9,6 @@
 #include "hdf5.h"
 #include "H5Cpp.h"
 #include "zlib.h"
-#include "szlib.h"
 #include <fstream>
 
 #include <sys/types.h>

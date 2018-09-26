@@ -2,7 +2,6 @@
 #define DISPLAYPIPELINESTAGE_H
 
 #include "pipelinestage.hpp"
-#include <QObject>
 #include <vector>
 //#include <omp.h>
 

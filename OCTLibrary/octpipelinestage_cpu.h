@@ -7,6 +7,7 @@
 #include "boost/signals2.hpp"
 #include <loadoctpipeline.hpp>
 #include <boost/signals2.hpp>
+#include <numeric>
 //#include <omp.h>
 
 namespace OSIP {
@@ -49,7 +50,14 @@ namespace OSIP {
          * this will be package in the payload
          * @param ascanNumber
          */
-        void setAScanToDisplay(unsigned int ascanNumber) { m_AScanToDisplay = ascanNumber; }
+        void setAScanToDisplay(unsigned int ascanNumber) {
+        	if(ascanNumber >= _NumberOfBScans){
+        		m_AScanToDisplay = _NumberOfBScans - 1;
+        	}else{
+        		m_AScanToDisplay = ascanNumber;
+        	}
+
+        }
 
         unsigned int getWidth(){
             return _AScansPerBScan;
