@@ -98,6 +98,12 @@ namespace OSIP {
             sig_DAQChanged();
         }
 
+        DAQParameters getDAQParameters(){
+        	return _DAQParameters;
+        }
+
+        virtual string typeName() = 0;
+
         virtual void stop() = 0;
 
         virtual void reset() = 0;
@@ -106,11 +112,14 @@ namespace OSIP {
 
         virtual bool init() = 0;
 
+        virtual DAQParameters getDefaultDAQParameters() = 0;
+
         /**
          * @brief setLoop Sets DAQ to loop acquistion
          * @param TrueOrFalse
          */
         void setLoop(bool TrueOrFalse) { m_Loop = TrueOrFalse; }
+
 
         /**
          * @brief isLooping Returns if the DAQ is looping acquistion

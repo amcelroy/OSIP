@@ -36,8 +36,8 @@ add_executable(OSIP
 				main.cpp 
 				websocketserver.cpp 
 				octpipelinestage_cpu.cpp
-				octdisplaystage.cpp
 				octconfigfile.cpp
+				octdisplaystage.cpp
 				)
 
 target_link_libraries(OSIP -lz -lpthread -lfftw3f -lfftw3f_threads -lboost_system -lATSApi)

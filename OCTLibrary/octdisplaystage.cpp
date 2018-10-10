@@ -14,7 +14,7 @@ void OCTDisplayStage::work(){
             Payload<float> p = this->fetchPayload();
 
             if(!p.isValid()){
-                this->pipelineSleep(5);
+                this->pipelineSleep(33);
             }else{
                 try{
                     auto start = chrono::high_resolution_clock::now();
@@ -38,12 +38,12 @@ void OCTDisplayStage::work(){
                     }
 
                     m_BScanAccessMutex.lock();
-                    scaleTo8Bit(datas.at(0).get(), &m_bscan_8bit);
+                    scaleTo8Bit(*(datas.at(0).get()), &m_bscan_8bit);
                     m_BScanAccessMutex.unlock();
 
                     m_EnFaceAccessMutex.lock();
                     vector<unsigned char> tmp_slice(dims[0][1]);
-                    scaleTo8Bit(enFaceData.get(), &tmp_slice);
+                    scaleTo8Bit(*(enFaceData.get()), &tmp_slice);
                     memcpy(&m_enface_8bit.data()[currentFrame*dims[0][1]], tmp_slice.data(), dims[0][1]);
                     m_EnFaceAccessMutex.unlock();
 

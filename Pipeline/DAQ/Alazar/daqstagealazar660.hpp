@@ -13,6 +13,7 @@
 #include <AlazarApi.h>
 #include <AlazarCmd.h>
 #include <payload.hpp>
+#include <iostream>
 
 namespace OSIP{
 	namespace DAQ{
@@ -26,7 +27,7 @@ namespace OSIP{
 
 			public:
 				DaqStageAlazar660(){
-
+					_DAQParameters = getDefaultDAQParameters();
 				}
 
 				~DaqStageAlazar660() override {
@@ -34,7 +35,7 @@ namespace OSIP{
 				}
 
 		        void stop(){
-
+		        	PipelineStage::stop();
 		        }
 
 		        void reset(){
@@ -47,6 +48,26 @@ namespace OSIP{
 
 		        bool init(){
 
+		        }
+
+				string typeName() override {
+					return "DaqStageAlazar660";
+				}
+
+		        DAQParameters getDefaultDAQParameters(){
+		        	DAQParameters d;
+		        	d.Bits = 16;
+		        	d.Channels = A;
+		        	d.Coupling = OSIP_AC;
+		        	d.Impedance = OSIP_50;
+		        	d.PointsPerTrigger = 1024;
+		        	d.DAQClockRate = 125e6;
+		        	d.TriggerVoltage = 1.0;
+		        	d.TriggerTimeoutSec = 5;
+		        	d.Voltage = 2.0f;
+		        	d.Trigger = OSIP_EXTERNAL_TRIGGER;
+		        	d.TriggerVoltage = 1.0f;
+		        	return d;
 		        }
 
 
@@ -170,11 +191,14 @@ namespace OSIP{
 							128);
 	        		log("Alazar Set Trigger Operation return code: " + to_string(m_Error));
 
+	        		m_Error = AlazarSetRecordSize(m_BoardHandle, 0, daqp.PointsPerTrigger);
+	        		log("Alazar set record size return code: " + to_string(m_Error));
+
 	        		U32 timeout_ticks = (U32)(daqp.TriggerTimeoutSec / 10.e-6 + 0.5);
 	        		m_Error = AlazarSetTriggerTimeOut(m_BoardHandle, timeout_ticks);
 	        		log("Alazar Set Trigger Timeout return code: " + to_string(m_Error));
 
-	        		U32 flags = ADMA_ALLOC_BUFFERS;
+	        		U32 flags = ADMA_NPT | ADMA_EXTERNAL_STARTCAPTURE;
 	        		U32 TrigPerAcq = 1;
 	        		if(daqp.TotalBuffers > 1){
 	        			TrigPerAcq = daqp.TotalBuffers*daqp.TriggersPerBuffer;
@@ -185,28 +209,42 @@ namespace OSIP{
 							0,
 							daqp.PointsPerTrigger,
 							daqp.TriggersPerBuffer,
-							TrigPerAcq,
+							daqp.TotalBuffers*daqp.TriggersPerBuffer,
 							flags);
 	        		log("Alazar Before Aysnc Read return code: " + to_string(m_Error));
 		        }
 
 		        void work() override {
-		        	m_Error = AlazarStartCapture(m_BoardHandle);
-		        	log("Alazar Start Capture return code: " + to_string(m_Error));
+		        	m_DAQFinished = false;
 
 		        	unsigned long bufferSize = _DAQParameters.PointsPerTrigger*_DAQParameters.TriggersPerBuffer;
 
+		        	if(_DAQParameters.TotalBuffers == 1){
+		        		createBuffers(10, bufferSize);
+		        	}else{
+		        		createBuffers(_DAQParameters.TotalBuffers, bufferSize);
+		        	}
+
+		        	m_Error = AlazarStartCapture(m_BoardHandle);
+		        	log("Alazar Start Capture return code: " + to_string(m_Error));
+
 		        	if(m_Error == ApiSuccess){
 		        		unsigned long _currentFrame = 0;
-		        		while(m_Error == ApiSuccess && stopThread == false){
+		        		//while(m_Error == ApiSuccess && stopThread == false){
+		        		while(stopThread == false && _currentFrame < _DAQParameters.TotalBuffers){
 		        			if(pauseThread == true){
 		        				this->pipelineSleep(50);
 		        			}else{
 								shared_ptr<vector<unsigned short>> buffer(new vector<unsigned short>(bufferSize));
-								m_Error = AlazarWaitNextAsyncBufferComplete(m_BoardHandle,
-										buffer->data(),
-										bufferSize*sizeof(unsigned short),
-										5000);
+								unsigned short *tmp = buffer->data();
+
+								m_Error = readBuffer(buffer.get());
+
+								if(m_Error != ApiSuccess){
+									log("Alazar read buffer error: " + to_string(m_Error));
+									stopThread = true;
+									break;
+								}
 
 								Payload<unsigned short> p;
 								vector<unsigned long long> dim;
@@ -215,14 +253,27 @@ namespace OSIP{
 								dim.push_back(_currentFrame);
 
 								p.addData(dim, buffer, "ATS660");
+								this->sendPayload(p);
 
-								_currentFrame += 1;
+
+
+								if(_DAQParameters.TotalBuffers == 1 || _DAQParameters.TotalBuffers == 0){
+									_currentFrame = 0;
+								}else{
+									_currentFrame += 1;
+								}
 		        			}
 		        		}
 		        	}
 
-		        	m_Error = AlazarAbortAsyncRead(m_BoardHandle);
-		        	log("Alazar Abort Async return code: " + to_string(m_Error));
+		        	m_DAQFinished = true;
+
+	        		for(string s : _Log){
+	        			cout << s << std::endl;
+	        		}
+	        		_Log.clear();
+
+		        	DaqStageAlazar::stop();
 		        }
 			};
 		}

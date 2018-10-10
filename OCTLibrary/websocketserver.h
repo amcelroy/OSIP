@@ -21,6 +21,9 @@ using namespace std;
 
 class WebsocketServer
 {
+	json _getDAQ();
+	json _startDAQ();
+
     server m_WebsocketServer;
 
     void on_message(websocketpp::connection_hdl hdl, message_ptr msg);
@@ -42,14 +45,16 @@ class WebsocketServer
     websocketpp::connection_hdl m_ConnectionHandle;
 
     bool m_NoConnection = true;
+
 public:
     WebsocketServer();
 
     void run();
 
-    void frameFinished();
+    void sendFrame();
 
     void datasetFinished();
+
 };
 
 #endif // WEBSOCKETSERVER_H

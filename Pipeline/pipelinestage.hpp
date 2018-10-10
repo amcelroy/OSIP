@@ -26,9 +26,12 @@ namespace OSIP {
         boost::signals2::signal<void (string)> sig_MessageLogged;
 
         double d_ThreadWorkTime = 0.0;
+
+
     public:
         PipelineStage(){
             _Inlet = shared_ptr<Inlet<I>>(new Inlet<I>);
+            _Inlet_copy = getInlet();
         }
 
         virtual ~PipelineStage(){
@@ -171,6 +174,7 @@ namespace OSIP {
          * @brief _Inlet Allocated during object instantiation
          */
         shared_ptr<Inlet<I>> _Inlet;
+        shared_ptr<Inlet<I>> _Inlet_copy;
 
         /**
          * @brief _Outlets Vector of Outlets that
@@ -193,15 +197,15 @@ namespace OSIP {
         vector<string> _Log;
 
         void sendPayload(Payload<O> payload){
-            if(_Outlets.size() != 0){
-                for(shared_ptr<Inlet<O>> o : _Outlets){
-                    o.get()->writeData(payload);
+            //if(_Outlets.size() != 0){
+                for(int i = 0; i < _Outlets.size(); i++){
+                	_Outlets[i].get()->writeData(payload);
                 }
-            }
+            //}
         }
 
         Payload<I> fetchPayload(){
-            return _Inlet.get()->readData();
+            return _Inlet->readData();
         }
 
         bool m_DAQFinished = false;

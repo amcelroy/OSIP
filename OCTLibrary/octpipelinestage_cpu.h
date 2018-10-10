@@ -14,7 +14,10 @@ namespace OSIP {
     class OCTPipelineStageCPU : public PipelineStage<unsigned short, float>
     {
 
+
+
     public:
+
         OCTPipelineStageCPU();
 
         void preStage() override;
@@ -93,6 +96,7 @@ namespace OSIP {
             m_AScanSplits = s;
         }
 
+
     protected:
 
         boost::signals2::signal<void ()> sig_ProcessingFinished;
@@ -100,6 +104,7 @@ namespace OSIP {
         boost::signals2::signal<void ()> sig_FrameProcessed;
 
     private:
+
         mutex m_RawAScanMutex;
 
         mutex m_IntAScanMutex;
@@ -107,6 +112,10 @@ namespace OSIP {
         vector<float> m_HanningWindow;
 
         unsigned long m_AScanSplits = 1;
+
+        vector<unsigned char> m_bscan_8bit;
+
+        vector<unsigned char> m_enface_8bit;
 
         /**
          * @brief m_RawAScan Buffer to hold the Raw A-Scan used for system setup

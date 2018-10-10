@@ -3,6 +3,7 @@
 
 #include "pipelinestage.hpp"
 #include <vector>
+#include <boost/signals2.hpp>
 //#include <omp.h>
 
 using namespace std;
@@ -55,15 +56,10 @@ namespace OSIP {
          * @brief scaleTo8Bit Scales a value to 8 Bits (0 to 255)
          * @param array
          */
-        void scaleTo8Bit(vector<I> *array, vector<unsigned char> *output){
-            if(array == NULL){
-                assert( array == NULL);
-                return;
-            }
-
+        void scaleTo8Bit(const vector<I>& array, vector<unsigned char> *output){
             I range = (maxValue - minValue);
-            for(unsigned long i = 0; i < array->size(); i++){
-                double tmp = 255*(array->at(i) - minValue) / range;
+            for(unsigned long i = 0; i < array.size(); i++){
+                double tmp = 255*(array.at(i) - minValue) / range;
                 tmp = max(0.0, tmp);
                 tmp = min(tmp, 255.0);
                 output->data()[i] = (unsigned char)tmp;
@@ -74,7 +70,7 @@ namespace OSIP {
          * @brief scaleTo8Bit Scales a value to 8 Bits (0 to 255), then to RGBA using the look up tables
          * @param array
          */
-        void scaleToRGBA(I* array, unsigned int* output, unsigned long size){
+        void scaleToRGBA(const I& array, unsigned int* output, unsigned long size){
             float range = (maxValue - minValue);
 
             #pragma omp parallel for
@@ -95,6 +91,25 @@ namespace OSIP {
             }
         }
 
+
+        /**
+         * @brief notifyTiming Add a subscriber for when a frame is ready
+         * virtual function
+         * @param subscriber
+         */
+        void subscribeFrameReady(const boost::signals2::signal<void()>::slot_type &subscriber) { sig_FrameReady.connect(subscriber); }
+
+        /**
+         * @brief unsubscribeFrameReady Disconnect all slots from the Current Frame event
+         */
+        void unsubscribeFrameReady(){
+            sig_FrameReady.disconnect_all_slots();
+        }
+
+        void unsubscribeAll() override {
+            PipelineStage<I, I>::unsubscribeAll();
+            sig_FrameReady.disconnect_all_slots();
+        }
     protected:
         /**
          * @brief minValue Minimum value to scale the data to
@@ -105,6 +120,8 @@ namespace OSIP {
          * @brief maxValue Maximum to scale the data to
          */
         I maxValue;
+
+        vector<unsigned int> m_LUT;
 
         /**
          * @brief m_FramesPerSecond Sets display rate in FPS, anything <= 0 disables FPS
@@ -117,7 +134,9 @@ namespace OSIP {
 
         void postStage() { }
 
-        vector<unsigned int> m_LUT;
+
+
+        boost::signals2::signal<void ()> sig_FrameReady;
     };
 }
 

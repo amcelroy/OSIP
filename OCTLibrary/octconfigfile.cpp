@@ -2,7 +2,9 @@
 
 bool OCTConfigFile::readOCTConfig(string path, OCTConfig *config){
     try{
-        ifstream filein(path);
+    	string config_path = path + "parameters.oct_scan";
+
+        ifstream filein(config_path);
 
         stringstream ss;
         ss << filein.rdbuf();
@@ -40,7 +42,8 @@ bool OCTConfigFile::readOCTConfig(string path, OCTConfig *config){
 
         config->Gain = config->Range / powf(2, config->Bits);
         config->Bias = config->Range / 2;
-
+        config->PathConfig = config_path;
+        config->PathData = path + "data.bin";
 
         return false;
     }catch(...){
