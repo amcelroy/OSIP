@@ -24,7 +24,7 @@ void OCTPipelineStageCPU::preStage(){
         return;
     }
 
-    fftwf_plan_with_nthreads(4);
+    //fftwf_plan_with_nthreads(1);
 
     if(_PointsPerAScan % m_AScanSplits != 0){
         log("Error, A-Scan Splits does not divide evenly");
@@ -71,6 +71,8 @@ void OCTPipelineStageCPU::work(){
 		if(!fftwInit)
 			return;
 
+		int q_empty_500ms = 0;
+
 		int frame = 0;
 		while(!stopThread){
 			if(pauseThread){
@@ -91,6 +93,14 @@ void OCTPipelineStageCPU::work(){
 
 				if(!p.isValid()){
 					pipelineSleep(5);
+					if (q_empty_500ms < 100) {
+						q_empty_500ms += 1;
+					}
+					else {
+						q_empty_500ms = 0;
+						if(this->m_DAQFinished)
+							sig_ProcessingFinished();
+					}
 				}else{
 						auto start = chrono::high_resolution_clock::now();
 

@@ -2,8 +2,44 @@
 
 using namespace OSIP;
 
+static void PngWriteCallback(png_structp  png_ptr, png_bytep data, png_size_t length) {
+	std::vector<unsigned char> *p = (std::vector<unsigned char>*)png_get_io_ptr(png_ptr);
+	p->insert(p->end(), data, data + length);
+}
+
 void OCTDisplayStage::preStage(){
 
+}
+
+
+void OCTDisplayStage::_writePNG(png_structp png, png_infop info, int w, int h, vector<unsigned char>& scaledImage, vector<unsigned char> *pngBuffer) {
+	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	info = png_create_info_struct(png);
+
+	png_set_compression_level(png, 6);
+	png_set_IHDR(png,
+		info,
+		w,
+		h,
+		8,
+		PNG_COLOR_TYPE_GRAY,
+		PNG_INTERLACE_NONE,
+		PNG_COMPRESSION_TYPE_BASE,
+		PNG_FILTER_TYPE_BASE);
+
+
+	pngBuffer->clear();
+	std::vector<unsigned char*> rows(h);
+	for (size_t y = 0; y < h; ++y)
+		rows[y] = (unsigned char*)scaledImage.data() + y * w;
+
+	png_set_rows(png, info, &rows[0]);
+	png_set_write_fn(png, pngBuffer, PngWriteCallback, NULL);
+	png_write_png(png, info, PNG_TRANSFORM_IDENTITY, NULL);
+	png_write_flush(png);
+
+	if (info != NULL) png_free_data(png, info, PNG_FREE_ALL, -1);
+	if (png != NULL) png_destroy_write_struct(&png, (png_infopp)NULL);
 }
 
 void OCTDisplayStage::work(){
@@ -33,18 +69,21 @@ void OCTDisplayStage::work(){
 
                     unsigned long arraySize = dims[0][0]*dims[0][1];
 
+
                     if(m_bscan_8bit.size() != arraySize){
                         m_bscan_8bit = vector<unsigned char>(arraySize);
                     }
 
                     m_BScanAccessMutex.lock();
                     scaleTo8Bit(*(datas.at(0).get()), &m_bscan_8bit);
+					_writePNG(m_bscan_ptr, m_bscan_info_ptr, dims[0][1], dims[0][0], m_bscan_8bit, &m_bscan_png);
                     m_BScanAccessMutex.unlock();
 
                     m_EnFaceAccessMutex.lock();
                     vector<unsigned char> tmp_slice(dims[0][1]);
                     scaleTo8Bit(*(enFaceData.get()), &tmp_slice);
                     memcpy(&m_enface_8bit.data()[currentFrame*dims[0][1]], tmp_slice.data(), dims[0][1]);
+					_writePNG(m_enface_ptr, m_enface_info_ptr, dims[2][0], dims[2][0], m_enface_8bit, &m_enface_png);
                     m_EnFaceAccessMutex.unlock();
 
                     if(m_FramesPerSecond != 0.0f){

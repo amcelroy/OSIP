@@ -13,13 +13,19 @@ set(ZLIB_H "/usr/include" CACHE PATH "Path to ZLib Header")
 set(ZLIB_LIB "/usr/local/lib/libz.so" CACHE FILEPATH "Filepath to ZLib Library")
 
 set(FFTWF_H "/usr/include" CACHE PATH "Path to FFTW Header")
-set(FFTWF_LIB "/usr/lib64/libfftw3f.so" CACHE PATH "Filepath to fftwf library")
+set(FFTWF_LIB "/usr/lib64/libfftw3f.so" CACHE FILEPATH "Filepath to fftwf library")
+
+set(HDF5_H "" CACHE PATH "Path to HDF5 Headers")
+set(HDF5_H_LIB "" CACHE FILEPATH "Filepath to HDF5 library")
 
 set(BOOST_H "" CACHE PATH "Boost path")
 set(BOOST_LIB_DIR "" CACHE PATH "Path to boost libs")
 
 set(ALAZAR_H "" CACHE PATH "Alzar Tech Header Path")
 set(ALAZAR_LIB "" CACHE FILEPATH "Alazar libats")
+
+set(LIBPNG_H "" CACHE PATH "Path to LIBPNG Headers")
+set(LIBPNG_LIB "" CACHE FILEPATH "Filepath to LIBPNG library")
 
 find_package(Threads)
 
@@ -30,14 +36,27 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 					${FFTWF_H}
 					${BOOST_H}
 					${ALAZAR_H}
+					${HDF5_H}
+					${LIBPNG_H}
 					)
+
+link_directories(${BOOST_LIB_DIR})
 
 add_executable(OSIP 
 				main.cpp 
 				websocketserver.cpp 
+				websocketserver.h
 				octpipelinestage_cpu.cpp
+				octpipelinestage_cpu.h
 				octconfigfile.cpp
+				octconfigfile.h
 				octdisplaystage.cpp
+				octdisplaystage.h
+				loadoctpipeline.hpp 
+				octpipeline.h
+				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/Alazar/daqstagealazar.hpp
+				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/Alazar/daqstagealazar660.hpp
+				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/Alazar/daqstagealazar9350.hpp
 				)
 
-target_link_libraries(OSIP -lz -lpthread -lfftw3f -lfftw3f_threads -lboost_system -lATSApi)
+target_link_libraries(OSIP ${ZLIB_LIB} ${FFTWF_LIB} ${ALAZAR_LIB} ${LIBPNG_LIB})

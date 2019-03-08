@@ -10,7 +10,7 @@
 #include <boost/bind.hpp>
 #include <Peripherals/galvos.hpp>
 #include <Peripherals/laser.hpp>
-#include <DAQ/Alazar/daqstagealazar660.hpp>
+#include <DAQ/Alazar/daqstagealazar9350.hpp>
 #include "octconfigfile.h"
 #include "octdisplaystage.h"
 
@@ -38,10 +38,13 @@ private:
     bool m_DAQRunning = false;
 
     OCTConfig m_OCTConfig;
+
+	bool m_LoopDAQ = false;
+
 public:
     OCTPipeline(){ }
 
-    enum OCT_PIPELINE_STATES{ DAQ, PLAYBACK };
+    enum OCT_PIPELINE_STATES{ DAQ, PLAYBACK, RECORD };
 
     OSIP::DAQStage<unsigned short>* getLoader() { return _Loader.get(); }
 
@@ -72,10 +75,11 @@ public:
 
     	switch(state){
     	case OCT_PIPELINE_STATES::DAQ:{
-    		_Loader = shared_ptr<DaqStageAlazar660>(new DaqStageAlazar660());
-    		DaqStageAlazar660* daqstage = dynamic_cast<DaqStageAlazar660*>(_Loader.get());
+    		_Loader = shared_ptr<DaqStageAlazar9350>(new DaqStageAlazar9350());
+    		DaqStageAlazar9350* daqstage = dynamic_cast<DaqStageAlazar9350*>(_Loader.get());
     		dp = OCTConfigFile::packageDAQParameters(m_OCTConfig, daqstage);
     		daqstage->updateDAQ(dp);
+			m_LoopDAQ = true;
     		break;
     	}
 
@@ -86,6 +90,13 @@ public:
     		lop->setOCTConfig(m_OCTConfig);
     		break;
     	}
+
+		case OCT_PIPELINE_STATES::RECORD: {
+			//_Loader = shared_ptr<LoadOCTPipeline>(new LoadOCTPipeline());
+			//LoadOCTPipeline* lop = dynamic_cast<LoadOCTPipeline*>(_Loader.get());
+			//lop->setOCTConfig(m_OCTConfig);
+			break;
+		}
 
     	default:
     		break;
@@ -110,11 +121,11 @@ public:
 
         //Signal that the processing is done
         _Processor->subscribeProcessingFinished(std::bind(&OCTPipeline::slotProcessingFinished, this));
-
     }
 
     void start(const OCTConfig& config){
-        _Processor->configure(config);
+		m_OCTConfig = config;
+		_Processor->configure(config);
         _Display->configure(config);
         _Processor->start();
         _Display->start();
@@ -127,8 +138,9 @@ public:
     }
 
     void startDAQ(const OCTConfig& config){
+		m_OCTConfig = config;
     	if(!m_DAQRunning){
-			DaqStageAlazar660* daqstage = dynamic_cast<DaqStageAlazar660*>(_Loader.get());
+			DaqStageAlazar9350* daqstage = dynamic_cast<DaqStageAlazar9350*>(_Loader.get());
 			DAQParameters dp = OCTConfigFile::packageDAQParameters(m_OCTConfig, daqstage);
 			daqstage->updateDAQ(dp);
 			daqstage->start();
@@ -142,6 +154,7 @@ public:
     		_Processor.reset();
     	}
 
+		//TODO: Fix error in StopDAQ
     	if(_Loader != nullptr){
     		stopDAQ();
             _Loader.reset();
@@ -157,6 +170,10 @@ public:
 
     void slotProcessingFinished(){
         m_ProcessingFinished  = true;
+		if (m_LoopDAQ) {
+			DaqStageAlazar9350* daqstage = dynamic_cast<DaqStageAlazar9350*>(_Loader.get());
+			daqstage->start();
+		}
     }
 };
 

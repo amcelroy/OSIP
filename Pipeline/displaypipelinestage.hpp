@@ -59,9 +59,9 @@ namespace OSIP {
         void scaleTo8Bit(const vector<I>& array, vector<unsigned char> *output){
             I range = (maxValue - minValue);
             for(unsigned long i = 0; i < array.size(); i++){
-                double tmp = 255*(array.at(i) - minValue) / range;
-                tmp = max(0.0, tmp);
-                tmp = min(tmp, 255.0);
+                float tmp = 255*(array.at(i) - minValue) / range;
+                tmp = fmaxf(0.0, tmp);
+                tmp = fminf(tmp, 255.0);
                 output->data()[i] = (unsigned char)tmp;
             }
         }

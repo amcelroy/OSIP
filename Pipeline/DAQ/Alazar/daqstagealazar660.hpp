@@ -47,7 +47,7 @@ namespace OSIP{
 		        }
 
 		        bool init(){
-
+					return true;
 		        }
 
 				string typeName() override {

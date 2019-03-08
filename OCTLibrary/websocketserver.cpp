@@ -187,13 +187,13 @@ WebsocketServer::WebsocketServer()
         m_WebsocketServer.set_open_handler(bind(&WebsocketServer::on_open, this, ::_1));
         m_WebsocketServer.set_close_handler(bind(&WebsocketServer::on_close, this, ::_1));
 
-        m_CurrentPath = "/home/amcelroy/OSIP/test_data/";
+        m_CurrentPath = "C:\\Users\\Austin\\Documents\\OSIP\\test_data\\";
 
         m_octcf.readOCTConfig(m_CurrentPath, &m_octc);
 
-        m_octc.TotalBScans = 256;
+        m_octc.TotalBScans = 128;
         m_octc.PointsPerAScan = 1024;
-        m_octc.AScansPerBScan = 512;
+        m_octc.AScansPerBScan = 128;
         m_octc.StartTrim = 0;
         m_octc.StopTrim = 0;
         m_OCT.setConfig(m_octc);

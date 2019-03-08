@@ -192,6 +192,16 @@
             socket.send(JSON.stringify(_json));
         }
 
+        function _arrayBufferToBase64( buffer ) {
+            var binary = '';
+            var bytes = new Uint8Array( buffer );
+            var len = bytes.byteLength;
+            for (var i = 0; i < len; i++) {
+                binary += String.fromCharCode( bytes[ i ] );
+            }
+            return window.btoa( binary );
+        }
+
 
         socket.onopen = () => {
             socketOpen = 1;
@@ -219,59 +229,57 @@
                         fileReader.onload = (event) => {
                             g_ProcessingFrame = 1;
                             g_LastBScan = event.target.result;
+                            let base64 = _arrayBufferToBase64(g_LastBScan);
+
                             var c = document.getElementById("BScanCanvas");
                             var width = g_AScanPerBScan;
                             var height = g_PointsPerAScan;
-                            var uint8 = new Uint8Array(g_LastBScan);
-                            var imageDataArray = new Uint8ClampedArray(height*width*4);
-                            for(var i = 0; i < height; i++){
-                                for(var j = 0; j < width; j++){
-                                    var tmp = m_LUT[uint8[j*height + i]];
-                                    var out = 4*i*width + 4*j;
-                                    imageDataArray[out + 2] = tmp & 0xFF;
-                                    imageDataArray[out + 1] = (tmp >> 8) & 0xFF;
-                                    imageDataArray[out] = (tmp >> 16) & 0xFF;
-                                    imageDataArray[out+ 3] = 255;       
-                                }                         
-                            }
-                            var image = new ImageData(imageDataArray, width, height);
-                            var ctx = c.getContext("2d");
+                        
 
-                            //Render to offscreen canvas
-                            var offScreenCanvas = document.createElement('canvas');
-                            offScreenCanvas.width = width;
-                            offScreenCanvas.height = height;
-                            var offscreenContext = offScreenCanvas.getContext("2d");
-                            offscreenContext.putImageData(image, 0, 0);
+                            var image = new Image();
+                            image.src = 'data:image/png;base64,' + base64; 
+                            image.onload = () => {
 
-                            var w_ratio = c.width / width;
-                            var h_ratio = c.height / height;
+                                    //var image = new ImageData(imageDataArray, width, height);
+                                    var ctx = c.getContext("2d");
 
-                            ctx.save();
-                            //ctx.scale(c.width / w, h / c.height);
-                            //ctx.translate(c.width / 2, c.height / 2);
-                            //ctx.rotate(90.0 * Math.PI / 180);
-                            ctx.drawImage(offScreenCanvas, 0, 0, 1024, height*h_ratio);
-                            ctx.restore();
+                                    //Render to offscreen canvas
+                                    var offScreenCanvas = document.createElement('canvas');
+                                    offScreenCanvas.width = width;
+                                    offScreenCanvas.height = height;
+                                    var offscreenContext = offScreenCanvas.getContext("2d");
+                                    offscreenContext.drawImage(image, 0, 0);
 
-                            ctx.beginPath();
-                            ctx.moveTo(0, g_StartEnFace);
-                            ctx.lineTo(bscanCanvas.width, g_StartEnFace);
-                            ctx.lineWidth = 2;
-                            ctx.strokeStyle = '#FFFF00';
-                            ctx.stroke();
+                                    var w_ratio = c.width / width;
+                                    var h_ratio = c.height / height;
 
-                            ctx.beginPath();
-                            ctx.moveTo(0, g_EndEnFace);
-                            ctx.lineTo(bscanCanvas.width, g_EndEnFace);
-                            ctx.stroke();
+                                    ctx.save();
+                                    //ctx.scale(c.width / w, h / c.height);
+                                    //ctx.translate(c.width / 2, c.height / 2);
+                                    //ctx.rotate(90.0 * Math.PI / 180);
+                                    ctx.drawImage(image, 0, 0, 1024, height*h_ratio);
+                                    ctx.restore();
 
-                            var tmp_ascan = (g_AScanPerBScan - g_SelectedAScan)/g_AScanPerBScan;
-                            ctx.beginPath();
-                            ctx.moveTo(tmp_ascan, 0);
-                            ctx.lineTo(tmp_ascan, bscanCanvas.height);
-                            ctx.stroke();
-                            g_ProcessingFrame = 0;                            
+                                    ctx.beginPath();
+                                    ctx.moveTo(0, g_StartEnFace);
+                                    ctx.lineTo(bscanCanvas.width, g_StartEnFace);
+                                    ctx.lineWidth = 2;
+                                    ctx.strokeStyle = '#FFFF00';
+                                    ctx.stroke();
+
+                                    ctx.beginPath();
+                                    ctx.moveTo(0, g_EndEnFace);
+                                    ctx.lineTo(bscanCanvas.width, g_EndEnFace);
+                                    ctx.stroke();
+
+                                    var tmp_ascan = (g_AScanPerBScan - g_SelectedAScan)/g_AScanPerBScan;
+                                    ctx.beginPath();
+                                    ctx.moveTo(tmp_ascan, 0);
+                                    ctx.lineTo(tmp_ascan, bscanCanvas.height);
+                                    ctx.stroke();
+                                    g_ProcessingFrame = 0; 
+                            }        
+                       
                         };
                         fileReader.readAsArrayBuffer(event.data);
                     break;
@@ -284,44 +292,51 @@
                             ctx.clearRect(0, 0, c.width, c.height);
                         }else{
                             fileReader.onload = (event) => {
-                                g_LastEnFace = event.target.result;
-                                var c = document.getElementById("EnFaceCanvas");
-                                var width = g_AScanPerBScan;
-                                var height = g_numberOfFrames;
-                                var uint8 = new Uint8Array(g_LastEnFace);
-                                var imageDataArray = new Uint8ClampedArray(height*width*4);
-                                for(var i = 0; i < height*width; i++){
-                                    var tmp = m_LUT[uint8[i]];
-                                    imageDataArray[4*i + 2] = tmp & 0xFF;
-                                    imageDataArray[4*i + 1] = (tmp >> 8) & 0xFF;
-                                    imageDataArray[4*i] = (tmp >> 16) & 0xFF;
-                                    imageDataArray[4*i + 3] = 255;
-                                }
-                                var image = new ImageData(imageDataArray, width, height);
-                                var ctx = c.getContext("2d");
+                                 g_LastEnFace = event.target.result;
+                                 let base64 = _arrayBufferToBase64(g_LastBScan);
 
-                                //Render to offscreen canvas
-                                var offScreenCanvas = document.createElement('canvas');
-                                offScreenCanvas.width = c.width;
-                                offScreenCanvas.height = c.height;
-                                var offscreenContext = offScreenCanvas.getContext("2d");
-                                offscreenContext.putImageData(image, 0, 0);
+                                 var c = document.getElementById("EnFaceCanvas");
+                                 var width = g_AScanPerBScan;
+                                 var height = g_numberOfFrames;
 
-                                ctx.drawImage(offScreenCanvas, 
-                                        0, 0, width, height, 
-                                        0, 0, c.width, c.height);  
-                                        
-                                let cssCanvas = window.getComputedStyle(c);
-                                let h = parseInt(cssCanvas.getPropertyValue("height"), 10);
-                                var tmp = h*g_LastProcessedFrame/g_numberOfFrames
-                                
+                                 var image = new Image();
+                                 image.src = 'data:image/png;base64,' + base64; 
+                                 image.onload = () => {
+        //                                 var uint8 = new Uint8Array(g_LastEnFace);
+        //                                 var imageDataArray = new Uint8ClampedArray(height*width*4);
+        //                                 for(var i = 0; i < height*width; i++){
+        //                                     var tmp = m_LUT[uint8[i]];
+        //                                     imageDataArray[4*i + 2] = tmp & 0xFF;
+        //                                     imageDataArray[4*i + 1] = (tmp >> 8) & 0xFF;
+        //                                     imageDataArray[4*i] = (tmp >> 16) & 0xFF;
+        //                                     imageDataArray[4*i + 3] = 255;
+        //                                 }
+                                        //var image = new ImageData(imageDataArray, width, height);
+                                        var ctx = c.getContext("2d");
 
-                                ctx.beginPath();
-                                ctx.moveTo(0, tmp);
-                                ctx.lineTo(bscanCanvas.width, tmp);
-                                ctx.lineWidth = 2;
-                                ctx.strokeStyle = '#FFFF00';
-                                ctx.stroke();
+                                        //Render to offscreen canvas
+                                        var offScreenCanvas = document.createElement('canvas');
+                                        offScreenCanvas.width = c.width;
+                                        offScreenCanvas.height = c.height;
+                                        var offscreenContext = offScreenCanvas.getContext("2d");
+                                        offscreenContext.drawImage(image, 0, 0);
+
+                                        ctx.drawImage(offScreenCanvas, 
+                                                0, 0, width, height, 
+                                                0, 0, c.width, c.height);  
+
+                                        let cssCanvas = window.getComputedStyle(c);
+                                        let h = parseInt(cssCanvas.getPropertyValue("height"), 10);
+                                        var tmp = h*g_LastProcessedFrame/g_numberOfFrames
+
+
+                                        ctx.beginPath();
+                                        ctx.moveTo(0, tmp);
+                                        ctx.lineTo(bscanCanvas.width, tmp);
+                                        ctx.lineWidth = 2;
+                                        ctx.strokeStyle = '#FFFF00';
+                                        ctx.stroke();
+                                 }
                             }      
                             fileReader.readAsArrayBuffer(event.data);   
                         }           
