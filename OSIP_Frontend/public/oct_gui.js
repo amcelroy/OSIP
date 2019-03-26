@@ -232,9 +232,8 @@
                             let base64 = _arrayBufferToBase64(g_LastBScan);
 
                             var c = document.getElementById("BScanCanvas");
-                            var width = g_AScanPerBScan;
-                            var height = g_PointsPerAScan;
-                        
+                            var width = g_PointsPerAScan;
+                            var height = g_AScanPerBScan;                        
 
                             var image = new Image();
                             image.src = 'data:image/png;base64,' + base64; 
@@ -250,14 +249,16 @@
                                     var offscreenContext = offScreenCanvas.getContext("2d");
                                     offscreenContext.drawImage(image, 0, 0);
 
-                                    var w_ratio = c.width / width;
-                                    var h_ratio = c.height / height;
+                                    //var w_ratio = c.width / width;
+                                    //var h_ratio = c.height / height;
 
                                     ctx.save();
                                     //ctx.scale(c.width / w, h / c.height);
-                                    //ctx.translate(c.width / 2, c.height / 2);
-                                    //ctx.rotate(90.0 * Math.PI / 180);
-                                    ctx.drawImage(image, 0, 0, 1024, height*h_ratio);
+                                    ctx.translate(c.width / 2, c.height / 2);
+                                    ctx.rotate(90.0 * Math.PI / 180);
+                                    ctx.drawImage(offScreenCanvas, 
+                                               0, 0, width, height, 
+                                                -c.width/2, -c.height/2, c.width, c.height);
                                     ctx.restore();
 
                                     ctx.beginPath();
@@ -293,7 +294,7 @@
                         }else{
                             fileReader.onload = (event) => {
                                  g_LastEnFace = event.target.result;
-                                 let base64 = _arrayBufferToBase64(g_LastBScan);
+                                 let base64 = _arrayBufferToBase64(g_LastEnFace);
 
                                  var c = document.getElementById("EnFaceCanvas");
                                  var width = g_AScanPerBScan;
@@ -302,16 +303,6 @@
                                  var image = new Image();
                                  image.src = 'data:image/png;base64,' + base64; 
                                  image.onload = () => {
-        //                                 var uint8 = new Uint8Array(g_LastEnFace);
-        //                                 var imageDataArray = new Uint8ClampedArray(height*width*4);
-        //                                 for(var i = 0; i < height*width; i++){
-        //                                     var tmp = m_LUT[uint8[i]];
-        //                                     imageDataArray[4*i + 2] = tmp & 0xFF;
-        //                                     imageDataArray[4*i + 1] = (tmp >> 8) & 0xFF;
-        //                                     imageDataArray[4*i] = (tmp >> 16) & 0xFF;
-        //                                     imageDataArray[4*i + 3] = 255;
-        //                                 }
-                                        //var image = new ImageData(imageDataArray, width, height);
                                         var ctx = c.getContext("2d");
 
                                         //Render to offscreen canvas

@@ -24,6 +24,7 @@ typedef struct _OCTConfig {
     unsigned long Bits;
     unsigned long StopTrim;
     unsigned long StartTrim;
+	unsigned long BScansPerTransfer;
 } OCTConfig;
 
 class OCTConfigFile
@@ -41,6 +42,7 @@ public:
     	p.TotalBuffers = o.TotalBScans;
     	p.PointsPerTrigger = o.PointsPerAScan;
     	p.TriggersPerBuffer = o.AScansPerBScan;
+		p.BScansPerTransfer = o.BScansPerTransfer;
 
     	return p;
     }

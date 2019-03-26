@@ -43,6 +43,10 @@ void OCTDisplayStage::_writePNG(png_structp png, png_infop info, int w, int h, v
 }
 
 void OCTDisplayStage::work(){
+
+	int b_scan_update_counter = 0;
+	int en_face_update_counter = 0;
+
     while(!this->stopThread){
         if(this->pauseThread){
             pipelineSleep(5);
@@ -50,7 +54,7 @@ void OCTDisplayStage::work(){
             Payload<float> p = this->fetchPayload();
 
             if(!p.isValid()){
-                this->pipelineSleep(33);
+                this->pipelineSleep(1);
             }else{
                 try{
                     auto start = chrono::high_resolution_clock::now();
@@ -58,7 +62,7 @@ void OCTDisplayStage::work(){
                     vector<vector<unsigned long long>> dims = p.getDimensions();
                     vector<shared_ptr<vector<float>>> datas = p.getData();
 
-                    this->flushInlet();
+                    
 
                     //dims: 0 - A per B, 1 - Total B, 2 - Current B
                     auto enFace = p.findByDataName("EnFace_Slice");
@@ -74,17 +78,29 @@ void OCTDisplayStage::work(){
                         m_bscan_8bit = vector<unsigned char>(arraySize);
                     }
 
-                    m_BScanAccessMutex.lock();
-                    scaleTo8Bit(*(datas.at(0).get()), &m_bscan_8bit);
-					_writePNG(m_bscan_ptr, m_bscan_info_ptr, dims[0][1], dims[0][0], m_bscan_8bit, &m_bscan_png);
-                    m_BScanAccessMutex.unlock();
+					if (b_scan_update_counter >= 8) {
+						scaleTo8Bit(*(datas.at(0).get()), &m_bscan_8bit);
+						m_BScanAccessMutex.lock();
+						_writePNG(m_bscan_ptr, m_bscan_info_ptr, dims[0][0], dims[0][1], m_bscan_8bit, &m_bscan_png);
+						m_BScanAccessMutex.unlock();
+						b_scan_update_counter = 0;
+					}
+					else {
+						b_scan_update_counter += 1;
+					}
 
-                    m_EnFaceAccessMutex.lock();
                     vector<unsigned char> tmp_slice(dims[0][1]);
                     scaleTo8Bit(*(enFaceData.get()), &tmp_slice);
-                    memcpy(&m_enface_8bit.data()[currentFrame*dims[0][1]], tmp_slice.data(), dims[0][1]);
-					_writePNG(m_enface_ptr, m_enface_info_ptr, dims[2][0], dims[2][0], m_enface_8bit, &m_enface_png);
-                    m_EnFaceAccessMutex.unlock();
+                    memcpy(&m_enface_8bit.data()[currentFrame*dims[0][1]], tmp_slice.data(), dims[0][1]);					
+					if (en_face_update_counter >= 16) {
+						m_EnFaceAccessMutex.lock();
+						_writePNG(m_enface_ptr, m_enface_info_ptr, dims[2][0], dims[2][1], m_enface_8bit, &m_enface_png);
+						m_EnFaceAccessMutex.unlock();
+						en_face_update_counter = 0;
+					}
+					else {
+						en_face_update_counter += 1;
+					}					
 
                     if(m_FramesPerSecond != 0.0f){
                         std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long>(1/m_FramesPerSecond)));

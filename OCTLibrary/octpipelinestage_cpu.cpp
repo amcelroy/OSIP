@@ -13,6 +13,8 @@ void OCTPipelineStageCPU::configure(const OCTConfig& config){
     _PointsPerAScan = static_cast<unsigned int>(config.PointsPerAScan);
     _AScansPerBScan = static_cast<unsigned int>(config.AScansPerBScan - config.StartTrim - config.StopTrim);
     _NumberOfBScans = static_cast<unsigned int>(config.TotalBScans);
+	_BScansPerTransfer = static_cast<unsigned int>(config.BScansPerTransfer);
+
     //omp_set_num_threads(2);
 }
 
@@ -24,7 +26,7 @@ void OCTPipelineStageCPU::preStage(){
         return;
     }
 
-    //fftwf_plan_with_nthreads(1);
+    fftwf_plan_with_nthreads(4);
 
     if(_PointsPerAScan % m_AScanSplits != 0){
         log("Error, A-Scan Splits does not divide evenly");
@@ -35,14 +37,14 @@ void OCTPipelineStageCPU::preStage(){
 
     _fft_out_size = _PointsPerAScan/2 + 1;
 
-    fft_in = new vector<float>(_PointsPerAScan*_AScansPerBScan*m_AScanSplits);
-    fft_out = fftwf_alloc_complex(_fft_out_size*_AScansPerBScan*m_AScanSplits);
+    fft_in = new vector<float>(_PointsPerAScan*_AScansPerBScan*m_AScanSplits*_BScansPerTransfer);
+    fft_out = fftwf_alloc_complex(_fft_out_size*_AScansPerBScan*m_AScanSplits*_BScansPerTransfer);
 
     setEnfaceRange(1, _fft_out_size - 1);
 
     int rank = 1;
     int n[] = { static_cast<int>(_PointsPerAScan) };
-    int howmany = static_cast<int>(_AScansPerBScan*m_AScanSplits);
+    int howmany = static_cast<int>(_AScansPerBScan*m_AScanSplits*_BScansPerTransfer);
     int idist = static_cast<int>(_PointsPerAScan);
     int odist = static_cast<int>(_fft_out_size);
     int istride = 1;
@@ -103,13 +105,20 @@ void OCTPipelineStageCPU::work(){
 					}
 				}else{
 						auto start = chrono::high_resolution_clock::now();
+						vector<unsigned long long> dim = p.getFirstDimension();
+
+						unsigned long points = dim[0];
+						unsigned long ascans = dim[1];
+						unsigned long bscansTransfered = dim[2];
+
 
 						//operate on p
-						vector<unsigned long long> dim = p.getFirstDimension();
+						
 						int totalDim = 1;
 						totalDim *= dim[0];
 						totalDim *= dim[1];
-						m_CurrentFrame = static_cast<unsigned int>(dim[2]);
+						totalDim *= dim[2];
+						
 
 						shared_ptr<vector<unsigned short>> tmp = p.getFirstData();
 
@@ -146,48 +155,55 @@ void OCTPipelineStageCPU::work(){
 						time = fft_elapsed.count();
 
 						auto alloc_start = chrono::high_resolution_clock::now();
-						auto intensity = shared_ptr<vector<float>>(new vector<float>(_fft_out_size*_AScansPerBScan));
-						//auto phase = make_shared<vector<float>>(_fft_out_size*_AScansPerBScan);
-						auto atten = shared_ptr<vector<float>>(new vector<float>(_fft_out_size*_AScansPerBScan));
-						auto enFace = shared_ptr<vector<float>>(new vector<float>(_AScansPerBScan));
-						auto alloc_time = chrono::high_resolution_clock::now();
-						std::chrono::duration<double, std::milli> alloc_elapsed = alloc_time - alloc_start;
-						time = alloc_elapsed.count();
+						unsigned long bscanSizeInFloat = _PointsPerAScan * _AScansPerBScan;
+						unsigned long bscanSizeOutFloat = _fft_out_size * _AScansPerBScan;
 
-						auto mag_start = chrono::high_resolution_clock::now();
-						_computeBscan(fft_out, intensity->data(), atten->data());
-						auto mag_time = chrono::high_resolution_clock::now();
-						std::chrono::duration<double, std::milli> mag_elapsed = mag_time - mag_start;
-						time = mag_elapsed.count();
+						//TODO: Add code to split up the b-scans
+						for (int i = 0; i < _BScansPerTransfer; i++) {
+							m_CurrentFrame = static_cast<unsigned int>(dim[3]* _BScansPerTransfer + i);
 
-						_computeEnFace(intensity->data(), enFace->data());
+							auto intensity = shared_ptr<vector<float>>(new vector<float>(_fft_out_size*_AScansPerBScan)); //Ok
+							auto atten = shared_ptr<vector<float>>(new vector<float>(_fft_out_size*_AScansPerBScan));	//Ok
+							auto enFace = shared_ptr<vector<float>>(new vector<float>(_AScansPerBScan));	//Ok
+							auto alloc_time = chrono::high_resolution_clock::now();
+							std::chrono::duration<double, std::milli> alloc_elapsed = alloc_time - alloc_start;
+							time = alloc_elapsed.count();
 
-						m_RawAScanMutex.lock();
-						auto rawStartIt = fft_in->begin() + _PointsPerAScan*m_AScanToDisplay;
-						auto rawEndIt = fft_in->begin() + _PointsPerAScan*(m_AScanToDisplay + 1);
-						m_RawAScan = vector<double>(rawStartIt, rawEndIt);
-						m_RawAScanMutex.unlock();
+							auto mag_start = chrono::high_resolution_clock::now();
+							_computeBscan(fft_out + bscanSizeOutFloat *i, intensity->data(), atten->data()); //Not ok, need to way reference current bscan as function of i
+							auto mag_time = chrono::high_resolution_clock::now();
+							std::chrono::duration<double, std::milli> mag_elapsed = mag_time - mag_start;
+							time = mag_elapsed.count();
 
-						m_IntAScanMutex.lock();
-						auto startIt = intensity->begin() + _fft_out_size*m_AScanToDisplay;
-						auto endIt = intensity->begin() + _fft_out_size*(m_AScanToDisplay + 1);
-						m_IntAScan = vector<double>(startIt, endIt);
-						m_IntAScanMutex.unlock();
+							_computeEnFace(intensity->data(), enFace->data()); //Not ok, need to way reference current bscan as function of i
 
-	                    //package
-						Payload<float> p_out;
-						vector<unsigned long long> dims;
-						dims.push_back(_fft_out_size);
-						dims.push_back(_AScansPerBScan);
-						dims.push_back(m_CurrentFrame);
-						p_out.addData(dims, intensity, "Intensity");
-						p_out.addData(dims, atten, "Attenuation");
-						p_out.addData(vector<unsigned long long>{ static_cast<unsigned long long>(enFace->size()),
-																  static_cast<unsigned long long>(_NumberOfBScans) },
-																  enFace, "EnFace_Slice");
+							m_RawAScanMutex.lock();
+							auto rawStartIt = fft_in->begin() + bscanSizeInFloat * i + _PointsPerAScan * m_AScanToDisplay; //Not ok, need to way reference current bscan as function of i
+							auto rawEndIt = fft_in->begin() + bscanSizeInFloat * i + _PointsPerAScan * (m_AScanToDisplay + 1); //Not ok, need to way reference current bscan as function of i
+							m_RawAScan = vector<double>(rawStartIt, rawEndIt);
+							m_RawAScanMutex.unlock();
 
-						//send
-						this->sendPayload(p_out);
+							m_IntAScanMutex.lock();
+							auto startIt = intensity->begin() + _fft_out_size * m_AScanToDisplay; //Not ok, need to way reference current bscan as function of i
+							auto endIt = intensity->begin() + _fft_out_size * (m_AScanToDisplay + 1); //Not ok, need to way reference current bscan as function of i
+							m_IntAScan = vector<double>(startIt, endIt);
+							m_IntAScanMutex.unlock();
+
+							//package
+							Payload<float> p_out;
+							vector<unsigned long long> dims;
+							dims.push_back(_fft_out_size);
+							dims.push_back(_AScansPerBScan);
+							dims.push_back(m_CurrentFrame);
+							p_out.addData(dims, intensity, "Intensity");
+							p_out.addData(dims, atten, "Attenuation");
+							p_out.addData(vector<unsigned long long>{ static_cast<unsigned long long>(enFace->size()),
+								static_cast<unsigned long long>(_NumberOfBScans) },
+								enFace, "EnFace_Slice");
+
+							//send
+							this->sendPayload(p_out);
+						}
 
 						auto stop = chrono::high_resolution_clock::now();
 						std::chrono::duration<double, std::micro> elapsed = stop - start;

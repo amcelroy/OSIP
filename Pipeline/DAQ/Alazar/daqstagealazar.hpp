@@ -31,6 +31,8 @@ namespace OSIP{
 
 				unsigned long m_BufferSizeBytes;
 
+				bool m_BuffersCreated = false;
+
 			public:
 				DaqStageAlazar(){
 					m_SystemCount = AlazarNumOfSystems();
@@ -74,27 +76,35 @@ namespace OSIP{
 					return true;
 		        }
 
-		        void createBuffers(int N, unsigned long size){
-		        	m_Buffers.clear();
-		        	m_BufferSizeBytes = size*sizeof(unsigned short);
-					RETURN_CODE code;
-		        	for(int i = 0; i < N; i++){
-		        		m_Buffers.push_back((unsigned short*)AlazarAllocBufferU16(m_BoardHandle, size));
-						//m_Buffers.push_back(new unsigned short[size]);
-						code = AlazarPostAsyncBuffer(m_BoardHandle, m_Buffers[i], m_BufferSizeBytes);
-						if (code != ApiSuccess) {
-							this->log("Error during AlazarPostAsyncBuffer in ::daqstagealazar");
-						}
-		        	}
+				void resetBufferCount() {
+					m_CurrentBuffer = 0;
+				}
 
-		        	m_CurrentBuffer = 0;
+		        void createBuffers(int N, unsigned long size){
+					if (N != m_Buffers.size()) {
+						m_BuffersCreated = false;
+						freeBuffers();
+					}
+
+					if (!m_BuffersCreated) {
+						m_Buffers.clear();
+						m_BufferSizeBytes = size * sizeof(unsigned short);
+						RETURN_CODE code;
+						for (int i = 0; i < N; i++) {
+							m_Buffers.push_back(new unsigned short[size]);
+						}
+
+						m_BuffersCreated = true;
+					}
+					m_CurrentBuffer = 0;
 		        }
 
 		        void freeBuffers(){
 		        	for(unsigned short* b : m_Buffers){
-		        		AlazarFreeBufferU16(m_BoardHandle, b);
+						delete[] b;
 		        	}
 		        	m_Buffers.clear();
+					m_BuffersCreated = false;
 		        }
 
 				RETURN_CODE readBufferRandom(vector<unsigned short> *out) {
@@ -108,16 +118,14 @@ namespace OSIP{
 		        RETURN_CODE readBuffer(vector<unsigned short> *out){
 		        	unsigned int tmp_index = m_CurrentBuffer % m_Buffers.size();
 
-		        	RETURN_CODE code = AlazarWaitAsyncBufferComplete(m_BoardHandle, m_Buffers[tmp_index], 5000);
+		        	RETURN_CODE code = AlazarWaitNextAsyncBufferComplete(m_BoardHandle, m_Buffers[tmp_index], m_BufferSizeBytes, 5000);
 
-		        	if(code == ApiSuccess){
+		        	if(code == ApiSuccess || code == ApiTransferComplete){
 						if(out->size() != m_BufferSizeBytes/2){
 							out->resize(m_BufferSizeBytes/2);
 						}
 
 						memcpy(out->data(), m_Buffers[tmp_index], m_BufferSizeBytes);
-
-						code = AlazarPostAsyncBuffer(m_BoardHandle, m_Buffers[tmp_index], m_BufferSizeBytes);
 
 						m_CurrentBuffer += 1;
 		        	}else{

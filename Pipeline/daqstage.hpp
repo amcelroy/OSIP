@@ -36,6 +36,7 @@ namespace OSIP {
         OSIP_SLOPE TriggerSlope;
         float TriggerVoltage;
         double TriggerTimeoutSec;
+		unsigned long BScansPerTransfer;
 
         DAQParameters() : Voltage(4.0f),
                             PointsPerTrigger(1024),
@@ -50,6 +51,7 @@ namespace OSIP {
 							Coupling(OSIP_DC),
 							TriggerSlope(OSIP_RISING),
 							TriggerVoltage(0.0f),
+							BScansPerTransfer(4),
 							ClockSource(OSIP_INTERNAL_CLOCK){ }
     };
 

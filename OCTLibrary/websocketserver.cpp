@@ -192,8 +192,9 @@ WebsocketServer::WebsocketServer()
         m_octcf.readOCTConfig(m_CurrentPath, &m_octc);
 
         m_octc.TotalBScans = 128;
-        m_octc.PointsPerAScan = 1024;
+        m_octc.PointsPerAScan = 1376;
         m_octc.AScansPerBScan = 128;
+		m_octc.BScansPerTransfer = 64;
         m_octc.StartTrim = 0;
         m_octc.StopTrim = 0;
         m_OCT.setConfig(m_octc);

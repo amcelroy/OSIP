@@ -180,6 +180,8 @@ namespace OSIP {
          */
         unsigned int _NumberOfBScans;
 
+		unsigned int _BScansPerTransfer;
+
         /**
          * @brief _fftplan FFTW plan used to to compute FFT
          */
