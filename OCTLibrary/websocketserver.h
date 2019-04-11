@@ -42,9 +42,13 @@ class WebsocketServer
 
     string m_CurrentPath;
 
+	Galvos::GalvoParameters m_GalvoParameters;
+
     websocketpp::connection_hdl m_ConnectionHandle;
 
     bool m_NoConnection = true;
+
+	void _simulateUserDAQChange();
 
 public:
     WebsocketServer();

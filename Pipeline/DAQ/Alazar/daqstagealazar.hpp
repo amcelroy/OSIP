@@ -59,9 +59,9 @@ namespace OSIP{
 
 		        void stop(){
 					sig_DAQFinished();
-		        	if(m_DAQFinished == false){
-						freeBuffers();
-		        	}
+		    //    	if(m_DAQFinished == false){
+						//freeBuffers();
+		    //    	}
 		        }
 
 		        void reset(){
@@ -80,32 +80,22 @@ namespace OSIP{
 					m_CurrentBuffer = 0;
 				}
 
-		        void createBuffers(int N, unsigned long size){
-					if (N != m_Buffers.size()) {
-						m_BuffersCreated = false;
-						freeBuffers();
-					}
+		   //     void createBuffers(int N, unsigned long size){
+					//m_BufferSizeBytes = size * sizeof(unsigned short);
+					//RETURN_CODE code;
+					//for (int i = 0; i < N; i++) {
+					//	m_Buffers.push_back(new unsigned short[size]);
+					//}
+					//m_CurrentBuffer = 0;
+		   //     }
 
-					if (!m_BuffersCreated) {
-						m_Buffers.clear();
-						m_BufferSizeBytes = size * sizeof(unsigned short);
-						RETURN_CODE code;
-						for (int i = 0; i < N; i++) {
-							m_Buffers.push_back(new unsigned short[size]);
-						}
-
-						m_BuffersCreated = true;
-					}
-					m_CurrentBuffer = 0;
-		        }
-
-		        void freeBuffers(){
-		        	for(unsigned short* b : m_Buffers){
-						delete[] b;
-		        	}
-		        	m_Buffers.clear();
-					m_BuffersCreated = false;
-		        }
+		   //     void freeBuffers(){
+		   //     	for(unsigned short* b : m_Buffers){
+					//	delete[] b;
+		   //     	}
+		   //     	m_Buffers.clear();
+					//m_BuffersCreated = false;
+		   //     }
 
 				RETURN_CODE readBufferRandom(vector<unsigned short> *out) {
 					for (int i = 0; i < out->size(); i++) {
@@ -116,23 +106,29 @@ namespace OSIP{
 				}
 
 		        RETURN_CODE readBuffer(vector<unsigned short> *out){
-		        	unsigned int tmp_index = m_CurrentBuffer % m_Buffers.size();
+		        	//unsigned int tmp_index = m_CurrentBuffer % m_Buffers.size();
 
-		        	RETURN_CODE code = AlazarWaitNextAsyncBufferComplete(m_BoardHandle, m_Buffers[tmp_index], m_BufferSizeBytes, 5000);
+		        	RETURN_CODE code = AlazarWaitNextAsyncBufferComplete(m_BoardHandle, out->data(), out->size()*2, 5000);
 
 		        	if(code == ApiSuccess || code == ApiTransferComplete){
-						if(out->size() != m_BufferSizeBytes/2){
-							out->resize(m_BufferSizeBytes/2);
-						}
+						//if(out->size() != m_BufferSizeBytes/2){
+						//	out->resize(m_BufferSizeBytes/2);
+						//}
 
-						memcpy(out->data(), m_Buffers[tmp_index], m_BufferSizeBytes);
+						//memcpy(out->data(), m_Buffers[tmp_index], m_BufferSizeBytes);
 
-						m_CurrentBuffer += 1;
+						//m_CurrentBuffer += 1;
 		        	}else{
-						this->log("Error posting AlazarPostAsyncBuffer in ::readBuffer with code: " + code);
-		        		AlazarAbortAsyncRead(m_BoardHandle);
-		        		AlazarAbortCapture(m_BoardHandle);
-						AlazarClose(m_BoardHandle);
+						if (code == ApiBufferOverflow) {
+							this->log("Buffer overflow");
+							//AlazarAbortAsyncRead(m_BoardHandle);
+						}
+						else {
+							this->log("Error posting AlazarPostAsyncBuffer in ::readBuffer with code: " + code);
+							AlazarAbortAsyncRead(m_BoardHandle);
+							AlazarAbortCapture(m_BoardHandle);
+							//AlazarClose(m_BoardHandle);
+						}
 		        	}
 
 		        	return code;

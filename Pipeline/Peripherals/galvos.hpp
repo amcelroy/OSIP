@@ -2,6 +2,7 @@
 #define GALVOS_HPP
 
 #include <Peripherals/peripheral.hpp>
+#include <octconfigfile.h>
 #include <vector>
 
 using namespace OSIP;
@@ -12,15 +13,53 @@ namespace OSIP{
     namespace Peripherals{
         class Galvos : public Peripheral
         {
+		
+		public:
+			struct GalvoParameters {
+				double FastAxisAmplitude;
+				double FastAxisOffset;
+				double SlowAxisAmplitude;
+				double SlowAxisOffset;
+
+				GalvoParameters() :
+					FastAxisAmplitude(5),
+					FastAxisOffset(-2.5),
+					SlowAxisAmplitude(5),
+					SlowAxisOffset(-2.5)
+				{}		
+			};
+
         private:
             vector<double> m_FastAxisVoltages;
 
             vector<double> m_SlowAxisVoltages;
 
-        public:
-            Galvos();
+			GalvoParameters m_GalvoParameters;
 
-            ~Galvos() override;
+        public:
+			Galvos() { }
+
+			~Galvos() { }
+
+			virtual void configure(const GalvoParameters &gp, const OCTConfig &o) = 0;
+
+			vector<double> getFastAxisVoltage() { return m_FastAxisVoltages; }
+
+			vector<double> getSlowAxisVoltage() { return m_SlowAxisVoltages; }
+
+			void generateRaster(const GalvoParameters &gp, const OCTConfig &o) {
+				m_GalvoParameters = gp;
+
+				this->generateRaster(gp.SlowAxisAmplitude,
+					gp.SlowAxisOffset,
+					o.TotalBScans,
+					gp.FastAxisAmplitude,
+					gp.FastAxisOffset,
+					o.AScansPerBScan,
+					1,
+					o.StartTrim,
+					o.StopTrim);
+			}
 
             void generateRaster(double SlowAxisAmplitude,
                                 double SlowAxisOffset,
@@ -34,8 +73,8 @@ namespace OSIP{
                 unsigned long FastAxisPointsNoTrim = FastAxisPoints - StartTrim - StopTrim;
                 unsigned long totalPoints = static_cast<unsigned long>(SlowAxisPoints*FastAxisPoints*SlowAxisRepitions);
 
-                vector<float> v_SlowAxis(totalPoints);
-                vector<float> v_FastAxis(totalPoints);
+				m_SlowAxisVoltages.resize(totalPoints);
+				m_FastAxisVoltages.resize(totalPoints);
 
                 float FA = static_cast<float>(FastAxisAmplitude);
                 float FO = static_cast<float>(FastAxisOffset);
@@ -55,19 +94,19 @@ namespace OSIP{
                             long kk = j - StartTrim;
                             if (kk < 0)
                             {
-                                v_FastAxis[(i + k) * FastAxisPoints + j] = (kk) * slope * .9f + FO;
+								m_FastAxisVoltages[(i + k) * FastAxisPoints + j] = (kk) * slope * .9f + FO;
                             }
                             else if(0 <= kk && kk < static_cast<long>(FastAxisPoints))
                             {
-                                v_FastAxis[(i + k) * FastAxisPoints + j] = (kk) * slope + FO;
-                                ascan_offset = v_FastAxis[(i + k) * FastAxisPoints + j];
+								m_FastAxisVoltages[(i + k) * FastAxisPoints + j] = (kk) * slope + FO;
+                                ascan_offset = m_FastAxisVoltages[(i + k) * FastAxisPoints + j];
                             }
                             else
                             {
                                 float tmp = slope * .9f;
-                                v_FastAxis[(i + k) * FastAxisPoints + j] = v_FastAxis[(i + k) * FastAxisPoints + j - 1] + tmp;
+								m_FastAxisVoltages[(i + k) * FastAxisPoints + j] = m_FastAxisVoltages[(i + k) * FastAxisPoints + j - 1] + tmp;
                             }
-                            v_SlowAxis[(i + k) * FastAxisPoints + j] = ((float)(i / SlowAxisRepitions) / SlowAxisPoints) * SA + SO;
+							m_SlowAxisVoltages[(i + k) * FastAxisPoints + j] = ((float)(i / SlowAxisRepitions) / SlowAxisPoints) * SA + SO;
                         }
                     }
                 }

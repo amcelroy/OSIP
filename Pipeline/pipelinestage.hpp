@@ -59,17 +59,20 @@ namespace OSIP {
         }
 
         void start() {
-            sig_StageFinished();
+			sig_StageStarted();
 
-            stopThread = false;
+			stopThread = false;
 
-            preStage();
+			preStage();
 
-            _StageThread = thread(&PipelineStage<I,O>::work, this);
-            _StageThread.detach();
+			_StageThread = thread(&PipelineStage<I, O>::work, this);
+			_StageThread.detach();			
         }
 
-        void stop() { stopThread = true; }
+        void stop() { 
+			stopThread = true; 
+			this->waitFinished();
+		}
 
         void flushInlet() {
             //TODO
@@ -78,6 +81,9 @@ namespace OSIP {
 
         void flushOutlet() {
             //TODO
+			for (int i = 0; i < _Outlets.size(); i++) {
+				_Outlets[i]->flush();
+			}
         }
 
         void pause() { pauseThread = true; }
@@ -159,13 +165,21 @@ namespace OSIP {
             return boost::signals2::signal<void ()>();
         }
 
+		void waitFinished() {
+			while (!m_ThreadFinished) {
+				pipelineSleep(50);
+			}
+		}
     protected:
         virtual void preStage(){
             sig_StageStarted();
+			m_ThreadFinished = false;
         }
 
         virtual void postStage(){
             sig_StageFinished();
+			this->flushInlet();
+			m_ThreadFinished = true;
         }
 
         virtual void work() = 0;
@@ -213,6 +227,8 @@ namespace OSIP {
         bool m_ProcessingFinished = false;
 
         bool m_SavingFinished = false;
+
+		bool m_ThreadFinished = false;
 
         std::thread _StageThread;
     };

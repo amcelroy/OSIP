@@ -1,20 +1,24 @@
 #ifndef NIDAQMXGALVOS_H
 #define NIDAQMXGALVOS_H
 
-#include <NIDAQmxBase.h>
+#include <NIDAQmx.h>
 #include <Peripherals/galvos.hpp>
 
 using namespace std;
 
 namespace OSIP{
     namespace Peripherals{
-        class EXPORTED niDAQMXGalvos : public Galvos
+        class niDAQMXGalvos : public Galvos
         {
 
         public:
-            niDAQMXGalvos(string channel, unsigned long long SamplesPerChannel);
+			niDAQMXGalvos();
 
-            ~niDAQMXGalvos() override;
+			~niDAQMXGalvos() override;
+
+			void create(std::string device);
+
+			void configure(const GalvoParameters &gp, const OCTConfig &o) override;
 
             void init() override;
 

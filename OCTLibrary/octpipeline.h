@@ -13,9 +13,11 @@
 #include <DAQ/Alazar/daqstagealazar9350.hpp>
 #include "octconfigfile.h"
 #include "octdisplaystage.h"
+#include "nidaqmxgalvos.h"
 
 using namespace OSIP;
 using namespace OSIP::DAQ::Alazar;
+using namespace OSIP::Peripherals;
 
 class OCTPipeline
 {
@@ -27,7 +29,7 @@ private:
 
     shared_ptr<OSIP::OCTDisplayStage> _Display;
 
-    shared_ptr<OSIP::Peripherals::Galvos> _Galvo;
+    shared_ptr<OSIP::Peripherals::niDAQMXGalvos> _Galvo;
 
     shared_ptr<OSIP::Peripherals::Laser> _Laser;
 
@@ -40,6 +42,8 @@ private:
     OCTConfig m_OCTConfig;
 
 	bool m_LoopDAQ = false;
+
+	Galvos::GalvoParameters m_GalvoParameters;
 
 public:
     OCTPipeline(){ }
@@ -54,7 +58,7 @@ public:
 
     OSIP::Peripherals::Laser* getLaser() { return _Laser.get(); }
 
-    OSIP::Peripherals::Galvos* getGalvos() { return _Galvo.get(); }
+    OSIP::Peripherals::niDAQMXGalvos* getGalvos() { return _Galvo.get(); }
 
     void setConfig(const OCTConfig& o){
     	m_OCTConfig = o;
@@ -75,11 +79,13 @@ public:
 
     	switch(state){
     	case OCT_PIPELINE_STATES::DAQ:{
+			_Galvo = shared_ptr<niDAQMXGalvos>(new niDAQMXGalvos());
     		_Loader = shared_ptr<DaqStageAlazar9350>(new DaqStageAlazar9350());
     		DaqStageAlazar9350* daqstage = dynamic_cast<DaqStageAlazar9350*>(_Loader.get());
     		dp = OCTConfigFile::packageDAQParameters(m_OCTConfig, daqstage);
     		daqstage->updateDAQ(dp);
 			m_LoopDAQ = true;
+			_Galvo->create("/Dev1");
     		break;
     	}
 
@@ -115,6 +121,8 @@ public:
         _Loader->subscribeDAQFinished(std::bind(&OCTPipelineStageCPU::slotDAQFinished, _Processor));
         _Loader->subscribeDAQFinished(std::bind(&OCTPipeline::slotDAQFinished, this));
         _Loader->subscribeDAQStarted(std::bind(&OCTPipelineStageCPU::slotDAQStarted, _Processor));
+		_Loader->subscribeDAQStarted(std::bind(&Galvos::run, _Galvo));
+		_Loader->subscribeDAQFinished(std::bind(&Galvos::stop, _Galvo));
 
         //Signal that current frame from the loader
         //_Loader->subscribeCurrentFrame(std::bind(&OCTPipeline::slotBScanChanged, this, std::placeholders::_1));
@@ -123,18 +131,22 @@ public:
         _Processor->subscribeProcessingFinished(std::bind(&OCTPipeline::slotProcessingFinished, this));
     }
 
-    void start(const OCTConfig& config){
+    void start(const OCTConfig& config, const Galvos::GalvoParameters &gp){
+		m_GalvoParameters = gp;
 		m_OCTConfig = config;
+		_Galvo->configure(gp, config);
 		_Processor->configure(config);
         _Display->configure(config);
         _Processor->start();
         _Display->start();
         startDAQ(config);
+		m_LoopDAQ = true;
     }
 
     void stopDAQ(){
     	m_DAQRunning = false;
     	_Loader->stop();
+		//_Loader->waitFinished();
     }
 
     void startDAQ(const OCTConfig& config){
@@ -149,20 +161,21 @@ public:
     }
 
     void stop(){
-    	if(_Processor != nullptr){
-    		_Processor->stop();
-    		_Processor.reset();
-    	}
+		m_LoopDAQ = false;
 
 		//TODO: Fix error in StopDAQ
-    	if(_Loader != nullptr){
-    		stopDAQ();
-            _Loader.reset();
+		if (_Loader != nullptr) {
+			stopDAQ();
+		}
+
+    	if(_Processor != nullptr){
+    		_Processor->stop();
+			//_Processor->waitFinished();
     	}
 
     	if(_Display != nullptr){
     		_Display->stop();
-    		_Display.reset();
+			//_Display->waitFinished();
     	}
     }
 
@@ -170,7 +183,7 @@ public:
 
     void slotProcessingFinished(){
         m_ProcessingFinished  = true;
-		if (m_LoopDAQ) {
+		if (m_LoopDAQ && m_DAQRunning) {
 			DaqStageAlazar9350* daqstage = dynamic_cast<DaqStageAlazar9350*>(_Loader.get());
 			daqstage->start();
 		}

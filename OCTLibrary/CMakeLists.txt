@@ -27,10 +27,15 @@ set(ALAZAR_LIB "" CACHE FILEPATH "Alazar libats")
 set(LIBPNG_H "" CACHE PATH "Path to LIBPNG Headers")
 set(LIBPNG_LIB "" CACHE FILEPATH "Filepath to LIBPNG library")
 
+set(NIDAQmx_LIB "" CACHE FILEPATH "Path to NIDAQmx Library")
+set(NIDAQmx_H "" CACHE PATH "Path to NIDAQmx Headers")
+
 find_package(Threads)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 					${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline
+					${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/Peripherals
+					${CMAKE_CURRENT_SOURCE_DIR}/../Peripheral
 					${WEBSOCKETPP_H}
 					${ZLIB_H}
 					${FFTWF_H}
@@ -38,6 +43,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 					${ALAZAR_H}
 					${HDF5_H}
 					${LIBPNG_H}
+					${NIDAQmx_H}
 					)
 
 link_directories(${BOOST_LIB_DIR})
@@ -57,6 +63,7 @@ add_executable(OSIP
 				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/Alazar/daqstagealazar.hpp
 				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/Alazar/daqstagealazar660.hpp
 				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/Alazar/daqstagealazar9350.hpp
+				${CMAKE_CURRENT_SOURCE_DIR}/../Peripheral/nidaqmxgalvos.cpp
 				)
 
-target_link_libraries(OSIP ${ZLIB_LIB} ${FFTWF_LIB} ${ALAZAR_LIB} ${LIBPNG_LIB})
+target_link_libraries(OSIP ${ZLIB_LIB} ${FFTWF_LIB} ${ALAZAR_LIB} ${LIBPNG_LIB} ${NIDAQmx_LIB})

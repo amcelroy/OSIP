@@ -15,6 +15,8 @@
 #include <payload.hpp>
 #include <iostream>
 
+#define BUFFERS_LIVE 100
+
 namespace OSIP{
 	namespace DAQ{
 		namespace Alazar{
@@ -212,15 +214,26 @@ namespace OSIP{
 						_DAQParameters.BScansPerTransfer = 1;
 					}
 
-
-	        		m_Error = AlazarBeforeAsyncRead(m_BoardHandle,
-	        				channel,
+					if (_DAQParameters.TotalBuffers == 1) {
+						m_Error = AlazarBeforeAsyncRead(m_BoardHandle,
+							channel,
 							0,
-						_DAQParameters.PointsPerTrigger,
-						_DAQParameters.TriggersPerBuffer*_DAQParameters.BScansPerTransfer,
-						_DAQParameters.TotalBuffers*_DAQParameters.TriggersPerBuffer,
+							_DAQParameters.PointsPerTrigger,
+							_DAQParameters.TriggersPerBuffer*_DAQParameters.BScansPerTransfer,
+							0x7fffffff,
 							flags);
-	        		log("Alazar Before Aysnc Read return code: " + to_string(m_Error));
+						log("Alazar Before Aysnc Read return code: " + to_string(m_Error));
+					}
+					else {
+						m_Error = AlazarBeforeAsyncRead(m_BoardHandle,
+							channel,
+							0,
+							_DAQParameters.PointsPerTrigger,
+							_DAQParameters.TriggersPerBuffer*_DAQParameters.BScansPerTransfer,
+							_DAQParameters.TotalBuffers*_DAQParameters.TriggersPerBuffer,
+							flags);
+						log("Alazar Before Aysnc Read return code: " + to_string(m_Error));
+					}
 		        }
 
 		        void work() override {
@@ -230,12 +243,14 @@ namespace OSIP{
 
 					this->configureDAQ(_DAQParameters);
 
-					//TODO: Renable for acq
-		        	if(_DAQParameters.TotalBuffers == 1){
-		        		createBuffers(10, bufferSize);
-		        	}else{
-		        		createBuffers(_DAQParameters.TotalBuffers/_DAQParameters.BScansPerTransfer, bufferSize);
-		        	}
+					////TODO: Renable for acq
+		   //     	if(_DAQParameters.TotalBuffers == 1){
+		   //     		createBuffers(BUFFERS_LIVE, bufferSize);
+		   //     	}else{
+		   //     		createBuffers(_DAQParameters.TotalBuffers/_DAQParameters.BScansPerTransfer, bufferSize);
+		   //     	}
+
+					sig_DAQStarted();
 
 					//TODO: Renable for acq!
 		        	m_Error = AlazarStartCapture(m_BoardHandle);
@@ -249,7 +264,6 @@ namespace OSIP{
 		        				this->pipelineSleep(50);
 		        			}else{
 								shared_ptr<vector<unsigned short>> buffer(new vector<unsigned short>(bufferSize));
-								vector<unsigned short> *tmp = buffer.get();
 
 								//m_Error = readBufferRandom(buffer.get());
 								m_Error = readBuffer(buffer.get());
@@ -264,7 +278,7 @@ namespace OSIP{
 								p.addData(dim, buffer, "ATS9350");
 								this->sendPayload(p);
 
-								if(_DAQParameters.TotalBuffers == 1 || _DAQParameters.TotalBuffers == 0){
+								if(_DAQParameters.TotalBuffers == 1 && _currentFrame == 10){
 									_currentFrame = 0;
 								}else{
 									_currentFrame += 1;
@@ -273,6 +287,9 @@ namespace OSIP{
 								switch (m_Error) {
 									case ApiTransferComplete:
 										_currentFrame = 0;
+										stopThread = true;
+										break;
+									case ApiBufferOverflow:
 										stopThread = true;
 										break;
 									case ApiSuccess:
@@ -287,6 +304,7 @@ namespace OSIP{
 		        	}
 
 					m_Error = AlazarAbortAsyncRead(m_BoardHandle);
+					m_Error = AlazarAbortCapture(m_BoardHandle);
 
 		        	m_DAQFinished = true;
 
@@ -295,7 +313,11 @@ namespace OSIP{
 	        		}
 	        		this->_Log.clear();
 
+					//freeBuffers();
+
 		        	DaqStageAlazar::stop();
+
+					PipelineStage::postStage();
 		        }
 			};
 		}

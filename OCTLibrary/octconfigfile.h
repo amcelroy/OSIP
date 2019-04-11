@@ -25,6 +25,7 @@ typedef struct _OCTConfig {
     unsigned long StopTrim;
     unsigned long StartTrim;
 	unsigned long BScansPerTransfer;
+	unsigned long BScansRepitions = 1;
 } OCTConfig;
 
 class OCTConfigFile

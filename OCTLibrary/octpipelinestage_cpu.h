@@ -143,7 +143,7 @@ namespace OSIP {
         /**
          * @brief fft_in Array used to store pre-fft data
          */
-        vector<float> *fft_in;
+        vector<float> fft_in;
 
         /**
          * @brief fft_out Array to store post-fft data

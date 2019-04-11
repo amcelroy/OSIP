@@ -33,6 +33,8 @@ namespace OSIP {
 
 		bool _initialize_PNG = true;
 
+		unsigned int m_TotalBScans = 1;
+
 		void _writePNG(png_structp png, png_infop info, int w, int h, vector<unsigned char>& scaledImage, vector<unsigned char> *pngBuffer);
 
     public:
@@ -43,6 +45,7 @@ namespace OSIP {
         void configure(const OCTConfig& config){
             int width = config.AScansPerBScan - config.StartTrim - config.StopTrim;
             int height = config.TotalBScans;
+			m_TotalBScans = height;
 
 			m_enface_png.resize(static_cast<unsigned long>(width*height));
 

@@ -172,17 +172,17 @@
 
         function buttonScanSubmit(){
             var json = { "request" : "set_daq" ,  
-                        "points_per_ascan" : parseFloat(document.getElementById("textPointsPerAScan").getAttribute("value")) ,
-                        "a_per_b" : parseFloat(document.getElementById("textPointsPerAScan").getAttribute("value")) ,
-                        "bscans" : parseFloat(document.getElementById("textBScans").getAttribute("value")) ,
-                        "start_trim" : parseFloat(document.getElementById("textStartTrim").getAttribute("value")) ,
-                        "stop_trim" : parseFloat(document.getElementById("textStopTrim").getAttribute("value")) ,
-                        "voltage" : parseFloat(document.getElementById("textVoltage").getAttribute("value")) ,
-                        "bits" : parseFloat(document.getElementById("textBits").getAttribute("value")) ,
-                        "fast_axis_amp" : parseFloat(document.getElementById("textFastAxisAmplitude").getAttribute("value")) ,
-                        "fast_axis_offset" : parseFloat(document.getElementById("textFastAxisOffset").getAttribute("value")) ,
-                        "slow_axis_amp" : parseFloat(document.getElementById("textSlowAxisAmplitude").getAttribute("value")) ,
-                        "slow_axis_offset" : parseFloat(document.getElementById("textSlowAxisOffset").getAttribute("value")) };
+                        "points_per_ascan" : parseFloat(document.getElementById("textPointsPerAScan").value) ,
+                        "a_per_b" : parseFloat(document.getElementById("textAPerB").value) ,
+                        "bscans" : parseFloat(document.getElementById("textBScans").value) ,
+                        "start_trim" : parseFloat(document.getElementById("textStartTrim").value) ,
+                        "stop_trim" : parseFloat(document.getElementById("textStopTrim").value) ,
+                        "voltage" : parseFloat(document.getElementById("textVoltage").value) ,
+                        "bits" : parseFloat(document.getElementById("textBits").value) ,
+                        "fast_axis_amp" : parseFloat(document.getElementById("textFastAxisAmplitude").value) ,
+                        "fast_axis_offset" : parseFloat(document.getElementById("textFastAxisOffset").value) ,
+                        "slow_axis_amp" : parseFloat(document.getElementById("textSlowAxisAmplitude").value) ,
+                        "slow_axis_offset" : parseFloat(document.getElementById("textSlowAxisOffset").value) };
             socket.send(JSON.stringify(json));
         }
 
