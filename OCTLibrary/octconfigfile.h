@@ -7,10 +7,10 @@
 #include <string>
 #include <sstream>
 #include <cmath>
-#include <DAQ/Alazar/daqstagealazar9350.hpp>
+#include <daqstage.hpp>
 
 using namespace std;
-using namespace OSIP::DAQ::Alazar;
+using namespace OSIP;
 
 typedef struct _OCTConfig {
 	string PathConfig;
@@ -35,9 +35,9 @@ public:
 
     bool readOCTConfig(string path, OCTConfig *config);
 
-    bool writeOCTConfig(string path, const OCTConfig& config) { return true; }
+	bool writeOCTConfig(string path, const OCTConfig& config);
 
-    static DAQParameters packageDAQParameters(const OCTConfig& o, DaqStageAlazar9350 *d){
+    static DAQParameters packageDAQParameters(const OCTConfig& o, DAQStage<unsigned short> *d){
     	DAQParameters p = d->getDefaultDAQParameters();
 
     	p.TotalBuffers = o.TotalBScans;

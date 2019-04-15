@@ -50,6 +50,8 @@ class WebsocketServer
 
 	void _simulateUserDAQChange();
 
+	void _simulateModeChange();
+
 public:
     WebsocketServer();
 

@@ -5,11 +5,12 @@
 #include "boost/signals2.hpp"
 #include "boost/endian/arithmetic.hpp"
 #include "boost/endian/conversion.hpp"
-//#include "boost/filesystem.hpp"
-#include "hdf5.h"
-#include "H5Cpp.h"
-#include "zlib.h"
+#include "boost/filesystem.hpp"
+//#include "hdf5.h"
+//#include "H5Cpp.h"
+//#include "zlib.h"
 #include <fstream>
+#include "octconfigfile.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -28,12 +29,14 @@ namespace OSIP {
 
         bool m_FolderPathSet = false;
 
-        H5::H5File* m_H5File;
+        //H5::H5File* m_H5File;
 
-        H5::DataType m_H5Type;
+        //H5::DataType m_H5Type;
+
+		bool m_Save = false;
     public:
-        SavingStage(H5::DataType dt){
-            m_H5Type = dt;
+        SavingStage(){ //H5::DataType dt){
+            //m_H5Type = dt;
         }
 
         /**
@@ -42,35 +45,17 @@ namespace OSIP {
          * @return True if the folder path both exists and is a folder, false otherwise
          */
         bool setSavePath(string FolderPath){
-            //From: https://stackoverflow.com/questions/18100097/portable-way-to-check-if-directory-exists-windows-linux-c/18101042
+            //boost::filesystem::path p(FolderPath);
+            //if(boost::filesystem::exists(p)){ //valid folder?
+            //    if(boost::filesystem::is_directory(p)){ //valid directory?
+            //        this->m_FolderPath = FolderPath;
+            //        this->m_FolderPathSet = true;
+            //        return true;
+            //    }
+            //}
 
-            struct stat info;
-
-            if( stat( FolderPath.c_str(), &info ) != 0 ){
-                //printf( "cannot access %s\n", pathname );
-            }else if( info.st_mode & S_IFDIR ){
-                //folder exists
-                this->m_FolderPath = FolderPath;
-                this->m_FolderPathSet = true;
-                return true;
-            }else{
-                //printf( "%s is no directory\n", pathname );
-            }
-
-
-
-
-//            boost::filesystem::path p(FolderPath);
-//            if(boost::filesystem::exists(p)){ //valid folder?
-//                if(boost::filesystem::is_directory(p)){ //valid directory?
-//                    this->m_FolderPath = FolderPath;
-//                    this->m_FolderPathSet = true;
-//                    return true;
-//                }
-//            }
-
-            m_FolderPathSet = false;
-            return false;
+            //m_FolderPathSet = false;
+            //return false;
         }
 
         /**
@@ -97,6 +82,20 @@ namespace OSIP {
             sig_SavingFinished.disconnect_all_slots();
         }
 
+		void save(const string &path, const OCTConfig &p) {
+			m_Save = true;
+
+			OCTConfigFile o;
+
+			this->m_FolderPath = path;
+			
+			m_Filename = path + "\\" + "data.bin";
+			string param = path + "\\" + "parameters.oct_scan";
+
+			o.writeOCTConfig(param, p);
+	
+			m_FolderPathSet = true;
+		}
     protected:
 
         void work() override{
@@ -104,16 +103,18 @@ namespace OSIP {
                 //not found, create stream and add to map
                 //std::filesystem::path folderPath(this->m_FolderPath);
 
-                string name;
-                if(m_Filename == ""){
-                    name = "dataset.h5";
-                }else{
-                    name = m_Filename;
-                }
+                //string name;
+                //if(m_Filename == ""){
+                //    name = "data.bin";
+                //}else{
+                //    name = m_Filename;
+                //}
 
-                string fullpath = this->m_FolderPath + name;
+                //string fullpath = this->m_FolderPath + "\\" + name;
 
-                m_H5File = new H5::H5File(fullpath, H5F_ACC_TRUNC);
+                //m_H5File = new H5::H5File(fullpath, H5F_ACC_TRUNC);
+
+				std::ofstream file(m_Filename);
 
                 map<string, unsigned long long> frameCount;
 
@@ -128,39 +129,46 @@ namespace OSIP {
                             this->pipelineSleep(10);
 
                             if(this->m_DAQFinished && this->_Inlet->getItemsInInlet() == 0){
-                                this->stop();
+								m_Save = false; //Saving completed
+								stopThread = true;
                             }
                         }else{
-                            vector<string> labels = p.getDataNames();
-                            vector<vector<unsigned long long>> dims = p.getDimensions();
-                            vector<shared_ptr<vector<I>>> data = p.getData();
+							if (m_Save) {
+								vector<string> labels = p.getDataNames();
+								vector<vector<unsigned long long>> dims = p.getDimensions();
+								shared_ptr<vector<I>> data = p.getFirstData();
 
-                            auto start = chrono::high_resolution_clock::now();
-                            //For each label, either create a new dataspace or append to it
-                            for(unsigned long i = 0; i < labels.size(); i++){
-                                //Check if the HDF5 File already has a group of the label name
-                                if(!m_H5File->exists(labels[i])){
-                                    frameCount[labels[i]] = 0;
+								auto start = chrono::high_resolution_clock::now();
+								//For each label, either create a new dataspace or append to it
+								for (unsigned long i = 0; i < labels.size(); i++) {
+									file.write(reinterpret_cast<const char*>(data->data()), data->size() * 2);
+									////Check if the HDF5 File already has a group of the label name
+									//if (!m_H5File->exists(labels[i])) {
+									//	frameCount[labels[i]] = 0;
 
-                                    H5::Group g = m_H5File->createGroup(labels[i]);
-                                    g.close();
-                                }
+									//	H5::Group g = m_H5File->createGroup(labels[i]);
+									//	g.close();
+									//}
 
-                                H5::DataSet* dataset = _createDataSet("/" + labels[i] + "/" + to_string(frameCount[labels[i]]),
-                                        H5::DataSpace(dims[i].size(), dims[i].data()));
-                                _writeDataSet(dataset, data[i]->data());
-                                dataset->close();
-                                frameCount[labels[i]] += 1;
-                            }
-                            auto stop = chrono::high_resolution_clock::now();
+									//H5::DataSet* dataset = _createDataSet("/" + labels[i] + "/" + to_string(frameCount[labels[i]]),
+									//	H5::DataSpace(dims[i].size(), dims[i].data()));
+									//_writeDataSet(dataset, data[i]->data());
+									//dataset->close();
+									//frameCount[labels[i]] += 1;
+								}
+								auto stop = chrono::high_resolution_clock::now();
 
-                            std::chrono::duration<double, std::micro> elapsed = stop - start;
-                            this->sig_StageTimer(elapsed.count());
+								std::chrono::duration<double, std::micro> elapsed = stop - start;
+								this->sig_StageTimer(elapsed.count());
+
+								p.finished();
+							}
                         }
                     }
                 }
 
-                m_H5File->close();
+                //m_H5File->close();
+				file.close();
 
                 this->sig_SavingFinished(false, "Saving Completed");
             }else{
@@ -170,16 +178,18 @@ namespace OSIP {
             }
 
             this->postStage();
+
+			PipelineStage::postStage();
         }
 
     private:
-        H5::DataSet* _createDataSet(const string &name, const H5::DataSpace &ds){
-            return new H5::DataSet(m_H5File->createDataSet(name, m_H5Type, ds));
-        }
+        //H5::DataSet* _createDataSet(const string &name, const H5::DataSpace &ds){
+        //    return new H5::DataSet(m_H5File->createDataSet(name, m_H5Type, ds));
+        //}
 
-        void _writeDataSet(H5::DataSet* ds, void *v){
-            ds->write(v, m_H5Type);
-        }
+        //void _writeDataSet(H5::DataSet* ds, void *v){
+        //    ds->write(v, m_H5Type);
+        //}
     };
 }
 

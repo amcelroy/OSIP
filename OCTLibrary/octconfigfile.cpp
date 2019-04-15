@@ -1,5 +1,11 @@
 #include "octconfigfile.h"
 
+bool OCTConfigFile::writeOCTConfig(string path, const OCTConfig& config) {
+
+
+	return true;
+}
+
 bool OCTConfigFile::readOCTConfig(string path, OCTConfig *config){
     try{
     	string config_path = path + "parameters.oct_scan";

@@ -170,6 +170,11 @@ namespace OSIP {
 				pipelineSleep(50);
 			}
 		}
+
+		bool isRunning() {
+			return !m_ThreadFinished;
+		}
+
     protected:
         virtual void preStage(){
             sig_StageStarted();

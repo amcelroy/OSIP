@@ -1,6 +1,6 @@
 #include "websocketserver.h"
 
-//#define SIMULATE_UI
+#define SIMULATE_UI
 
 json WebsocketServer::_getDAQ(){
     json response = { { "response" , "get_daq" },
@@ -219,6 +219,34 @@ void WebsocketServer::_simulateUserDAQChange() {
 	m_OCT.start(o, gp);
 }
 
+void WebsocketServer::_simulateModeChange() {
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+
+	OCTConfig o;
+	o.PointsPerAScan = static_cast<unsigned long>(2048);
+	o.AScansPerBScan = static_cast<unsigned long>(512);
+	o.TotalBScans = static_cast<unsigned long>(1);
+	o.StartTrim = static_cast<unsigned long>(0);
+	o.StopTrim = static_cast<unsigned long>(0);
+	o.Range = static_cast<float>(2.0f / 65535.0f);
+	o.Bits = static_cast<unsigned long>(16);
+	o.BScansPerTransfer = static_cast <unsigned long>(1);
+	o.Gain = 2 / (65535);
+	o.Bias = 2;
+
+	Galvos::GalvoParameters gp;
+	gp.FastAxisAmplitude = 5;
+	gp.FastAxisOffset = 0;
+	gp.SlowAxisAmplitude = 5;
+	gp.SlowAxisOffset = 0;
+
+	m_OCT.changeMode(OCTPipeline::PLAYBACK);
+	m_OCT.start(o, gp);
+
+	//m_OCT.stop();
+	//m_OCT.start(o, gp);
+}
+
 WebsocketServer::WebsocketServer()
 {
     try {
@@ -248,6 +276,7 @@ WebsocketServer::WebsocketServer()
 		m_GalvoParameters.SlowAxisAmplitude = 5;
 		m_GalvoParameters.SlowAxisOffset = -2.5;
 
+		m_OCT.setDataFolder("oct_data");
         m_OCT.getDisplay()->setMin(-20);
         m_OCT.getDisplay()->setMax(40);
         m_OCT.getLoader()->setLoop(false);
@@ -259,7 +288,9 @@ WebsocketServer::WebsocketServer()
         m_NoConnection = true;
 
 #ifdef SIMULATE_UI
-		std::thread simulateUserEvent(&WebsocketServer::_simulateUserDAQChange, this);
+		//std::thread simulateUserEvent(&WebsocketServer::_simulateUserDAQChange, this);
+		std::thread simulateUserEvent(&WebsocketServer::_simulateModeChange, this);
+		simulateUserEvent.detach();
 #endif // SIMULATE_UI
 
     } catch (websocketpp::exception const & e) {
