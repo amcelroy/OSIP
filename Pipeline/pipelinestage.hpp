@@ -233,7 +233,7 @@ namespace OSIP {
 
         bool m_SavingFinished = false;
 
-		bool m_ThreadFinished = false;
+		bool m_ThreadFinished = true;
 
         std::thread _StageThread;
     };

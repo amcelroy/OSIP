@@ -121,7 +121,7 @@ void OCTPipelineStageCPU::work(){
 						shared_ptr<vector<unsigned short>> tmp = p.getFirstData();
 
 						//Safety check for Points per AScan and A per B
-						if (_PointsPerAScan != dim[0] || _AScansPerBScan != dim[1] || fft_in.size() != tmp->size() || _BScansPerTransfer != dim[2]) {
+						if (_PointsPerAScan != dim[0] || _AScansPerBScan != dim[1] || fft_in.size() != tmp->size()) {
 							p.finished();
 							this->flushInlet();
 						}

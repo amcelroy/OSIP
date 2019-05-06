@@ -1,6 +1,6 @@
 #include "websocketserver.h"
 
-#define SIMULATE_UI
+//#define SIMULATE_UI
 
 json WebsocketServer::_getDAQ(){
     json response = { { "response" , "get_daq" },
@@ -32,7 +32,8 @@ void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr ms
 
             return;
         }else if(!request.compare("save")){
-
+			m_OCT.stop();
+			m_OCT.start(m_octc, m_GalvoParameters, true);
         }else if(!request.compare("list")){
 
         }else if(!request.compare("run")){
@@ -47,16 +48,16 @@ void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr ms
 				m_WebsocketServer.send(hdl, response.dump(), websocketpp::frame::opcode::TEXT);
         	}
 
-        	if(m_OCT.getLoader()->typeName() == "DaqStageAlazar660"){
-        		_getDAQ();
-        		m_WebsocketServer.send(hdl, _getDAQ().dump(), websocketpp::frame::opcode::TEXT);
-        		m_OCT.startDAQ(m_octc);
-        	}
+        	//if(m_OCT.getLoader()->typeName() == "DaqStageAlazar660"){
+        	//	_getDAQ();
+        	//	m_WebsocketServer.send(hdl, _getDAQ().dump(), websocketpp::frame::opcode::TEXT);
+        	//	m_OCT.startDAQ(m_octc, false);
+        	//}
 
             return;
 		}
 		else if (!request.compare("stop")) {
-			m_OCT.stopDAQ();
+			m_OCT.stop();
         }else if(!request.compare("load")){
             //request["path"];
             response = { { "response" , "load" } ,
@@ -95,14 +96,18 @@ void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr ms
 			o.Gain = 4.0f / 65535.0f;
 			o.Bias = 2;
 
+			m_octc = o;
+
 			Galvos::GalvoParameters gp;
 			gp.FastAxisAmplitude = faa;
 			gp.FastAxisOffset = fao;
 			gp.SlowAxisAmplitude = saa;
 			gp.SlowAxisOffset = sao;
 
+			m_GalvoParameters = gp;
+
 			m_OCT.stop();
-  			m_OCT.start(o, gp);
+  			m_OCT.start(o, gp, false);
         }else if(!request.compare("get_daq")){
             m_WebsocketServer.send(hdl, _getDAQ().dump(), websocketpp::frame::opcode::TEXT);
         }else if(!request.compare("system_status")){
@@ -216,16 +221,16 @@ void WebsocketServer::_simulateUserDAQChange() {
 	gp.SlowAxisOffset = 0;
 
 	m_OCT.stop();
-	m_OCT.start(o, gp);
+	m_OCT.start(o, gp, false);
 }
 
 void WebsocketServer::_simulateModeChange() {
 	std::this_thread::sleep_for(std::chrono::seconds(5));
 
 	OCTConfig o;
-	o.PointsPerAScan = static_cast<unsigned long>(2048);
-	o.AScansPerBScan = static_cast<unsigned long>(512);
-	o.TotalBScans = static_cast<unsigned long>(1);
+	o.PointsPerAScan = static_cast<unsigned long>(512);
+	o.AScansPerBScan = static_cast<unsigned long>(128);
+	o.TotalBScans = static_cast<unsigned long>(128);
 	o.StartTrim = static_cast<unsigned long>(0);
 	o.StopTrim = static_cast<unsigned long>(0);
 	o.Range = static_cast<float>(2.0f / 65535.0f);
@@ -241,7 +246,7 @@ void WebsocketServer::_simulateModeChange() {
 	gp.SlowAxisOffset = 0;
 
 	m_OCT.changeMode(OCTPipeline::PLAYBACK);
-	m_OCT.start(o, gp);
+	m_OCT.start(o, gp, false);
 
 	//m_OCT.stop();
 	//m_OCT.start(o, gp);
@@ -262,10 +267,10 @@ WebsocketServer::WebsocketServer()
 
         m_octcf.readOCTConfig(m_CurrentPath, &m_octc);
 
-        m_octc.TotalBScans = 1;
+        m_octc.TotalBScans = 128;
         m_octc.PointsPerAScan = 1376;
-        m_octc.AScansPerBScan = 512;
-		m_octc.BScansPerTransfer = 1;
+        m_octc.AScansPerBScan = 128;
+		m_octc.BScansPerTransfer = 64;
         m_octc.StartTrim = 0;
         m_octc.StopTrim = 0;
         m_OCT.setConfig(m_octc);
@@ -283,7 +288,7 @@ WebsocketServer::WebsocketServer()
         m_OCT.getProcessor()->subscribeProcessingFinished(std::bind(&WebsocketServer::datasetFinished, this));
         m_OCT.getProcessor()->setAScanSplits(1);
         m_OCT.getProcessor()->setEnfaceRange(1, 10);
-        m_OCT.start(m_octc, m_GalvoParameters);
+        m_OCT.start(m_octc, m_GalvoParameters, false);
 
         m_NoConnection = true;
 

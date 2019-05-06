@@ -11,6 +11,7 @@
 //#include "zlib.h"
 #include <fstream>
 #include "octconfigfile.h"
+#include <Peripherals/galvos.hpp>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -82,7 +83,7 @@ namespace OSIP {
             sig_SavingFinished.disconnect_all_slots();
         }
 
-		void save(const string &path, const OCTConfig &p) {
+		void save(const string &path, const OCTConfig &p, const Peripherals::Galvos::GalvoParameters& gp) {
 			m_Save = true;
 
 			OCTConfigFile o;
@@ -92,14 +93,20 @@ namespace OSIP {
 			m_Filename = path + "\\" + "data.bin";
 			string param = path + "\\" + "parameters.oct_scan";
 
-			o.writeOCTConfig(param, p);
+			o.writeOCTConfig(param, p, gp.FastAxisAmplitude, gp.FastAxisOffset, gp.SlowAxisAmplitude, gp.SlowAxisOffset);
 	
 			m_FolderPathSet = true;
 		}
     protected:
 
+		void preStage() override {
+			stopThread = false;
+			m_DAQFinished = false;
+			PipelineStage::preStage();
+		}
+
         void work() override{
-            if(this->m_FolderPathSet){
+            //if(this->m_FolderPathSet){
                 //not found, create stream and add to map
                 //std::filesystem::path folderPath(this->m_FolderPath);
 
@@ -114,7 +121,7 @@ namespace OSIP {
 
                 //m_H5File = new H5::H5File(fullpath, H5F_ACC_TRUNC);
 
-				std::ofstream file(m_Filename);
+				std::ofstream file;
 
                 map<string, unsigned long long> frameCount;
 
@@ -128,9 +135,11 @@ namespace OSIP {
                         if(!p.isValid()){
                             this->pipelineSleep(10);
 
-                            if(this->m_DAQFinished && this->_Inlet->getItemsInInlet() == 0){
+							string name = p.getFirstLabel();
+                            if(this->m_DAQFinished && this->_Inlet->getItemsInInlet() == 0 && name.compare("final_frame") && m_Save){
 								m_Save = false; //Saving completed
-								stopThread = true;
+								file.flush();
+								file.close();
                             }
                         }else{
 							if (m_Save) {
@@ -141,7 +150,11 @@ namespace OSIP {
 								auto start = chrono::high_resolution_clock::now();
 								//For each label, either create a new dataspace or append to it
 								for (unsigned long i = 0; i < labels.size(); i++) {
+									if (!file.is_open()) {
+										file.open(m_Filename);
+									}
 									file.write(reinterpret_cast<const char*>(data->data()), data->size() * 2);
+									
 									////Check if the HDF5 File already has a group of the label name
 									//if (!m_H5File->exists(labels[i])) {
 									//	frameCount[labels[i]] = 0;
@@ -160,9 +173,12 @@ namespace OSIP {
 
 								std::chrono::duration<double, std::micro> elapsed = stop - start;
 								this->sig_StageTimer(elapsed.count());
-
-								p.finished();
 							}
+							else {
+								this->flushInlet();
+							}
+
+							p.finished();
                         }
                     }
                 }
@@ -171,11 +187,11 @@ namespace OSIP {
 				file.close();
 
                 this->sig_SavingFinished(false, "Saving Completed");
-            }else{
-                string error = "Folder path not set for the Saving Stage";
-                this->sig_MessageLogged(error);
-                this->sig_SavingFinished(true, error);
-            }
+            //}else{
+            //    string error = "Folder path not set for the Saving Stage";
+            //    this->sig_MessageLogged(error);
+            //    this->sig_SavingFinished(true, error);
+            //}
 
             this->postStage();
 

@@ -103,7 +103,7 @@ public:
     		break;
     	} 
 
-		_Saving = shared_ptr<SavingStage<unsigned short>>(new SavingStage<unsigned short>(H5T_STD_U16BE));
+		_Saving = shared_ptr<SavingStage<unsigned short>>(new SavingStage<unsigned short>());
         _Processor = shared_ptr<OCTPipelineStageCPU>(new OCTPipelineStageCPU());
         _Display = shared_ptr<OCTDisplayStage>(new OCTDisplayStage());
 
@@ -129,7 +129,8 @@ public:
         _Processor->subscribeProcessingFinished(std::bind(&OCTPipeline::slotProcessingFinished, this));
     }
 
-    void start(const OCTConfig& config, const Galvos::GalvoParameters &gp){
+
+    void start(const OCTConfig& config, const Galvos::GalvoParameters &gp, bool save){
 		m_GalvoParameters = gp;
 		m_OCTConfig = config;
 		_Galvo->configure(gp, config);
@@ -137,42 +138,8 @@ public:
         _Display->configure(config);
         _Processor->start();
         _Display->start();
-        startDAQ(config);
+        startDAQ(config, save);
 		m_LoopDAQ = true;
-    }
-
-    void stopDAQ(){
-    	m_DAQRunning = false;
-    	_Loader->stop();
-		//_Loader->waitFinished();
-    }
-
-    void startDAQ(const OCTConfig& config){
-		m_OCTConfig = config;
-		DAQParameters dp;
-		DaqStageAlazar9350* daqstage;
-		LoadOCTPipeline* load;
-
-    	if(!m_DAQRunning){
-			switch (m_State) {
-			case OCT_PIPELINE_STATES::DAQ:
-				daqstage = dynamic_cast<DaqStageAlazar9350*>(_Loader.get());
-				dp = OCTConfigFile::packageDAQParameters(m_OCTConfig, daqstage);
-				daqstage->updateDAQ(dp);
-				daqstage->start();
-				m_DAQRunning = true;
-				break;
-
-			case OCT_PIPELINE_STATES::PLAYBACK:
-				load = dynamic_cast<LoadOCTPipeline*>(_Loader.get());
-				//DAQParameters dp = OCTConfigFile::packageDAQParameters(m_OCTConfig, daqstage);
-				load->start();
-				m_DAQRunning = true;
-				break;
-			}
-    	}
-
-		_Saving->start();
     }
 
     void stop(){
@@ -233,6 +200,59 @@ public:
 		Galvos::GalvoParameters m_GalvoParameters;
 
 		OCT_PIPELINE_STATES m_State;
+
+		void stopDAQ() {
+			m_DAQRunning = false;
+			_Loader->stop();
+			//_Loader->waitFinished();
+		}
+
+		void startDAQ(const OCTConfig& config, bool saveData) {
+			m_OCTConfig = config;
+			DAQParameters dp;
+			DaqStageAlazar9350* daqstage;
+			LoadOCTPipeline* load;
+
+			if (!m_DAQRunning) {
+				switch (m_State) {
+				case OCT_PIPELINE_STATES::DAQ:
+					daqstage = dynamic_cast<DaqStageAlazar9350*>(_Loader.get());
+					dp = OCTConfigFile::packageDAQParameters(m_OCTConfig, daqstage);
+					daqstage->updateDAQ(dp);
+					daqstage->start();
+					m_DAQRunning = true;
+					break;
+
+				case OCT_PIPELINE_STATES::PLAYBACK:
+					load = dynamic_cast<LoadOCTPipeline*>(_Loader.get());
+					//DAQParameters dp = OCTConfigFile::packageDAQParameters(m_OCTConfig, daqstage);
+					load->start();
+					m_DAQRunning = true;
+					break;
+				}
+			}
+
+			_Saving->start();
+
+			if (saveData) {
+				time_t raw_time;
+				struct tm *timeinfo;
+				char buffer[80];
+				string path = "c:\\oct_data\\";
+
+				time(&raw_time);
+				timeinfo = localtime(&raw_time);
+
+				strftime(buffer, 80, "%F_%H.%M.%S", timeinfo);
+				string formatted_time(buffer);
+				path += formatted_time;
+
+				boost::filesystem::path p(path);
+				boost::filesystem::create_directory(p);
+
+				_Saving->save(path, config, _Galvo->getGalvoParameters());
+			}
+		}
 };
 
 #endif // OCTPIPELINE_H

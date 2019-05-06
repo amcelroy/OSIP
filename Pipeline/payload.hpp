@@ -101,7 +101,15 @@ namespace OSIP {
          * @brief getDimensions Convenience function to get the first label
          * @return Label at location 0
          */
-        std::string getFirstLabel() { return _Labels.at(0); }
+        std::string getFirstLabel() { 
+			if (_Labels.size() > 0) {
+				return _Labels.at(0);
+			}
+			else {
+				return "";
+			}
+			
+		}
 
         /**
          * @brief getData Returns all shared_ptr<I> data stored in this Payload

@@ -83,6 +83,8 @@ add_executable(OSIPSaving
 				main_saving.cpp 
 				octconfigfile.cpp
 				octconfigfile.h
+				octpipelinestage_cpu.cpp
+				octpipelinestage_cpu.h
 				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/daqstagegenerated.hpp
 				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/savingstage.hpp
 				)
@@ -96,6 +98,7 @@ target_link_libraries(OSIPSaving
 						optimized ${HDF5_CPP_HL_LIB} 
 						${SZIP_LIB}
 						${ZLIB_LIB} 
+						${FFTWF_LIB}
 						debug ${HDF5_C_D_LIB} 
 						debug ${HDF5_CPP_D_LIB} 
 						debug ${HDF5_CPP_D_HL_LIB})

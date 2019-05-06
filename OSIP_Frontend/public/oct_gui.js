@@ -151,6 +151,11 @@
             clearInterval(handle_FrameRequester);
         }
 
+        function recordButtonClick() {
+            var j = { "request" : "save" };
+            socket.send(JSON.stringify(j));
+        }
+
         function enfaceButtonCick(){
             g_stopPlayback = 1;
             var j = { "request" : "load" };

@@ -41,6 +41,8 @@ namespace OSIP{
 
 			~Galvos() { }
 
+			GalvoParameters getGalvoParameters() { return m_GalvoParameters; }
+
 			virtual void configure(const GalvoParameters &gp, const OCTConfig &o) = 0;
 
 			vector<double> getFastAxisVoltage() { return m_FastAxisVoltages; }

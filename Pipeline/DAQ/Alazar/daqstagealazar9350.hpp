@@ -275,7 +275,13 @@ namespace OSIP{
 								dim.push_back(_DAQParameters.BScansPerTransfer);
 								dim.push_back(_currentFrame);
 
-								p.addData(dim, buffer, "ATS9350");
+								string label = "ATS9350";
+
+								if (_currentFrame == _DAQParameters.TotalBuffers - 1) {
+									label = "final_frame";
+								}
+
+								p.addData(dim, buffer, label);
 								this->sendPayload(p);
 
 								if(_DAQParameters.TotalBuffers == 1 && _currentFrame == 10){

@@ -35,7 +35,7 @@ public:
 
     bool readOCTConfig(string path, OCTConfig *config);
 
-	bool writeOCTConfig(string path, const OCTConfig& config);
+	bool writeOCTConfig(string path, const OCTConfig& config, float FastAxisAmp, float FastAxisOff, float SlowAxisAmp, float SlowAxisOff);
 
     static DAQParameters packageDAQParameters(const OCTConfig& o, DAQStage<unsigned short> *d){
     	DAQParameters p = d->getDefaultDAQParameters();

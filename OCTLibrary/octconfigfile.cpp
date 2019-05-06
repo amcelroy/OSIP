@@ -1,7 +1,31 @@
 #include "octconfigfile.h"
 
-bool OCTConfigFile::writeOCTConfig(string path, const OCTConfig& config) {
+bool OCTConfigFile::writeOCTConfig(string path, const OCTConfig& config, float FastAxisAmp, float FastAxisOff, float SlowAxisAmp, float SlowAxisOff) {
+	string config_path = path + "parameters.oct_scan";
 
+	ofstream fileout(config_path);
+
+	stringstream ss;
+	ss << "[SCAN PARAMETERS]" << endl;
+	ss << "Range = " << to_string(config.Range) << endl;
+	ss << "Bits = " << to_string(config.Bits) << endl;
+	ss << "A - Scans Per Transfer = " << to_string(config.BScansPerTransfer) << endl; 
+	ss << "B - Scans = " << to_string(config.TotalBScans) << endl;
+	ss << "A - Scans per B - Scan = " << to_string(config.AScansPerBScan) << endl;
+	ss << "Points Per A - Scan = " << to_string(config.PointsPerAScan) << endl;
+	ss << "Start Trim = " << to_string(config.StartTrim) << endl;
+	ss << "Stop Trim = " << to_string(config.StopTrim) << endl;
+	ss << "B - Scan Repition = " << to_string(config.BScansRepitions) << endl; 
+	ss << endl;
+	ss << "[GALVO_SETTINGS]" << endl;
+	ss << "Fast Axis Offset = " << to_string(FastAxisOff) << endl;
+	ss << "Slow Axis Offset = " << to_string(SlowAxisOff) << endl;
+	ss << "Fast Axis Amp = " << to_string(FastAxisAmp) << endl;
+	ss << "Slow Axis Amp = " << to_string(SlowAxisAmp) << endl;
+
+	fileout << ss.rdbuf();
+
+	fileout.close();
 
 	return true;
 }

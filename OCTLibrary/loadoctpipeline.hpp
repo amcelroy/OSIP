@@ -79,7 +79,7 @@ namespace OSIP {
                                                         static_cast<unsigned char>(buffer[j + 1]);
                     }
 
-                    _dim[2] = i;
+                    _dim[3] = i;
                     Payload<unsigned short> p(_dim, recastData, "Loaded BScan");
                     this->sendPayload(p);
 
@@ -174,6 +174,7 @@ namespace OSIP {
             _dim = vector<unsigned long long>();
             _dim.push_back(dim1); //Points in A-Scan
             _dim.push_back(dim2); //A-Scans per B-Scan
+			_dim.push_back(1);
             _dim.push_back(0); //current frame
         }
 
@@ -204,7 +205,9 @@ namespace OSIP {
             m_StopAScan = stopAScan;
         }
     protected:
-        void preStage() override{ }
+        void preStage() override{
+			PipelineStage::preStage();
+		}
 
         void work() override{
             while(m_State != LOAD_STATE::STOP){
