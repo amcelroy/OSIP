@@ -60,8 +60,8 @@ namespace OSIP {
 				while (stopThread == false) {
 					pipelineSleep(10);
 					
-					shared_ptr<vector<unsigned short>> buffer(new vector<unsigned short>(_DAQParameters.PointsPerTrigger*_DAQParameters.TriggersPerBuffer));
-					for (int i = 0; i < _DAQParameters.TriggersPerBuffer; i++) {
+					shared_ptr<vector<unsigned short>> buffer(new vector<unsigned short>(_DAQParameters.PointsPerTrigger*_DAQParameters.TriggersPerBuffer*_DAQParameters.BScansPerTransfer));
+					for (int i = 0; i < _DAQParameters.TriggersPerBuffer*_DAQParameters.BScansPerTransfer; i++) {
 						for (int j = 0; j < _DAQParameters.PointsPerTrigger; j++) {
 							buffer->data()[i*_DAQParameters.PointsPerTrigger + j] = j;
 						}
@@ -71,19 +71,23 @@ namespace OSIP {
 					vector<unsigned long long> dim;
 					dim.push_back(_DAQParameters.PointsPerTrigger);
 					dim.push_back(_DAQParameters.TriggersPerBuffer);
+					dim.push_back(_DAQParameters.BScansPerTransfer);
+					dim.push_back(frameCounter);
 
-					if (frameCounter == _DAQParameters.TotalBuffers - 1) {
+					if (frameCounter > _DAQParameters.TotalBuffers - 1) {
 						//Stop thread
 						stopThread = true;
 						this->sig_DAQFinished();
+						frameCounter = 0;
 					}
 					else {
 						p.addData(dim, buffer, "Frame");
 						this->sendPayload(p);
-					}
-
-					frameCounter += 1;
+						frameCounter += _DAQParameters.BScansPerTransfer;
+					}					
 				}
+
+				PipelineStage::postStage();
 			}
 
 		};

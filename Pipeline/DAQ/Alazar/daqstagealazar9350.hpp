@@ -284,7 +284,8 @@ namespace OSIP{
 								p.addData(dim, buffer, label);
 								this->sendPayload(p);
 
-								if(_DAQParameters.TotalBuffers == 1 && _currentFrame == 10){
+
+								if(_DAQParameters.TotalBuffers == 1 && _currentFrame == 10){ //TODO: WTF is _currentFrame == 10?
 									_currentFrame = 0;
 								}else{
 									_currentFrame += 1;

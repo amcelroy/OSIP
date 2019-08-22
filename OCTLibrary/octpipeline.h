@@ -17,6 +17,7 @@
 #include "octconfigfile.h"
 #include "octdisplaystage.h"
 #include "nidaqmxgalvos.h"
+#include <daqstagegenerated.hpp>
 
 
 using namespace OSIP;
@@ -75,8 +76,8 @@ public:
     	switch(m_State){
     	case OCT_PIPELINE_STATES::DAQ:{
 			_Galvo = shared_ptr<niDAQMXGalvos>(new niDAQMXGalvos());
-    		_Loader = shared_ptr<DaqStageAlazar9350>(new DaqStageAlazar9350());
-    		DaqStageAlazar9350* daqstage = dynamic_cast<DaqStageAlazar9350*>(_Loader.get());
+    		_Loader = shared_ptr<DAQStageGenerate>(new DAQStageGenerate());
+			DAQStage<unsigned short>* daqstage = _Loader.get();
     		dp = OCTConfigFile::packageDAQParameters(m_OCTConfig, daqstage);
     		daqstage->updateDAQ(dp);
 			m_LoopDAQ = true;
@@ -210,13 +211,13 @@ public:
 		void startDAQ(const OCTConfig& config, bool saveData) {
 			m_OCTConfig = config;
 			DAQParameters dp;
-			DaqStageAlazar9350* daqstage;
+			DAQStage<unsigned short>* daqstage;
 			LoadOCTPipeline* load;
 
 			if (!m_DAQRunning) {
 				switch (m_State) {
 				case OCT_PIPELINE_STATES::DAQ:
-					daqstage = dynamic_cast<DaqStageAlazar9350*>(_Loader.get());
+					daqstage = _Loader.get();
 					dp = OCTConfigFile::packageDAQParameters(m_OCTConfig, daqstage);
 					daqstage->updateDAQ(dp);
 					daqstage->start();

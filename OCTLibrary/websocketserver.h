@@ -1,5 +1,5 @@
-#ifndef WEBSOCKETSERVER_H
-#define WEBSOCKETSERVER_H
+#ifndef __WEBSOCKETSERVER_H
+#define __WEBSOCKETSERVER_H
 
 #include <websocketpp/server.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>

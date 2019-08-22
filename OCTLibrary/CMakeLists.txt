@@ -37,6 +37,8 @@ set(NIDAQmx_H "" CACHE PATH "Path to NIDAQmx Headers")
 set(SZIP_LIB "" CACHE FILEPATH "Path to SZIP Library")
 set(SZIP_H "" CACHE PATH "Path to SZIP Headers")
 
+set(HTTPLIB_H "" CACHE PATH "Path to HTTPLIB Headers")
+
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
@@ -57,6 +59,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 					${HDF5_H}
 					${LIBPNG_H}
 					${NIDAQmx_H}
+					${HTTPLIB_H}
 					)
 
 link_directories(${Boost_LIBRARY_DIRS} ${HDF5_LIB_DIR})
@@ -73,6 +76,7 @@ add_executable(OSIP
 				octdisplaystage.h
 				loadoctpipeline.hpp 
 				octpipeline.h
+				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/daqstagegenerated.hpp
 				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/Alazar/daqstagealazar.hpp
 				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/Alazar/daqstagealazar660.hpp
 				${CMAKE_CURRENT_SOURCE_DIR}/../Pipeline/DAQ/Alazar/daqstagealazar9350.hpp

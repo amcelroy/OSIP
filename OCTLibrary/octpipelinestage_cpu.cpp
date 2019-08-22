@@ -172,7 +172,7 @@ void OCTPipelineStageCPU::work(){
 
 							//TODO: Add code to split up the b-scans
 							for (int i = 0; i < _BScansPerTransfer; i++) {
-								m_CurrentFrame = static_cast<unsigned int>(dim[3] * _BScansPerTransfer + i);
+								m_CurrentFrame = static_cast<unsigned int>(dim[3] + i);
 
 								auto intensity = shared_ptr<vector<float>>(new vector<float>(_fft_out_size*_AScansPerBScan)); //Ok
 								auto atten = shared_ptr<vector<float>>(new vector<float>(_fft_out_size*_AScansPerBScan));	//Ok
