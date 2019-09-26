@@ -35,7 +35,21 @@ void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr ms
 			m_OCT.stop();
 			m_OCT.start(m_octc, m_GalvoParameters, true);
         }else if(!request.compare("list")){
+			//TODO: Fetch pullbacks from the oct folder
+			string test[3] = { "1", "2", "3" };
 
+			path p = "c:\\oct_data";
+			directory_iterator it{ p };
+			vector<string> directory_list;
+			while (it != directory_iterator{}) {
+				directory_list.push_back((*it++).path().filename().string());
+			}
+
+			response = {
+				{"response", "pullbacks" },
+				{"pullback", directory_list }
+			};
+			m_WebsocketServer.send(hdl, response.dump(), websocketpp::frame::opcode::TEXT);
         }else if(!request.compare("run")){
             //Re-run the processing with the new values and wait for processing to finish
             //see datasetFinished()
@@ -57,6 +71,8 @@ void WebsocketServer::on_message(websocketpp::connection_hdl hdl, message_ptr ms
             return;
 		}
 		else if (!request.compare("stop")) {
+			//update the 
+
 			m_OCT.stop();
         }else if(!request.compare("load")){
             //request["path"];

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <octpipeline.h>
 #include <octconfigfile.h>
+#include <boost/filesystem.hpp>
 
 typedef websocketpp::server<websocketpp::config::asio> server;
 typedef server::message_ptr message_ptr;
@@ -18,6 +19,7 @@ using websocketpp::lib::bind;
 using json = nlohmann::json;
 
 using namespace std;
+using namespace boost::filesystem;
 
 class WebsocketServer
 {
