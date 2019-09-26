@@ -76,7 +76,7 @@ public:
     	switch(m_State){
     	case OCT_PIPELINE_STATES::DAQ:{
 			_Galvo = shared_ptr<niDAQMXGalvos>(new niDAQMXGalvos());
-    		_Loader = shared_ptr<DAQStageGenerate>(new DAQStageGenerate());
+    		_Loader = shared_ptr<DaqStageAlazar9350>(new DaqStageAlazar9350());
 			DAQStage<unsigned short>* daqstage = _Loader.get();
     		dp = OCTConfigFile::packageDAQParameters(m_OCTConfig, daqstage);
     		daqstage->updateDAQ(dp);
