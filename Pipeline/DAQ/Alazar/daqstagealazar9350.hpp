@@ -237,6 +237,8 @@ namespace OSIP{
 		        }
 
 		        void work() override {
+					unsigned long long frameCounter = 0;
+
 		        	m_DAQFinished = false;
 
 		        	unsigned long bufferSize = _DAQParameters.PointsPerTrigger*_DAQParameters.TriggersPerBuffer*_DAQParameters.BScansPerTransfer;
@@ -257,7 +259,6 @@ namespace OSIP{
 		        	log("Alazar Start Capture return code: " + to_string(m_Error));
 
 		        	if(m_Error == ApiSuccess){
-		        		unsigned long _currentFrame = 0;
 		        		//while(m_Error == ApiSuccess && stopThread == false){
 		        		while(stopThread == false){
 		        			if(pauseThread == true){
@@ -273,27 +274,25 @@ namespace OSIP{
 								dim.push_back(_DAQParameters.PointsPerTrigger);
 								dim.push_back(_DAQParameters.TriggersPerBuffer);
 								dim.push_back(_DAQParameters.BScansPerTransfer);
-								dim.push_back(_currentFrame);
+								dim.push_back(frameCounter);
 
 								string label = "ATS9350";
 
-								if (_currentFrame == _DAQParameters.TotalBuffers - 1) {
-									label = "final_frame";
-								}
 
-								p.addData(dim, buffer, label);
-								this->sendPayload(p);
-
-
-								if(_DAQParameters.TotalBuffers == 1 && _currentFrame == 10){ //TODO: WTF is _currentFrame == 10?
-									_currentFrame = 0;
+								if(frameCounter > _DAQParameters.TotalBuffers - 1){
+									//Stop thread
+									stopThread = true;
+									this->sig_DAQFinished();
+									frameCounter = 0;
 								}else{
-									_currentFrame += 1;
+									p.addData(dim, buffer, "Frame");
+									this->sendPayload(p);
+									frameCounter += _DAQParameters.BScansPerTransfer;
 								}
 
 								switch (m_Error) {
 									case ApiTransferComplete:
-										_currentFrame = 0;
+										frameCounter = 0;
 										stopThread = true;
 										break;
 									case ApiBufferOverflow:
